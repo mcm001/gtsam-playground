@@ -1,0 +1,5 @@
+robotpy-wpimath==2024.3.2.0
+gtsam==4.2
+plotly
+pandas
+matplotlib==3.1.3
