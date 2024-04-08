@@ -1,0 +1,3 @@
+[submodule "src/tagslam"]
+	path = src/tagslam
+	url = https://github.com/berndpfrommer/tagslam

@@ -10,46 +10,16 @@ A visualSLAM example for the structure-from-motion problem on a simulated datase
 This version uses iSAM to solve the problem incrementally
 """
 
-import math
-from typing import List
 import numpy as np
 import gtsam
 from gtsam.examples import SFMdata
 from gtsam import (Cal3_S2, GenericProjectionFactorCal3_S2,
                    NonlinearFactorGraph, NonlinearISAM, Pose3,
                    PriorFactorPoint3, PriorFactorPose3, Rot3,
-                   PinholeCameraCal3_S2, Values, Point3, Marginals, Pose2)
+                   PinholeCameraCal3_S2, Values, Point3, Marginals)
 from gtsam.symbol_shorthand import X, L
 from gtsam.utils import plot
 import matplotlib.pyplot as plt
-
-def create_apriltag_world_coordinates(id):
-    world2tag = Pose3(r=Rot3(),
-                      t=Point3(2,0,0))
-
-    TAG_SIZE = 0.1
-
-    points = [
-        Point3(0, TAG_SIZE/2, -TAG_SIZE/2),
-        Point3(0, -TAG_SIZE/2, -TAG_SIZE/2),
-        Point3(0, -TAG_SIZE/2, TAG_SIZE/2),
-        Point3(0, TAG_SIZE/2, TAG_SIZE/2),
-    ]
-
-    points = [world2tag.transformFrom(p) for p in points]
-
-    return points
-
-def createPoses() -> List[Pose3]:
-
-    ret = []
-
-    WORLD_TO_CAM = Pose3(r=Rot3.RzRyRx(-math.pi/2, 0, -math.pi/2), t=Point3(0,0,0))
-
-    for i in range(10):
-        ret.append(Pose2(r=Rot3(), t=Point3(i * 0.05, 0, 0)) * WORLD_TO_CAM)
-
-    return ret
 
 def main():
     """
@@ -64,14 +34,11 @@ def main():
     # Define the camera observation noise model
     camera_noise = gtsam.noiseModel.Isotropic.Sigma(
         2, 1.0)  # one pixel in u and v
-    
-    ODOMETRY_NOISE = gtsam.noiseModel.Diagonal.Sigmas(np.array([0.05, 0.05, 0.01]))
 
     # Create the set of ground-truth landmarks
-    points = create_apriltag_world_coordinates(1)
-
+    points = SFMdata.createPoints()
     # Create the set of ground-truth poses
-    poses = createPoses()
+    poses = SFMdata.createPoses(K)
 
     # Create a NonlinearISAM object which will relinearize and reorder the variables
     # every "reorderInterval" updates
@@ -99,10 +66,6 @@ def main():
         # Add an initial guess for the current pose
         initial_estimate.insert(X(i), initial_xi)
 
-        # Add odometry factors
-        for k in range(1, i+1):
-            graph.add(gtsam.BetweenFactorPose2(X(i-1), X(i), odom_twist, ODOMETRY_NOISE))
-
         # If this is the first iteration, add a prior on the first pose to set the coordinate frame
         # and a prior on the first landmark to set the scale
         # Also, as iSAM solves incrementally, we must wait until each is observed at least twice before
@@ -120,7 +83,7 @@ def main():
             graph.push_back(factor)
 
             # Add initial guesses to all observed landmarks
-            noise = np.array([0, 0, 0])
+            noise = np.array([-0.25, 0.20, 0.15])
             for j, point in enumerate(points):
                 # Intentionally initialize the variables off from the ground truth
                 initial_lj = points[j] + noise

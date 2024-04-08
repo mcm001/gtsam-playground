@@ -39,7 +39,7 @@ def generate_robot_one_tag():
 
         dx = 1 * dt
         dy = 0 * dt
-        dtheta = 0 * dt
+        dtheta = 0.3 * dt
 
         twist = Twist2d(dx, dy, dtheta)
         newpose = pose.exp(twist)
