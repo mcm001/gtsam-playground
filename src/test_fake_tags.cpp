@@ -21,8 +21,17 @@ using symbol_shorthand::X;
 // Make the typename short so it looks much cleaner
 typedef SmartProjectionPoseFactor<Cal3_S2> SmartFactor;
 
+/**
+ * This test does a couple things:
+ * - has a camera located at a known pose relative to the body
+ * - camera has known calibration and pixel noise
+ * - we start at a known pose (if i don't i get an indeterminant system; 
+ *   need more than one pixel observation on first loop to fully determine our pose3)
+ * - between states we use odometry BetweenFactors (which I -think- act similar to twists)
+ * - at each timestamp we observe a fixed point in space through our camera
+*/
 int main(int argc, char* argv[]) {
-  Cal3_S2::shared_ptr K(new Cal3_S2(50.0, 50.0, 0.0, 50.0, 50.0));
+  Cal3_S2::shared_ptr K(new Cal3_S2(1000, 1000, 0.0, 320, 240));
 
   auto measurementNoise =
       noiseModel::Isotropic::Sigma(2, 1.0);  // one pixel in u and v
@@ -53,6 +62,7 @@ int main(int argc, char* argv[]) {
   // Intentionally initialize the variables off from the ground truth
   Pose3 delta(Rot3::Rodrigues(0.0, 0.0, 0.0), Point3(0.05, -0.10, 0.20));
 
+  // Ground truth poses for our robot's trajectory
   Pose3 pose1(Rot3(), Point3(0.0, 0.0, 0.0));
   Pose3 pose2(Rot3(), Point3(0.0, 0.2, 0.0));
   Pose3 pose3(Rot3(), Point3(0.0, 0.4, 0.0));
