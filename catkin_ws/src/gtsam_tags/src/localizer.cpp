@@ -1,4 +1,7 @@
 #include "localizer.h"
+#include "gtsam/nonlinear/Expression.h"
+#include "gtsam/slam/expressions.h"
+#include <algorithm>
 
 using namespace gtsam;
 using symbol_shorthand::L;
@@ -22,6 +25,25 @@ namespace TagModel
         {width / 2.0, -width / 2.0, 0},
         {-width / 2.0, -width / 2.0, 0},
     };
+
+    map<int, Pose3> worldTtags {
+        {1, Pose3{ Rot3::RzRyRx(0, 0, 0), Point3{2, 0, 0} }}
+        {2, Pose3{ Rot3::RzRyRx(0, 0, 0), Point3{2, 0, 0} }}
+    };
+
+    vector<Point3> WorldToCorners(int id) {
+        auto maybePose = worldTtags.find(id);
+        if (maybePose == worldTtags.end()) {
+            // panic lol
+            return {};
+        }
+        Pose3 worldTtag = maybePose->second;
+
+        vector<Point3> out(4);
+        std::transform(tagToCorners.begin(), tagToCorners.end(), out.begin(), &Pose3::transformFrom);
+
+        return out;
+    }
 };
 
 struct TagCorner
@@ -33,7 +55,7 @@ struct TagCorner
 };
 
 Localizer::Localizer(
-    Cal3_S2::shared_ptr cameraCal, Pose3 bodyPcamera,
+    Cal3_S2 cameraCal, Pose3 bodyPcamera,
     SharedNoiseModel cameraNoise,
     SharedNoiseModel odometryNoise,
     SharedNoiseModel posePriorNoise,
@@ -66,28 +88,35 @@ void Localizer::AddOdometry(Pose3 twist)
 
 void Localizer::AddTagObservation(Key state, int tagID, vector<Point2> corners)
 {
-    for (size_t i = 0; i < NUM_CORNERS; i++) {
+    auto worldPcorners = TagModel::WorldToCorners(tagID);
+
+    for (size_t i = 0; i < NUM_CORNERS; i++)
+    {
         auto key = TagIdToKey(tagID, i);
-        auto landmarkEntry = landmarks.find(key);
-        SmartFactor::shared_ptr l;
 
-        if (landmarkEntry == landmarks.end()) {
-            // Create a new factor for this corner
-            l = SmartFactor::shared_ptr(new SmartFactor(cameraNoise, cameraCal, bodyPcamera));
-            landmarks[key] = l;
+        // corner in image space
+        Point2 measurement = corners[i];
 
-            graph.push_back(l);
-        } else {
-            l = landmarks[key];
-        }
+        // current world->body pose
+        const Pose3_  worldTbody_fac(state);
+        // world->camera pose as a composition of world->body factory and body->camera factor
+        const Pose3_ worldTcamera_fac = Pose3_(worldTbody_fac, &Pose3::transformPoseFrom, Pose3_(bodyPcamera));
+        // Camera->tag corner vector
+        const Point3_ camPcorner = transformTo(worldTcamera_fac, worldPcorners[i]);
+        // project from vector down to pinhole location, then uncalibrate to pixel locations
+        const Point2_ prediction = uncalibrate<Cal3_S2>(cameraCal, project(camPcorner));
 
-        // we now have a valid landmark identified
-        auto measurement = corners[i];
-        l->add(measurement, state);
+        graph.addExpressionFactor(cameraNoise, measurement, prediction);
     }
 }
 
 Pose3 Localizer::Optimize()
 {
+    isam.update(graph, currentEstimate);
+
+    // reset the graph; isam wants to be fed factors to be -added-
+    graph.resize(0);
+    currentEstimate.clear();
+
     return isam.calculateEstimate<Pose3>(currStateIdx);
 }

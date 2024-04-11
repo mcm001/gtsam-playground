@@ -18,7 +18,7 @@ class Localizer
 
 public:
     Localizer(
-        Cal3_S2::shared_ptr cameraCal,
+        Cal3_S2 cameraCal,
         Pose3 bodyTcamera,
         SharedNoiseModel cameraNoise,
         SharedNoiseModel odometryNoise,
@@ -31,7 +31,7 @@ public:
     Pose3 Optimize();
 
 private:
-    Cal3_S2::shared_ptr cameraCal;
+    Cal3_S2_ cameraCal;
     Pose3 bodyPcamera;
     SharedNoiseModel cameraNoise;
     SharedNoiseModel odometryNoise;
