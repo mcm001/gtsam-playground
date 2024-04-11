@@ -7,7 +7,7 @@ Localizer CreateLocalizer()
 {
 
     // setup noise using fake numbers
-    Cal3_S2::shared_ptr K(new Cal3_S2(1300, 1300, 0, 1000, 500));
+    Cal3_S2 K(1300, 1300, 0, 1000, 500);
     // Pixel noise, in u,v coordinates
     auto measurementNoise =
         noiseModel::Isotropic::Sigma(2, 2.0);
@@ -23,8 +23,10 @@ Localizer CreateLocalizer()
     odomSigma << Vector3::Constant(0.001), Vector3::Constant(0.05);
     auto odometryNoise = noiseModel::Diagonal::Sigmas(odomSigma);
 
+    Cal3_S2_ cal(K);
+
     return Localizer{
-        K,
+        cal,
         Pose3{},
         measurementNoise, odometryNoise, posePriorNoise, Pose3{}};
 }

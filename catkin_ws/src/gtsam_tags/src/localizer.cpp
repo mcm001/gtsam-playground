@@ -39,7 +39,7 @@ namespace TagModel
         Pose3 worldTtag = maybePose->second;
 
         vector<Point3> out(4);
-        std::transform(tagToCorners.begin(), tagToCorners.end(), out.begin(), &Pose3::transformFrom);
+        std::transform(tagToCorners.begin(), tagToCorners.end(), out.begin(), [&worldTtag](const auto& p) { return worldTtag.transformFrom(p); });
 
         return out;
     }
@@ -54,7 +54,7 @@ struct TagCorner
 };
 
 Localizer::Localizer(
-    Cal3_S2 cameraCal, Pose3 bodyPcamera,
+    Cal3_S2_ cameraCal, Pose3 bodyPcamera,
     SharedNoiseModel cameraNoise,
     SharedNoiseModel odometryNoise,
     SharedNoiseModel posePriorNoise,
@@ -105,7 +105,7 @@ void Localizer::AddTagObservation(Key state, int tagID, vector<Point2> corners)
         // project from vector down to pinhole location, then uncalibrate to pixel locations
         const Point2_ prediction = uncalibrate<Cal3_S2>(cameraCal, project(camPcorner));
 
-        graph.addExpressionFactor(cameraNoise, measurement, prediction);
+        graph.addExpressionFactor(prediction, measurement, cameraNoise);
     }
 }
 

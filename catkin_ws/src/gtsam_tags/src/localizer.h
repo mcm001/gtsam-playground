@@ -1,5 +1,6 @@
 #pragma once
 
+#include <gtsam/nonlinear/ExpressionFactorGraph.h>
 #include <gtsam/geometry/PinholeCamera.h>
 #include <gtsam/geometry/Cal3_S2.h>
 #include <gtsam/nonlinear/ISAM2.h>
@@ -19,7 +20,7 @@ class Localizer
 
 public:
     Localizer(
-        Cal3_S2 cameraCal,
+        Cal3_S2_ cameraCal,
         Pose3 bodyTcamera,
         SharedNoiseModel cameraNoise,
         SharedNoiseModel odometryNoise,
@@ -38,7 +39,7 @@ private:
     SharedNoiseModel odometryNoise;
     SharedNoiseModel posePriorNoise;
 
-    NonlinearFactorGraph graph;
+    ExpressionFactorGraph graph;
     Values currentEstimate;
 
     ISAM2 isam;
