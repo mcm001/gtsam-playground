@@ -5,6 +5,7 @@
 #include <gtsam/nonlinear/ISAM2.h>
 #include <gtsam/slam/BetweenFactor.h>
 #include <gtsam/slam/SmartProjectionPoseFactor.h>
+#include "gtsam/slam/expressions.h"
 
 using namespace gtsam;
 using std::map;

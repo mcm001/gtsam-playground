@@ -1,6 +1,5 @@
 #include "localizer.h"
 #include "gtsam/nonlinear/Expression.h"
-#include "gtsam/slam/expressions.h"
 #include <algorithm>
 
 using namespace gtsam;
@@ -27,7 +26,7 @@ namespace TagModel
     };
 
     map<int, Pose3> worldTtags {
-        {1, Pose3{ Rot3::RzRyRx(0, 0, 0), Point3{2, 0, 0} }}
+        {1, Pose3{ Rot3::RzRyRx(0, 0, 0), Point3{2, 0, 0} }},
         {2, Pose3{ Rot3::RzRyRx(0, 0, 0), Point3{2, 0, 0} }}
     };
 
