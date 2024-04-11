@@ -26,6 +26,7 @@ using LandmarkMap = map<Key, SmartFactor::shared_ptr>;
 constexpr int NUM_CORNERS = 4;
 
 gtsam::Key TagIdToKey(int tagID, int corner) {
+  // L-shorthand for landmark
   return L(NUM_CORNERS * tagID + corner);
 }
 
@@ -79,9 +80,12 @@ int main(int argc, char* argv[]) {
   // approx a 1080p c920
   Cal3_S2::shared_ptr K(new Cal3_S2(1300, 1300, 0, 1000, 500));
 
+  // Pixel noise, in u,v coordinates
   auto measurementNoise =
-      noiseModel::Isotropic::Sigma(2, 1.0);  // one pixel in u and v
+      noiseModel::Isotropic::Sigma(2, 2.0); 
 
+  // Noise on the prior factor we use to anchor the first pose. 
+  // TODO: If we initialize with enough measurements, we might be able to delete this prior?
   Vector6 sigmas;
   sigmas << Vector3::Constant(0.1), Vector3::Constant(0.3);
   auto posePriorNoise = noiseModel::Diagonal::Sigmas(sigmas);
@@ -104,7 +108,8 @@ int main(int argc, char* argv[]) {
   Values initialEstimate;
 
   vector<TagCorner> tagCorners {
-    {1, 0, {1, 2, 0}},
+    {1, 0, {0.0, 0.0, 1.0}},
+    {1, 1, {0.0, 0.1, 1.0}},
     // {1, 0, {1, 1, 1}},
     // {1, 1, {0, 0, 1}},
     // {1, 2, {0.1, 0, 1}},
@@ -118,10 +123,10 @@ int main(int argc, char* argv[]) {
   // Ground truth poses for our robot's trajectory
   // we strafe in +y (so left in the robot frame)
   Pose3 pose1(Rot3(), Point3(0.0, 0.0, 0.0));
-  Pose3 pose2(Rot3(), Point3(0, .2, 0.0));
-  Pose3 pose3(Rot3(), Point3(0, .4, 0.0));
-  Pose3 pose4(Rot3(), Point3(0, .5, 0.0));
-  Pose3 pose5(Rot3(), Point3(0, .6, 0.0));
+  Pose3 pose2(Rot3(), Point3(0.0, 0.2, 0.0));
+  Pose3 pose3(Rot3(), Point3(0.0, 0.4, 0.0));
+  Pose3 pose4(Rot3(), Point3(0.0, 0.5, 0.0));
+  Pose3 pose5(Rot3(), Point3(0.0, 0.6, 0.0));
 
   vector<Pose3> poses = {pose1, pose2, pose3, pose4, pose5};
 
@@ -131,7 +136,8 @@ int main(int argc, char* argv[]) {
 
   // body-camera transform
   // Camera +Z points out of the camera, so rotate camera 90 about +x so we have a camera pointing out the left of the robot
-  Pose3 body_P_sensor {Rot3::Rx(-90 * 3.141592 / 180.0), Point3{}};
+  // Pose3 body_P_sensor {Rot3::Rx(-90 * 3.141592 / 180.0), Point3{}};
+  Pose3 body_P_sensor {};
 
   // Each landmark we can observe multiple times needs its own smartfactor
   LandmarkMap landmarks;
