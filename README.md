@@ -31,7 +31,7 @@ Publishers
 You'll probably need to additionally install these packages:
 
 ```
-libboost-dev-all protobuf-compiler
+libboost-all-dev protobuf-compiler ninja-build
 ```
 
 # Notes
