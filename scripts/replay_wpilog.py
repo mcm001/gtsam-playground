@@ -14,47 +14,14 @@ from photonlibpy.packet import Packet
 from wpimath.geometry import Translation2d
 from ntcore import GenericPublisher, NetworkTableInstance, Value, _now
 
-
-@dataclass
-class SwerveModuleState:
-    speedMps: float
-    angleRad: float
-
-
-@dataclass
-class TagDetection:
-    id: int
-    corner: List[Translation2d]
-
-
-def decodeStates(raw: bytes):
-    schema = "<dddddddd"
-    state = struct.unpack(schema, raw)
-    return [SwerveModuleState(state[i], state[i + 1]) for i in range(0, 8, 2)]
-
-
-def decodeTagId(raw: bytes) -> TagDetection:
-    schema = "<idddddddd"
-    data = struct.unpack(schema, raw)
-    return TagDetection(
-        data[0], [Translation2d(data[i], data[i + 1]) for i in range(1, 9, 2)]
-    )
-
-
-def decodePacket(raw: bytes):
-    if len(raw) < 1:
-        return None
-
-    result = PhotonPipelineResult().populateFromPacket(Packet(raw))
-    print(result)
-    return result
-
-
 NetworkTableInstance.getDefault().stopClient()
 NetworkTableInstance.getDefault().startServer()
 
 
 def recordToNt(record: DataLogRecord, entry: GenericPublisher):
+    """
+    Publish a record to NT
+    """
     type = entry.getTopic().getTypeString()
     print("publishing a " + type)
 
@@ -95,7 +62,9 @@ def topicNameToPublisher(start: StartRecordData):
     )
 
 
+# map of topic ID to publisher
 topicMap = {}
+# (expanding) list of regexes to test topics against
 ignoredTopics = ["NT:/cam/tags/.*", "NT:/photonvision/YOUR CAMERA NAME/rawBytes/.*"]
 
 sysToNtOffset = None
@@ -114,7 +83,6 @@ for msg in wpilog:
                 or start.type.startswith("struct:")
                 or start.type.startswith("proto:")
             ):
-                # print("adding to ignore: " + start.name)
                 ignoredTopics.append(start.name)
         continue
 
@@ -140,10 +108,4 @@ for msg in wpilog:
             sleep(dt / 1e6)
 
         pub: GenericPublisher = topicMap[entry]
-
         recordToNt(msg, pub)
-
-        # print(pub.getTopic().getType())
-        # ret = Value.makeValue(msg.getRaw())
-        # print(f"{pub.getTopic().getName()} <- {ret}")
-        # pub.set(ret)
