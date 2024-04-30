@@ -159,14 +159,14 @@ int main(int argc, char **argv) {
     for (auto o : odom) {
       auto twist = o.value;
 
-      Pose3 gtsamTwist = Pose3::Expmap(
+      Pose3 odomPoseDelta = Pose3::Expmap(
           (Vector6() << twist.rx.to<double>(), twist.ry.to<double>(),
            twist.rz.to<double>(), twist.dx.to<double>(), twist.dy.to<double>(),
            twist.dz.to<double>())
               .finished());
 
       try {
-        localizer.AddOdometry(gtsamTwist, units::microsecond_t{o.time});
+        localizer.AddOdometry(odomPoseDelta, units::microsecond_t{o.time});
       } catch (std::exception e) {
         fmt::println("whoops, {}", e.what());
       }
