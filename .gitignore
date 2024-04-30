@@ -162,3 +162,11 @@ cython_debug/
 build*/*
 devel
 *perf*
+
+# compile_commands
+compile_commands.json
+
+# clang configuration and clangd cache
+.clang
+.clangd/
+.cache/
