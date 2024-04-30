@@ -22,7 +22,7 @@ Uncomment the majority of src/gtsam_tags_node.cpp and fix any errors before usin
 
 I visualize output data usually using advantagescope. The 3d visualizer is great.
 
-In order for the dats transfer to work properly, start advantagescope, then sim, then run gtsam-node. If using the /robot/multi_tag_pose topic in advantagescope, note that it will only update while tags are visible.
+In order for the data transfer to work properly, start advantagescope, then sim, then run gtsam-node. The /SmartDashboard/VisionSystemSim-main/Sim Field/Gtsam Robot topic will show the fused pose of the robot.
 
 # NT API
 
