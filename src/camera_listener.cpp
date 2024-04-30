@@ -62,7 +62,7 @@ void CameraListener::Update() {
 
       try {
         localizer->AddTagObservation(t.id, cornersForGtsam,
-                                     units::microsecond_t{tarr.time});
+                                     tarr.time);
       } catch (std::exception e) {
         fmt::println("exception adding tag, {}", e.what());
       }

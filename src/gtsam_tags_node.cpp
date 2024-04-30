@@ -166,7 +166,7 @@ int main(int argc, char **argv) {
               .finished());
 
       try {
-        localizer.AddOdometry(odomPoseDelta, units::microsecond_t{o.time});
+        localizer.AddOdometry(odomPoseDelta, o.time);
       } catch (std::exception e) {
         fmt::println("whoops, {}", e.what());
       }
@@ -177,16 +177,16 @@ int main(int argc, char **argv) {
       std::vector<double> seenCorners;
       // fmt::println("Update from {}:", tarr.time);
 
-      for (const auto &t : tarr.value) {
+      for (const auto &tag : tarr.value) {
         {
           vector<Point2> cornersForGtsam;
-          for (const auto &c : t.corners) {
+          for (const auto &c : tag.corners) {
             cornersForGtsam.emplace_back(c.first, c.second);
           }
 
           try {
-            localizer.AddTagObservation(t.id, cornersForGtsam,
-                                        units::microsecond_t{tarr.time});
+            localizer.AddTagObservation(tag.id, cornersForGtsam,
+                                        tarr.time);
           } catch (std::exception e) {
             fmt::println("whoops tag, {}", e.what());
           }
@@ -194,7 +194,7 @@ int main(int argc, char **argv) {
 
         // Publish reprojected corners
         try {
-          auto worldPtag_opt = TagModel::WorldToCorners(t.id);
+          auto worldPtag_opt = TagModel::WorldToCorners(tag.id);
           if (worldPtag_opt) {
             auto worldPtag = worldPtag_opt.value();
             auto worldTrobot = localizer.GetLatestWorldToBody();
@@ -204,7 +204,7 @@ int main(int argc, char **argv) {
               corners.push_back(prediction.x());
               corners.push_back(prediction.y());
             }
-            for (auto seenCorner : t.corners) {
+            for (auto seenCorner : tag.corners) {
               seenCorners.push_back(seenCorner.first);
               seenCorners.push_back(seenCorner.second);
             }

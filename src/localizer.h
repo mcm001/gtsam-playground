@@ -50,10 +50,10 @@ public:
             SharedNoiseModel odometryNoise, SharedNoiseModel posePriorNoise,
             Pose3 initialPose);
 
-  void AddOdometry(Pose3 twist, units::microsecond_t time);
+  void AddOdometry(Pose3 twist, uint64_t timeUs);
 
   void AddTagObservation(int tagID, vector<Point2> corners,
-                         units::microsecond_t time);
+                         uint64_t timeUs);
 
   void Optimize();
 

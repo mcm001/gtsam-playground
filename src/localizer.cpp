@@ -65,8 +65,8 @@ Localizer::Localizer(Cal3_S2_ cameraCal, Pose3 bodyPcamera,
   Optimize();
 }
 
-void Localizer::AddOdometry(Pose3 poseDelta, units::microsecond_t time) {
-  Key newStateIdx = X(time.to<uint64_t>());
+void Localizer::AddOdometry(Pose3 poseDelta, uint64_t timeUs) {
+  Key newStateIdx = X(timeUs);
 
   // Add an odometry pose delta from our last state to our new one
   graph.emplace_shared<BetweenFactor<Pose3>>(currStateIdx, newStateIdx,
@@ -76,7 +76,7 @@ void Localizer::AddOdometry(Pose3 poseDelta, units::microsecond_t time) {
   wTb_latest = wTb_latest.transformPoseFrom(poseDelta);
   currentEstimate.insert(newStateIdx, wTb_latest);
 
-  newTimestamps[newStateIdx] = time.to<double>();
+  newTimestamps[newStateIdx] = timeUs;
   twistsFromPreviousKey[newStateIdx] = poseDelta;
 
   currStateIdx = newStateIdx;
@@ -363,7 +363,7 @@ Key Localizer::GetOrInsertKey(Key newKey, double time) {
 }
 
 void Localizer::AddTagObservation(int tagID, vector<Point2> corners,
-                                  units::microsecond_t time) {
+                                  uint64_t timeUs) {
   auto worldPcorners_opt = TagModel::WorldToCorners(tagID);
   if (!worldPcorners_opt) {
     // todo return bad thing
@@ -371,8 +371,7 @@ void Localizer::AddTagObservation(int tagID, vector<Point2> corners,
   }
   auto worldPcorners = worldPcorners_opt.value();
 
-  double timeUs = time.to<double>();
-  Key newKey = X(time.to<uint64_t>());
+  Key newKey = X(timeUs);
 
   // Find where we should attach our new factors to
   Key stateAtTime = GetOrInsertKey(newKey, timeUs);
