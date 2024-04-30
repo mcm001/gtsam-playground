@@ -67,7 +67,7 @@ void OdomListener::Update() {
     }
 
     Pose3 wTr = FrcToGtsamPose3(last_wTr.value);
-    localizer->AddPosePrior(wTr, priorNosie, last_wTr.time);
+    localizer->Reset(wTr, priorNosie, last_wTr.time);
 
     hasInitialGuess = true;
   }

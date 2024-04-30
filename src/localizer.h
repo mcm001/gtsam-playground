@@ -51,7 +51,7 @@ public:
   /**
    * Add a prior factor on the world->robot pose
   */
-  void AddPosePrior(Pose3 wTr, SharedNoiseModal noise, uint64_t timeUs)  
+  void Reset(Pose3 wTr, SharedNoiseModal noise, uint64_t timeUs)  
 
   void AddOdometry(Pose3 twist,SharedNoiseModal noise, uint64_t timeUs);
 

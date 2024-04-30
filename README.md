@@ -14,17 +14,43 @@ I visualize output data usually using advantagescope. The 3d visualizer is great
 
 # NT API
 
-As of right now, these are our publishers/subscribers. The set timestamp is used for latency compensation.
+As of right now, these are our publishers/subscribers. The NT4-provided set timestamp is used for latency compensation. The list of camera names is configured by changing the config JSON, located at a hard-coded path relative to the current working directory. The JSON example below shows two cameras with given tag corner pixel standard deviations, plus global odometry standard deviations on rotation and translation.
+
+```json
+{
+    "rootTableName": "gtsam_meme_localizer1",
+    "cameras": [
+        {
+            "subtableName": "sim_camera1",
+            "pixelNoise": 10
+        },
+        {
+            "subtableName": "sim_camera2",
+            "pixelNoise": 12
+        }
+    ],
+    "rotNoise": [ 0.087263889, 0.087263889, 0.087263889 ],
+    "transNoise": [ 0.087263889, 0.087263889, 0.087263889 ]
+}
+
+```
 
 Subscribers
-- /cam/tags: TagDetection struct
-- /robot/odom: Robot twist from previous odom message
+
+| Topic                                     | Type                  | Remark                                                                            |
+|-------------------------------------------|-----------------------|-----------------------------------------------------------------------------------|
+| {root}/{camera name}/input/tags           | [struct:TagDetection[]](https://github.com/PhotonVision/champs_2024/blob/gtsam-testing/sim_projects/apriltag_yaw_only/src/main/java/frc/robot/TagDetectionStruct.java) | List of currently observed tags. The image coordinates must be un-distorted first |
+| {root}/{camera name}/input/robotTcam      | struct:Transform3d    | Current robot->camera transform                                                   |
+| {root}/{camera name}/input/cam_intrinsics | double[]              | Camera pinhole-only intrinsics, order must be [fx fy cx cy]                       |
+| {root}/input/odom_twist                   | struct:Twist3d        | Twist from the last timestamp to now                                              |
 
 Publishers
-- /cam/gtsam_seen_corners: Measured tag corners from cameras for valid tags on our map
-- /cam/gtsam_predicted_corners: Expected tag corner locations. Not latency compensated, only valid when not moving.
-- /cam/update_dt_ms: How long the update loop took to add all new factors and re-optimize.
-- /cam/std_dev: Standard deviations for pose estimate, order is [rx ry rz tx ty tz]
+
+| Topic                        | Type            | Remark                                                                         |
+|------------------------------|-----------------|--------------------------------------------------------------------------------|
+| {root}/output/optimized_pose | struct:Pose3d   | The optimized pose/its timestamp                                               |
+| {root}/output/optimized_traj | struct:Pose3d[] | List of (some subset of) optimized past poses over time                        |
+| {root}/output/pose_stddev    | double[]        | Standard deviation of most recent optimized pose. Order is [rx ry rz tx ty tz] |
 
 # Packages
 

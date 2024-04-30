@@ -54,13 +54,23 @@ Localizer::Localizer() {
   // Optimize();
 }
 
-void AddPosePrior(Pose3 wTr, SharedNoiseModal noise, uint64_t timeUs) {
+void Reset(Pose3 wTr, SharedNoiseModal noise, uint64_t timeUs) {
+  currStateIdx = X(timeUs);
+
+  smootherISAM2 = IncrementalFixedLagSmoother(smootherISAM2.smootherLag(), 
+    smootherISAM2.params());
+
+  graph.resize(0);
+  currentEstimate.clear();
+  newTimestamps.clear();
+  factorsToRemove.clear();
+
   // Anchor graph using initial pose
   graph.addPrior(X(0), wTr, posePriorNoise);
   currentEstimate.insert(X(timeUs), wTr);
   newTimestamps[X(timeUs)] = 0.0;
 
-  wTb_latest = initialPose;
+  wTb_latest = wTr;
 }
 
 void Localizer::AddOdometry(Pose3 poseDelta, SharedNoiseModal odometryNoise, uint64_t timeUs) {
