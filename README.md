@@ -1,6 +1,8 @@
 # Setup 
 
-You'll probably need to additionally install these packages:
+These instructions are intended for use on Linux (including WSL) only.
+
+You'll probably need to install these packages:
 
 ```
 libboost-dev-all protobuf-compiler ninja-build
@@ -12,7 +14,7 @@ Use this one-line cmake incantation:
 cmake -B build -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo
 ```
 
-Uncomment the majority of src/gtsam_tags_node.cpp and fix any errors before using cmake to build.
+Uncomment the majority of src/gtsam_tags_node.cpp and fix any errors before using cmake to build. Depending on your RAM, you may need to use `-j <number>` to control the number of jobs.
 
 # Running a photon sim example
 
