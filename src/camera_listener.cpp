@@ -26,16 +26,33 @@
 
 #include <networktables/NetworkTableInstance.h>
 
+#include "gtsam_utils.h"
 #include "localizer.h"
 
 using std::vector;
 using namespace gtsam;
 
-CameraListener::CameraListener(CameraConfig config,
+CameraListener::CameraListener(std::string_view rootTable, CameraConfig config,
                                std::shared_ptr<Localizer> localizer_)
-    : localizer(localizer_),
+    : config(config), localizer(localizer_),
       tagSub(nt::NetworkTableInstance::GetDefault()
-                 .GetStructArrayTopic<TagDetection>("/cam/tags")
+                 .GetStructArrayTopic<TagDetection>(rootTable + config.m_subtagleName + "/input/tags")
+                 .Subscribe({},
+                            {
+                                .pollStorage = 100,
+                                .sendAll = true,
+                                .keepDuplicates = true,
+                            })),
+      robotTcamSub(nt::NetworkTableInstance::GetDefault()
+                 .GetStructTopic<frc::Transform3d>(rootTable + config.m_subtagleName + "/input/robotTcam")
+                 .Subscribe({},
+                            {
+                                .pollStorage = 100,
+                                .sendAll = true,
+                                .keepDuplicates = true,
+                            })),
+      pinholeIntrinsicsSub(nt::NetworkTableInstance::GetDefault()
+                 .GetDoubleArrayTopic(rootTable + config.m_subtagleName + "/input/cam_intrinsics")
                  .Subscribe({},
                             {
                                 .pollStorage = 100,
@@ -44,10 +61,46 @@ CameraListener::CameraListener(CameraConfig config,
                             })),
       measurementNoise(noiseModel::Isotropic::Sigma(2, config.m_pixelNoise)) {}
 
+
 void CameraListener::Update() {
   if (!localizer) {
     throw std::runtime_error("Localizer was null");
   }
+
+  // grab the latest camera cal
+  const auto last_K = pinholeIntrinsicsSub.GetAtomic();
+  // if not published, time will be zero
+  if (last_rTc.time > 0) {
+    // Update calibration!
+    std::vector<double> K_ = last_K.value;
+    if (K_.size() != 4) {
+      fmt::println("Camera {}: K of odd size {}?", config.m_subtableName, K_.size());
+      return;
+    }
+    // assume order is [fx fy cx cy] from NT
+    cameraK = Cal3_S2{
+      K_[0],
+      K_[1],
+      0, // no skew
+      K_[2],
+      K_[3]
+    };
+    cameraK.print("New camera calibration");
+  }
+  if (!cameraK) {
+    fmt::println("Camera {}: no intrinsics set?", config.m_subtableName);
+    return;
+  }
+
+  // grab the latest robot-cam transform
+  const auto last_rTc = robotTcamSub.GetAtomic();
+  // if not published, time will be zero
+  if (last_rTc.time == 0) {
+    fmt::println("Camera {}: no robot-cam set?", config.m_subtableName);
+    return;
+  }
+
+  Pose3 robotTcam = FrcToGtsamPose3(last_rTc.value);
 
   const auto tags = tagSub.ReadQueue();
 
@@ -61,8 +114,8 @@ void CameraListener::Update() {
       }
 
       try {
-        localizer->AddTagObservation(t.id, cornersForGtsam,
-                                     tarr.time);
+        localizer->AddTagObservation(t.id, robotTcam, cornersForGtsam,
+                                    measurementNoise, tarr.time);
       } catch (std::exception e) {
         fmt::println("exception adding tag, {}", e.what());
       }

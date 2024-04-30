@@ -36,8 +36,6 @@ struct CameraConfig {
   std::string m_subtableName;
 
   double m_pixelNoise;
-  std::vector<double> m_rotNoise;
-  std::vector<double> m_transNoise;
 };
 
 // Print CameraConfigs using fmtlib
@@ -52,9 +50,14 @@ template <> struct fmt::formatter<CameraConfig> : formatter<string_view> {
 };
 
 struct LocalizerConfig {
+  std::string rootTableName = "/gtsam_meme/"
   std::vector<CameraConfig> cameras;
 
   void print(std::string_view prefix = "");
+
+  // odometry noise factors
+  std::vector<double> rotNoise;
+  std::vector<double> transNoise;
 };
 
 LocalizerConfig ParseConfig(std::string_view path);

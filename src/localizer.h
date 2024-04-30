@@ -46,14 +46,17 @@ class Localizer {
   using LandmarkMap = map<Key, SmartFactor::shared_ptr>;
 
 public:
-  Localizer(Cal3_S2_ cameraCal, Pose3 bodyTcamera, SharedNoiseModel cameraNoise,
-            SharedNoiseModel odometryNoise, SharedNoiseModel posePriorNoise,
-            Pose3 initialPose);
+  Localizer();
 
-  void AddOdometry(Pose3 twist, uint64_t timeUs);
+  /**
+   * Add a prior factor on the world->robot pose
+  */
+  void AddPosePrior(Pose3 wTr, SharedNoiseModal noise, uint64_t timeUs)  
 
-  void AddTagObservation(int tagID, vector<Point2> corners,
-                         uint64_t timeUs);
+  void AddOdometry(Pose3 twist,SharedNoiseModal noise, uint64_t timeUs);
+
+  void AddTagObservation(int tagID, Cal3_S2_ cameraCal, Pose3 robotTcamera, vector<Point2> corners,
+      SharedNoiseModal noise, uint64_t timeUs);
 
   void Optimize();
 
@@ -84,12 +87,6 @@ protected:
   Key InsertIntoSmoother(Key lower, Key upper, Key newKey, double newTime);
 
   Key GetOrInsertKey(Key newKey, double time);
-
-  Cal3_S2_ cameraCal;
-  Pose3 bodyPcamera;
-  SharedNoiseModel cameraNoise;
-  SharedNoiseModel odometryNoise;
-  SharedNoiseModel posePriorNoise;
 
   // New factor graph to add to our smoother at the next call to Optimize()
   ExpressionFactorGraph graph{};

@@ -35,12 +35,7 @@ using symbol_shorthand::X;
 
 constexpr int NUM_CORNERS = 4;
 
-Localizer::Localizer(Cal3_S2_ cameraCal, Pose3 bodyPcamera,
-                     SharedNoiseModel cameraNoise,
-                     SharedNoiseModel odometryNoise,
-                     SharedNoiseModel posePriorNoise, Pose3 initialPose)
-    : cameraCal(cameraCal), bodyPcamera(bodyPcamera), cameraNoise(cameraNoise),
-      odometryNoise(odometryNoise), posePriorNoise(posePriorNoise) {
+Localizer::Localizer() {
   ISAM2Params parameters;
   // parameters.relinearizeThreshold = 0.01;
   // parameters.relinearizeSkip = 1;
@@ -54,18 +49,21 @@ Localizer::Localizer(Cal3_S2_ cameraCal, Pose3 bodyPcamera,
   double lag = 5 * 1e6;
   smootherISAM2 = IncrementalFixedLagSmoother(lag, parameters);
 
-  // Anchor graph using initial pose
-  graph.addPrior(X(0), initialPose, posePriorNoise);
-  currentEstimate.insert(X(0), initialPose);
-  newTimestamps[X(0)] = 0.0; // TODO this is a total hack
-
-  wTb_latest = initialPose;
-
-  // And make sure to call optimize first to get values
-  Optimize();
+  // // And make sure to call optimize first to get values
+  // TODO i killed maybe needed, idk
+  // Optimize();
 }
 
-void Localizer::AddOdometry(Pose3 poseDelta, uint64_t timeUs) {
+void AddPosePrior(Pose3 wTr, SharedNoiseModal noise, uint64_t timeUs) {
+  // Anchor graph using initial pose
+  graph.addPrior(X(0), wTr, posePriorNoise);
+  currentEstimate.insert(X(timeUs), wTr);
+  newTimestamps[X(timeUs)] = 0.0;
+
+  wTb_latest = initialPose;
+}
+
+void Localizer::AddOdometry(Pose3 poseDelta, SharedNoiseModal odometryNoise, uint64_t timeUs) {
   Key newStateIdx = X(timeUs);
 
   // Add an odometry pose delta from our last state to our new one
@@ -362,11 +360,12 @@ Key Localizer::GetOrInsertKey(Key newKey, double time) {
   // }
 }
 
-void Localizer::AddTagObservation(int tagID, vector<Point2> corners,
-                                  uint64_t timeUs) {
+void Localizer::AddTagObservation(int tagID, Cal3_S2_ cameraCal, Pose3 robotTcamera, vector<Point2> corners,
+                                  SharedNoiseModal cameraNoise, uint64_t timeUs) {
   auto worldPcorners_opt = TagModel::WorldToCorners(tagID);
   if (!worldPcorners_opt) {
     // todo return bad thing
+    fmt::println("Could not find tag {} in our map!", tagID);
     return;
   }
   auto worldPcorners = worldPcorners_opt.value();
@@ -383,7 +382,7 @@ void Localizer::AddTagObservation(int tagID, vector<Point2> corners,
     // current world->body pose
     const Pose3_ worldTbody_fac(stateAtTime);
     const auto prediction = PredictLandmarkImageLocation(
-        worldTbody_fac, bodyPcamera, cameraCal, worldPcorners[i]);
+        worldTbody_fac, robotTcamera, cameraCal, worldPcorners[i]);
 
     graph.addExpressionFactor(prediction, measurement, cameraNoise);
   }
