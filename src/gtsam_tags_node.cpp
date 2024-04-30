@@ -97,8 +97,8 @@ int main(int argc, char **argv) {
                                            .keepDuplicates = true,
                                        });
 
-  nt::StructTopic<frc::Twist3d> odomTopic =
-      inst.GetStructTopic<frc::Twist3d>("/robot/odom");
+  nt::StructTopic<frc::Twist3d> odomTopic = inst.GetStructTopic<frc::Twist3d>(
+      "/ReplayOutputs/Swerve/Odometry/WheelOnlyTwist");
   auto odomSub = odomTopic.Subscribe({}, {
                                              .pollStorage = 100,
                                              .sendAll = true,
@@ -159,13 +159,11 @@ int main(int argc, char **argv) {
     for (auto o : odom) {
       auto twist = o.value;
 
-      Pose3 gtsamTwist{Rot3::Rodrigues(Vector3{
-                           twist.rx.to<double>(),
-                           twist.ry.to<double>(),
-                           twist.rz.to<double>(),
-                       }),
-                       Point3{twist.dx.to<double>(), twist.dy.to<double>(),
-                              twist.dz.to<double>()}};
+      Pose3 gtsamTwist = Pose3::Expmap(
+          (Vector6() << twist.rx.to<double>(), twist.ry.to<double>(),
+           twist.rz.to<double>(), twist.dx.to<double>(), twist.dy.to<double>(),
+           twist.dz.to<double>())
+              .finished());
 
       try {
         localizer.AddOdometry(gtsamTwist, units::microsecond_t{o.time});

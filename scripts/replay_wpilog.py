@@ -5,7 +5,8 @@ from wpiutil.log import *
 import struct
 
 wpilog = DataLogReader(
-    "/home/matt/Documents/GitHub/gtsam-playground/data/factor_graph_reference_1.wpilog"
+    # "/home/matt/Documents/GitHub/gtsam-playground/data/factor_graph_reference_1.wpilog"
+    "/home/matt/Downloads/harry-gtsam-data/Log_24-04-20_08-56-21_e2_sim.wpilog"
 )
 
 from dataclasses import dataclass
@@ -23,7 +24,7 @@ def recordToNt(record: DataLogRecord, entry: GenericPublisher):
     Publish a record to NT
     """
     type = entry.getTopic().getTypeString()
-    print("publishing a " + type)
+    # print("publishing a " + type)
 
     # deal with proto up front
     if (
@@ -41,12 +42,16 @@ def recordToNt(record: DataLogRecord, entry: GenericPublisher):
             entry.setDoubleArray(record.getDoubleArray())
         case "double":
             entry.setDouble(record.getDouble())
+        case "float[]":
+            entry.setFloatArray(record.getFloatArray())
         case "boolean":
             entry.setBoolean(record.getBoolean())
         case "string":
             entry.setString(record.getString())
         case "string[]":
             entry.setStringArray(record.getStringArray())
+        case "int64[]":
+            entry.setIntegerArray(record.getIntegerArray())
         case "raw" | "rawBytes":
             entry.setRaw(record.getRaw())
         case _:
@@ -70,11 +75,15 @@ ignoredTopics = ["NT:/cam/tags/.*", "NT:/photonvision/YOUR CAMERA NAME/rawBytes/
 sysToNtOffset = None
 
 for msg in wpilog:
+    
     if msg.isStart():
         start: StartRecordData = msg.getStartData()
 
+        print("Got start for " + start.name)
+
         if any([re.match(it, start.name) for it in ignoredTopics]):
-            print("ignoring " + start.name)
+            # print("ignoring " + start.name)
+            pass
         else:
             topicMap[start.entry] = topicNameToPublisher(start)
 
@@ -102,10 +111,12 @@ for msg in wpilog:
         if sysToNtOffset is None:
             sysToNtOffset = _now() - msg.getTimestamp()
 
+        # wait to sort-of-sync-clocks up
         while (msg.getTimestamp() + sysToNtOffset) > _now():
             dt = msg.getTimestamp() + sysToNtOffset - _now()
-            print("Busywaiting for ms: " + str(dt / 1e3))
-            sleep(dt / 1e6)
+            # print("Busywaiting for ms: " + str(dt / 1e3))
+            if dt > 0:
+                sleep(dt / 1e6)
 
         pub: GenericPublisher = topicMap[entry]
         recordToNt(msg, pub)

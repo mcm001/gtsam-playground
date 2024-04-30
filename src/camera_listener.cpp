@@ -24,8 +24,48 @@
 
 #include "camera_listener.h"
 
+#include <networktables/NetworkTableInstance.h>
+
 #include "localizer.h"
 
-CameraListener::CameraListener(CameraConfig config_,
+using std::vector;
+using namespace gtsam;
+
+CameraListener::CameraListener(CameraConfig config,
                                std::shared_ptr<Localizer> localizer_)
-    : config(config_), localizer(localizer_) {}
+    : localizer(localizer_),
+      tagSub(nt::NetworkTableInstance::GetDefault()
+                 .GetStructArrayTopic<TagDetection>("/cam/tags")
+                 .Subscribe({},
+                            {
+                                .pollStorage = 100,
+                                .sendAll = true,
+                                .keepDuplicates = true,
+                            })),
+      measurementNoise(noiseModel::Isotropic::Sigma(2, config.m_pixelNoise)) {}
+
+void CameraListener::Update() {
+  if (!localizer) {
+    throw std::runtime_error("Localizer was null");
+  }
+
+  const auto tags = tagSub.ReadQueue();
+
+  // For each tag-array in the queue
+  for (const auto &tarr : tags) {
+    // For each tag in this tag array
+    for (const auto &t : tarr.value) {
+      vector<Point2> cornersForGtsam(4);
+      for (const auto &c : t.corners) {
+        cornersForGtsam.emplace_back(c.first, c.second);
+      }
+
+      try {
+        localizer->AddTagObservation(t.id, cornersForGtsam,
+                                     units::microsecond_t{tarr.time});
+      } catch (std::exception e) {
+        fmt::println("exception adding tag, {}", e.what());
+      }
+    }
+  }
+}

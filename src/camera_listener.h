@@ -24,6 +24,13 @@
 
 #pragma once
 
+#include <gtsam/linear/NoiseModel.h>
+
+#include <frc/geometry/Pose3d.h>
+#include <networktables/StructArrayTopic.h>
+#include <networktables/StructTopic.h>
+
+#include "TagDetectionStruct.h"
 #include "config.h"
 
 class Localizer;
@@ -32,7 +39,16 @@ class CameraListener {
 public:
   CameraListener(CameraConfig config, std::shared_ptr<Localizer> localizer);
 
+  /**
+   * Add all new camera observations to the localizer
+   */
+  void Update();
+
 private:
-  CameraConfig config;
+  // nt::StructTopic<frc::Pose3d> initialGuessSub;
+  // bool hasInitialGuess = false;
+
   std::shared_ptr<Localizer> localizer;
+  nt::StructArraySubscriber<TagDetection> tagSub;
+  ::gtsam::noiseModel::Isotropic::shared_ptr measurementNoise;
 };
