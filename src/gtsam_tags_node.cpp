@@ -80,8 +80,8 @@ static Localizer CreateLocalizer(CameraConfig config, Pose3 bodyPcamera,
 int main(int argc, char **argv) {
   using namespace std::chrono_literals;
 
-  // LocalizerConfig config = ParseConfig("test/resources/good_config.json");
-  // config.print();
+  LocalizerConfig config = ParseConfig("test/resources/good_config.json");
+  config.print();
 
   nt::NetworkTableInstance inst = nt::NetworkTableInstance::GetDefault();
   inst.StopServer();
@@ -146,7 +146,8 @@ int main(int argc, char **argv) {
     }
   }
 
-  Localizer localizer = CreateLocalizer(initialEstimate);
+  Localizer localizer = CreateLocalizer(config.cameras.at(0), bodyPcamera_cam1,
+                                        K_cam1, initialEstimate);
 
   // hacky eventloop
   while (true) {
@@ -199,7 +200,7 @@ int main(int argc, char **argv) {
           if (worldPtag_opt) {
             auto worldPtag = worldPtag_opt.value();
             auto worldTrobot = localizer.GetLatestWorldToBody();
-            PinholeCamera<Cal3_S2> cam(worldTrobot * bodyPcamera, K);
+            PinholeCamera<Cal3_S2> cam(worldTrobot * bodyPcamera_cam1, K_cam1);
             for (auto worldPcorner : worldPtag) {
               const Point2 prediction = cam.project2(worldPcorner);
               corners.push_back(prediction.x());
@@ -230,9 +231,9 @@ int main(int argc, char **argv) {
     {
       // std::cout << "Latest mariginal\n" << localizer.GetLatestMarginals()
       // <<
-          // std::endl; std::cout << "Latest stdev\n" <<
-          // localizer.GetPoseComponentStdDevs() << std::endl;
-          auto mat = localizer.GetPoseComponentStdDevs();
+      // std::endl; std::cout << "Latest stdev\n" <<
+      // localizer.GetPoseComponentStdDevs() << std::endl;
+      auto mat = localizer.GetPoseComponentStdDevs();
       std::vector<double> vec(mat.data(), mat.data() + mat.rows() * mat.cols());
       stdevPub.Set(vec);
     }
