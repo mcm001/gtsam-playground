@@ -1,16 +1,26 @@
 # Setup 
 
-One-line cmake incantation
+You'll probably need to additionally install these packages:
+
+```
+libboost-dev-all protobuf-compiler ninja-build
+```
+
+Use this one-line cmake incantation:
 
 ```
 cmake -B build -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo
 ```
+
+Uncomment the majority of src/gtsam_tags_node.cpp and fix any errors before using cmake to build.
 
 # Running a photon sim example
 
 [This sim example](https://github.com/PhotonVision/champs_2024/tree/gtsam-testing/sim_projects/apriltag_yaw_only) in the gtsam-testing branch is set up to provide simulated data to the current build of gtsam-playground. Just run it as a robot simulation project! Until I get CLI working, the gtsam node NT server IP address will need to be manually changed per-machine this is tested on.
 
 I visualize output data usually using advantagescope. The 3d visualizer is great.
+
+In order for the dats transfer to work properly, start advantagescope, then sim, then run gtsam-node. If using the /robot/multi_tag_pose topic in advantagescope, note that it will only update while tags are visible.
 
 # NT API
 
@@ -25,14 +35,6 @@ Publishers
 - /cam/gtsam_predicted_corners: Expected tag corner locations. Not latency compensated, only valid when not moving.
 - /cam/update_dt_ms: How long the update loop took to add all new factors and re-optimize.
 - /cam/std_dev: Standard deviations for pose estimate, order is [rx ry rz tx ty tz]
-
-# Packages
-
-You'll probably need to additionally install these packages:
-
-```
-libboost-all-dev protobuf-compiler ninja-build
-```
 
 # Notes
 
