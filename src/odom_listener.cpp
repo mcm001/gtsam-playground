@@ -81,6 +81,8 @@ bool OdomListener::Update() {
       return false;
     }
 
+    fmt::println("Global: Resetting localizer at {}", last_wTr.time);
+
     Pose3 wTr = Pose3dToGtsamPose3(last_wTr.value);
     localizer->Reset(wTr, priorNoise, last_wTr.time);
 
@@ -100,7 +102,7 @@ bool OdomListener::Update() {
 
     try {
       localizer->AddOdometry(odomPoseDelta, odomNoise, o.time);
-    } catch (std::exception e) {
+    } catch (const std::exception& e) {
       fmt::println("whoops, {}", e.what());
     }
   }

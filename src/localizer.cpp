@@ -55,6 +55,9 @@ Localizer::Localizer() {
 }
 
 void Localizer::Reset(Pose3 wTr, SharedNoiseModel noise, uint64_t timeUs) {
+  // Anchor graph using initial pose. I subtract one to make sure that we dont add this time to the estimate map twice
+  timeUs -= 1;
+
   currStateIdx = X(timeUs);
 
   smootherISAM2 = IncrementalFixedLagSmoother(smootherISAM2.smootherLag(),
@@ -64,11 +67,11 @@ void Localizer::Reset(Pose3 wTr, SharedNoiseModel noise, uint64_t timeUs) {
   currentEstimate.clear();
   newTimestamps.clear();
   factorsToRemove.clear();
+  twistsFromPreviousKey.clear();
 
-  // Anchor graph using initial pose
-  graph.addPrior(X(0), wTr, noise);
-  currentEstimate.insert(X(timeUs), wTr);
-  newTimestamps[X(timeUs)] = 0.0;
+  graph.addPrior(currStateIdx, wTr, noise);
+  currentEstimate.insert(currStateIdx, wTr);
+  newTimestamps[currStateIdx] = timeUs;
 
   wTb_latest = wTr;
 }
@@ -404,6 +407,7 @@ void Localizer::AddTagObservation(int tagID, Cal3_S2_ cameraCal,
 
 void Localizer::Optimize() {
   // fmt::println("Adding {} factors!", graph.size());
+  // graph.print("New factors: ");
 
   smootherISAM2.update(graph, currentEstimate, newTimestamps, factorsToRemove);
 

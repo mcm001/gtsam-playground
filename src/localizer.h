@@ -64,7 +64,8 @@ public:
   // inline void ExportGraph(std::ostream& os) {
   //   smootherISAM2.getFactors().saveGraph(os);
   // }
-  inline void Print() {
+  inline void Print(const std::string_view prefix = "") {
+    fmt::println("{}", prefix);
     smootherISAM2.print();
     smootherISAM2.getISAM2().getFactorsUnsafe().print();
     smootherISAM2.calculateEstimate().print("Current estimate:");

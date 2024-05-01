@@ -121,7 +121,7 @@ bool CameraListener::Update() {
       try {
         localizer->AddTagObservation(t.id, *cameraK, robotTcam, cornersForGtsam,
                                      measurementNoise, tarr.time);
-      } catch (std::exception e) {
+      } catch (const std::exception& e) {
         fmt::println("exception adding tag, {}", e.what());
       }
     }

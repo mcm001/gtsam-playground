@@ -71,6 +71,8 @@ public:
 
     readyToOptimize &= odomListener.Update();
 
+    // localizer->Print("=========================\nAfter adding odometry factors");
+
     for (auto &cam : cameraListeners) {
       readyToOptimize &= cam.Update();
     }
@@ -78,15 +80,19 @@ public:
     if (!readyToOptimize) {
       fmt::println("Not yet ready (see above) -- busywaiting");
       std::this_thread::sleep_for(1000ms);
+      return;
     }
+
+    // localizer->Print("=========================\nAfter adding vision factors");
 
     try {
       localizer->Optimize();
       dataPublisher.Update();
       nt::NetworkTableInstance::GetDefault().Flush();
-    } catch (std::exception e) {
+    } catch (const std::exception& e) {
       fmt::println("Exception optimizing: {}", e.what());
       localizer->Print();
+      throw e;
     }
   }
 };
