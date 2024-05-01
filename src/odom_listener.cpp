@@ -102,7 +102,7 @@ bool OdomListener::Update() {
 
     try {
       localizer->AddOdometry(odomPoseDelta, odomNoise, o.time);
-    } catch (const std::exception& e) {
+    } catch (const std::exception &e) {
       fmt::println("whoops, {}", e.what());
     }
   }

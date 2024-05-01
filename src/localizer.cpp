@@ -47,6 +47,7 @@ Localizer::Localizer() {
   // TODO: make sure that timestamps in units of uS doesn't cause numerical
   // precision issues
   double lag = 5 * 1e6;
+  // double lag = 2;
   smootherISAM2 = IncrementalFixedLagSmoother(lag, parameters);
 
   // // And make sure to call optimize first to get values
@@ -55,7 +56,8 @@ Localizer::Localizer() {
 }
 
 void Localizer::Reset(Pose3 wTr, SharedNoiseModel noise, uint64_t timeUs) {
-  // Anchor graph using initial pose. I subtract one to make sure that we dont add this time to the estimate map twice
+  // Anchor graph using initial pose. I subtract one to make sure that we dont
+  // add this time to the estimate map twice
   timeUs -= 1;
 
   currStateIdx = X(timeUs);

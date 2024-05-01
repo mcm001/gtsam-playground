@@ -105,6 +105,28 @@ bool CameraListener::Update() {
   }
 
   Pose3 robotTcam = Transform3dToGtsamPose3(last_rTc.value);
+  // add transform to change from the wpilib/photon default (camera optical axis
+  // along +x) to the standard from opencv (z along optical axis)
+  robotTcam =
+      robotTcam * Pose3{/*
+                                     We want:
+                                     x in [0,-1,0]
+                                     y in [0,0,-1]
+                                     z in [1,0,0]
+                                     */
+                        Rot3(0, 0, 1, -1, 0, 0, 0, -1, 0), Point3{0.0, 0, 0.0}};
+
+  // Hard-coded for now -- TODO move to configurable
+  // const Pose3 bodyPcamera_cam1{/*
+  //                         We want:
+  //                         x in [0,-1,0]
+  //                         y in [0,0,-1]
+  //                         z in [1,0,0]
+  //                         */
+  //                              Rot3(0, 0, 1, -1, 0, 0, 0, -1, 0),
+
+  //                              Point3{0.5, 0, 0.5}};
+  // Cal3_S2 K_cam1(1000, 1000, 0, 960 / 2, 720 / 2);
 
   const auto tags = tagSub.ReadQueue();
 
@@ -121,7 +143,7 @@ bool CameraListener::Update() {
       try {
         localizer->AddTagObservation(t.id, *cameraK, robotTcam, cornersForGtsam,
                                      measurementNoise, tarr.time);
-      } catch (const std::exception& e) {
+      } catch (const std::exception &e) {
         fmt::println("exception adding tag, {}", e.what());
       }
     }
