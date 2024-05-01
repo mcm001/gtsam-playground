@@ -24,6 +24,7 @@
 
 #include "camera_listener.h"
 
+#include <networktables/NetworkTable.h>
 #include <networktables/NetworkTableInstance.h>
 
 #include "gtsam_utils.h"
@@ -37,7 +38,8 @@ CameraListener::CameraListener(std::string rootTable, CameraConfig config,
     : config(config), localizer(localizer_),
       tagSub(nt::NetworkTableInstance::GetDefault()
                  .GetStructArrayTopic<TagDetection>(
-                     rootTable + config.m_subtableName + "/input/tags")
+                     rootTable + nt::NetworkTable::PATH_SEPARATOR_CHAR +
+                     config.m_subtableName + "/input/tags")
                  .Subscribe({},
                             {
                                 .pollStorage = 100,
@@ -45,25 +47,26 @@ CameraListener::CameraListener(std::string rootTable, CameraConfig config,
                                 .keepDuplicates = true,
                             })),
       robotTcamSub(nt::NetworkTableInstance::GetDefault()
-                       .GetStructTopic<frc::Transform3d>(rootTable +
-                                                         config.m_subtableName +
-                                                         "/input/robotTcam")
+                       .GetStructTopic<frc::Transform3d>(
+                           rootTable + nt::NetworkTable::PATH_SEPARATOR_CHAR +
+                           config.m_subtableName + "/input/robotTcam")
                        .Subscribe({},
                                   {
                                       .pollStorage = 100,
                                       .sendAll = true,
                                       .keepDuplicates = true,
                                   })),
-      pinholeIntrinsicsSub(nt::NetworkTableInstance::GetDefault()
-                               .GetDoubleArrayTopic(rootTable +
-                                                    config.m_subtableName +
-                                                    "/input/cam_intrinsics")
-                               .Subscribe({},
-                                          {
-                                              .pollStorage = 100,
-                                              .sendAll = true,
-                                              .keepDuplicates = true,
-                                          })),
+      pinholeIntrinsicsSub(
+          nt::NetworkTableInstance::GetDefault()
+              .GetDoubleArrayTopic(
+                  rootTable + nt::NetworkTable::PATH_SEPARATOR_CHAR +
+                  config.m_subtableName + "/input/cam_intrinsics")
+              .Subscribe({},
+                         {
+                             .pollStorage = 100,
+                             .sendAll = true,
+                             .keepDuplicates = true,
+                         })),
       measurementNoise(noiseModel::Isotropic::Sigma(2, config.m_pixelNoise)) {}
 
 bool CameraListener::Update() {

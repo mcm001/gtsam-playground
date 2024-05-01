@@ -1,5 +1,5 @@
 {
-    "rootTableName": "gtsam_meme",
+    "rootTableName": "/gtsam_meme",
     "cameras": [
         {
             "subtableName": "sim_camera1",

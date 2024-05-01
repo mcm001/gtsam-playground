@@ -69,10 +69,10 @@ public:
   void Update() {
     bool readyToOptimize = true;
 
-    readyToOptimize |= odomListener.Update();
+    readyToOptimize &= odomListener.Update();
 
     for (auto &cam : cameraListeners) {
-      readyToOptimize |= cam.Update();
+      readyToOptimize &= cam.Update();
     }
 
     if (!readyToOptimize) {
