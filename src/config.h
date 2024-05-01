@@ -27,15 +27,16 @@
 #include <fmt/format.h>
 #include <fmt/ranges.h>
 
+#include <array>
 #include <string>
 #include <vector>
 
 #include <wpi/json.h>
 
 struct CameraConfig {
-  std::string m_subtableName;
+  std::string subtableName;
 
-  double m_pixelNoise;
+  double pixelNoise;
 };
 
 struct LocalizerConfig {
@@ -44,8 +45,8 @@ struct LocalizerConfig {
   std::string ntServerURI;
 
   // odometry noise factors
-  std::vector<double> rotNoise;
-  std::vector<double> transNoise;
+  std::array<double, 3> rotNoise;
+  std::array<double, 3> transNoise;
 
   // cameras
   std::vector<CameraConfig> cameras;
@@ -61,7 +62,7 @@ void from_json(const wpi::json &json, CameraConfig &config);
 template <> struct fmt::formatter<CameraConfig> : formatter<string_view> {
   auto format(CameraConfig const &c, format_context &ctx) const {
     // return formatter<string_view>::format(c.m_subtableName, ctx);
-    return fmt::format_to(ctx.out(), "(name={}, pixel={})", c.m_subtableName,
-                          c.m_pixelNoise);
+    return fmt::format_to(ctx.out(), "(name={}, pixel={})", c.subtableName,
+                          c.pixelNoise);
   }
 };

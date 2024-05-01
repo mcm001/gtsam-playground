@@ -51,12 +51,12 @@ LocalizerConfig ParseConfig(std::string_view path) {
   return LocalizerConfig{
       .rootTableName = json.at("rootTableName").get<std::string>(),
       .ntServerURI = json.at("ntServerURI").get<std::string>(),
-      .rotNoise = json.at("rotNoise").get<std::vector<double>>(),
-      .transNoise = json.at("transNoise").get<std::vector<double>>(),
+      .rotNoise = json.at("rotNoise").get<std::array<double, 3>>(),
+      .transNoise = json.at("transNoise").get<std::array<double, 3>>(),
       .cameras = json.at("cameras").get<std::vector<CameraConfig>>()};
 }
 
 void from_json(const wpi::json &json, CameraConfig &config) {
-  config.m_subtableName = json.at("subtableName").get<std::string>();
-  config.m_pixelNoise = json.at("pixelNoise").get<double>();
+  config.subtableName = json.at("subtableName").get<std::string>();
+  config.pixelNoise = json.at("pixelNoise").get<double>();
 }
