@@ -51,12 +51,12 @@ public:
   /**
    * Add a prior factor on the world->robot pose
    */
-  void Reset(Pose3 wTr, SharedNoiseModal noise, uint64_t timeUs)
+  void Reset(Pose3 wTr, SharedNoiseModel noise, uint64_t timeUs);
 
-      void AddOdometry(Pose3 twist, SharedNoiseModal noise, uint64_t timeUs);
+  void AddOdometry(Pose3 twist, SharedNoiseModel noise, uint64_t timeUs);
 
   void AddTagObservation(int tagID, Cal3_S2_ cameraCal, Pose3 robotTcamera,
-                         vector<Point2> corners, SharedNoiseModal noise,
+                         vector<Point2> corners, SharedNoiseModel noise,
                          uint64_t timeUs);
 
   void Optimize();
@@ -85,7 +85,8 @@ protected:
    * If a given time is fully within the smoother history, find or interplate a
    * key for it
    */
-  Key InsertIntoSmoother(Key lower, Key upper, Key newKey, double newTime);
+  Key InsertIntoSmoother(Key lower, Key upper, Key newKey, double newTime,
+                         SharedNoiseModel odometryNoise);
 
   Key GetOrInsertKey(Key newKey, double time);
 

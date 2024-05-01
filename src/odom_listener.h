@@ -26,6 +26,7 @@
 
 #include <gtsam/linear/NoiseModel.h>
 
+#include <frc/geometry/Pose3d.h>
 #include <frc/geometry/Twist3d.h>
 #include <networktables/StructArrayTopic.h>
 #include <networktables/StructTopic.h>
@@ -37,13 +38,12 @@ class Localizer;
 
 class OdomListener {
 public:
-  OdomListener(std::string_view rootTable,
-               std::shared_ptr<Localizer> localizer);
+  OdomListener(LocalizerConfig config, std::shared_ptr<Localizer> localizer);
 
   /**
    * Add all new odometry factors to the localizer
    */
-  void Update();
+  bool Update();
 
 private:
   // Initial guess, used for the first Optimize we ever do to keep us in the
@@ -51,11 +51,11 @@ private:
   nt::StructSubscriber<frc::Pose3d> initialGuessSub;
   bool hasInitialGuess = false;
 
-  CameraConfig config;
+  LocalizerConfig config;
 
   std::shared_ptr<Localizer> localizer;
 
-  nt::StructPublisher<frc::Twist3d> odomSub;
+  nt::StructSubscriber<frc::Twist3d> odomSub;
 
   ::gtsam::SharedNoiseModel odomNoise;
   ::gtsam::SharedNoiseModel priorNoise;

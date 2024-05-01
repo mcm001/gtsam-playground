@@ -54,7 +54,7 @@ Localizer::Localizer() {
   // Optimize();
 }
 
-void Reset(Pose3 wTr, SharedNoiseModal noise, uint64_t timeUs) {
+void Localizer::Reset(Pose3 wTr, SharedNoiseModel noise, uint64_t timeUs) {
   currStateIdx = X(timeUs);
 
   smootherISAM2 = IncrementalFixedLagSmoother(smootherISAM2.smootherLag(),
@@ -66,14 +66,14 @@ void Reset(Pose3 wTr, SharedNoiseModal noise, uint64_t timeUs) {
   factorsToRemove.clear();
 
   // Anchor graph using initial pose
-  graph.addPrior(X(0), wTr, posePriorNoise);
+  graph.addPrior(X(0), wTr, noise);
   currentEstimate.insert(X(timeUs), wTr);
   newTimestamps[X(timeUs)] = 0.0;
 
   wTb_latest = wTr;
 }
 
-void Localizer::AddOdometry(Pose3 poseDelta, SharedNoiseModal odometryNoise,
+void Localizer::AddOdometry(Pose3 poseDelta, SharedNoiseModel odometryNoise,
                             uint64_t timeUs) {
   Key newStateIdx = X(timeUs);
 
@@ -92,7 +92,8 @@ void Localizer::AddOdometry(Pose3 poseDelta, SharedNoiseModal odometryNoise,
 }
 
 Key Localizer::InsertIntoSmoother(Key lower, Key upper, Key newKey,
-                                  double newTime) {
+                                  double newTime,
+                                  SharedNoiseModel odometryNoise) {
   /**
    * Goal: find the FactorIndex that connects our lower/upper key, and replace
    * it with 2 new factors and an intermediatestate
@@ -373,7 +374,7 @@ Key Localizer::GetOrInsertKey(Key newKey, double time) {
 
 void Localizer::AddTagObservation(int tagID, Cal3_S2_ cameraCal,
                                   Pose3 robotTcamera, vector<Point2> corners,
-                                  SharedNoiseModal cameraNoise,
+                                  SharedNoiseModel cameraNoise,
                                   uint64_t timeUs) {
   auto worldPcorners_opt = TagModel::WorldToCorners(tagID);
   if (!worldPcorners_opt) {

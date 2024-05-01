@@ -24,9 +24,12 @@
 
 #pragma once
 
+#include <gtsam/geometry/Cal3_S2.h>
+#include <gtsam/geometry/Pose3.h>
 #include <gtsam/linear/NoiseModel.h>
 
 #include <optional>
+#include <string>
 
 #include <frc/geometry/Pose3d.h>
 #include <frc/geometry/Transform3d.h>
@@ -41,17 +44,17 @@ class Localizer;
 
 class CameraListener {
 public:
-  CameraListener(std::string_view rootTable, CameraConfig config,
+  CameraListener(std::string rootTable, CameraConfig config,
                  std::shared_ptr<Localizer> localizer);
 
   /**
    * Add all new camera observations to the localizer
    */
-  void Update();
+  bool Update();
 
 private:
   // Camera (pinhole) calibration coefficients
-  std::optional<Cal3_S2> cameraK;
+  std::optional<gtsam::Cal3_S2> cameraK;
 
   CameraConfig config;
 
@@ -60,7 +63,7 @@ private:
   // Tag detection messages
   nt::StructArraySubscriber<TagDetection> tagSub;
   // Robot->this particular camera
-  nt::StructArraySubscriber<frc::Transform3d> robotTCamSub;
+  nt::StructSubscriber<frc::Transform3d> robotTcamSub;
   // Camera calibration; assume all pixel inputs are already undistorted
   nt::DoubleArraySubscriber pinholeIntrinsicsSub;
 

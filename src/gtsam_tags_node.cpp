@@ -22,9 +22,8 @@
  * SOFTWARE.
  */
 
-#include <shared_ptr.h>
-
 #include <iostream>
+#include <memory>
 #include <thread>
 
 #include <frc/geometry/Rotation3d.h>
@@ -47,6 +46,7 @@
 
 using namespace gtsam;
 using std::vector;
+using namespace std::chrono_literals;
 
 class LocalizerRunner {
 private:
@@ -57,7 +57,7 @@ private:
 
 public:
   LocalizerRunner(LocalizerConfig config)
-      : localizer(Localizer()), odomListener{config.rootTableName, localizer},
+      : localizer(new Localizer()), odomListener{config, localizer},
         dataPublisher(config.rootTableName, localizer) {
 
     cameraListeners.reserve(config.cameras.size());
@@ -67,27 +67,36 @@ public:
   }
 
   void Update() {
-    odomListener.Update();
+    bool readyToOptimize = true;
 
-    for (const auto &cam : cameraListeners) {
-      cam.Update();
+    readyToOptimize |= odomListener.Update();
+
+    for (auto &cam : cameraListeners) {
+      readyToOptimize |= cam.Update();
     }
 
-    localizer->Optimize();
+    if (!readyToOptimize) {
+      fmt::println("Not yet ready (see above) -- busywaiting");
+      std::this_thread::sleep_for(1000ms);
+    }
 
-    dataPublisher.Update();
-
-    nt::NetworkTableInstance::GetDefault().Flush();
+    try {
+      localizer->Optimize();
+      dataPublisher.Update();
+      nt::NetworkTableInstance::GetDefault().Flush();
+    } catch (std::exception e) {
+      fmt::println("Exception optimizing: {}", e.what());
+    }
   }
 };
 
 int main(int argc, char **argv) {
-  using namespace std::chrono_literals;
 
-  LocalizerConfig config = ParseConfig("test/resources/good_config.json");
-  config.print();
+  LocalizerConfig config = ParseConfig("test/resources/simulator.json");
+  config.print("Loaded config:");
 
   nt::NetworkTableInstance inst = nt::NetworkTableInstance::GetDefault();
+
   inst.StopServer();
   inst.SetServer("192.168.1.226");
   inst.StartClient4("gtsam-meme");

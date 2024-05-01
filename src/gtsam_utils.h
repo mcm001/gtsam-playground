@@ -27,8 +27,10 @@
 #include <gtsam/slam/expressions.h>
 
 #include <frc/geometry/Pose3d.h>
+#include <frc/geometry/Transform3d.h>
 
-gtsam::Pose3 FrcToGtsamPose3(frc::Pose3d pose);
+gtsam::Pose3 Pose3dToGtsamPose3(frc::Pose3d pose);
+gtsam::Pose3 Transform3dToGtsamPose3(frc::Transform3d pose);
 frc::Pose3d GtsamToFrcPose3d(gtsam::Pose3 pose);
 
 gtsam::Point2_ PredictLandmarkImageLocation(gtsam::Pose3_ worldTbody_fac,

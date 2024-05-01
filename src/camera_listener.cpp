@@ -32,12 +32,12 @@
 using std::vector;
 using namespace gtsam;
 
-CameraListener::CameraListener(std::string_view rootTable, CameraConfig config,
+CameraListener::CameraListener(std::string rootTable, CameraConfig config,
                                std::shared_ptr<Localizer> localizer_)
     : config(config), localizer(localizer_),
       tagSub(nt::NetworkTableInstance::GetDefault()
                  .GetStructArrayTopic<TagDetection>(
-                     rootTable + config.m_subtagleName + "/input/tags")
+                     rootTable + config.m_subtableName + "/input/tags")
                  .Subscribe({},
                             {
                                 .pollStorage = 100,
@@ -46,7 +46,7 @@ CameraListener::CameraListener(std::string_view rootTable, CameraConfig config,
                             })),
       robotTcamSub(nt::NetworkTableInstance::GetDefault()
                        .GetStructTopic<frc::Transform3d>(rootTable +
-                                                         config.m_subtagleName +
+                                                         config.m_subtableName +
                                                          "/input/robotTcam")
                        .Subscribe({},
                                   {
@@ -56,7 +56,7 @@ CameraListener::CameraListener(std::string_view rootTable, CameraConfig config,
                                   })),
       pinholeIntrinsicsSub(nt::NetworkTableInstance::GetDefault()
                                .GetDoubleArrayTopic(rootTable +
-                                                    config.m_subtagleName +
+                                                    config.m_subtableName +
                                                     "/input/cam_intrinsics")
                                .Subscribe({},
                                           {
@@ -66,7 +66,7 @@ CameraListener::CameraListener(std::string_view rootTable, CameraConfig config,
                                           })),
       measurementNoise(noiseModel::Isotropic::Sigma(2, config.m_pixelNoise)) {}
 
-void CameraListener::Update() {
+bool CameraListener::Update() {
   if (!localizer) {
     throw std::runtime_error("Localizer was null");
   }
@@ -74,23 +74,23 @@ void CameraListener::Update() {
   // grab the latest camera cal
   const auto last_K = pinholeIntrinsicsSub.GetAtomic();
   // if not published, time will be zero
-  if (last_rTc.time > 0) {
+  if (last_K.time > 0) {
     // Update calibration!
     std::vector<double> K_ = last_K.value;
     if (K_.size() != 4) {
       fmt::println("Camera {}: K of odd size {}?", config.m_subtableName,
                    K_.size());
-      return;
+      return false;
     }
     // assume order is [fx fy cx cy] from NT
-    cameraK = Cal3_S2{K_[0], K_[1],
-                      0, // no skew
-                      K_[2], K_[3]};
-    cameraK.print("New camera calibration");
+    this->cameraK = Cal3_S2{K_[0], K_[1],
+                            0, // no skew
+                            K_[2], K_[3]};
+    cameraK->print("New camera calibration");
   }
   if (!cameraK) {
     fmt::println("Camera {}: no intrinsics set?", config.m_subtableName);
-    return;
+    return false;
   }
 
   // grab the latest robot-cam transform
@@ -98,10 +98,10 @@ void CameraListener::Update() {
   // if not published, time will be zero
   if (last_rTc.time == 0) {
     fmt::println("Camera {}: no robot-cam set?", config.m_subtableName);
-    return;
+    return false;
   }
 
-  Pose3 robotTcam = FrcToGtsamPose3(last_rTc.value);
+  Pose3 robotTcam = Transform3dToGtsamPose3(last_rTc.value);
 
   const auto tags = tagSub.ReadQueue();
 
@@ -115,11 +115,13 @@ void CameraListener::Update() {
       }
 
       try {
-        localizer->AddTagObservation(t.id, robotTcam, cornersForGtsam,
+        localizer->AddTagObservation(t.id, *cameraK, robotTcam, cornersForGtsam,
                                      measurementNoise, tarr.time);
       } catch (std::exception e) {
         fmt::println("exception adding tag, {}", e.what());
       }
     }
   }
+
+  return true;
 }

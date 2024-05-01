@@ -33,7 +33,9 @@
 #include <wpi/json.h>
 
 void LocalizerConfig::print(std::string_view prefix) {
-  fmt::println("cameras=[{}]", fmt::join(cameras, ", "));
+  fmt::println("{} root={}, rot={}, trans={}, cameras=[{}]", prefix,
+               rootTableName, fmt::join(rotNoise, ", "),
+               fmt::join(transNoise, ", "), fmt::join(cameras, ", "));
 }
 
 LocalizerConfig ParseConfig(std::string_view path) {
@@ -47,12 +49,13 @@ LocalizerConfig ParseConfig(std::string_view path) {
   wpi::json json = wpi::json::parse(fileBuffer->GetCharBuffer());
 
   return LocalizerConfig{
+      .rootTableName = json.at("rootTableName").get<std::string>(),
+      .rotNoise = json.at("rotNoise").get<std::vector<double>>(),
+      .transNoise = json.at("transNoise").get<std::vector<double>>(),
       .cameras = json.at("cameras").get<std::vector<CameraConfig>>()};
 }
 
 void from_json(const wpi::json &json, CameraConfig &config) {
   config.m_subtableName = json.at("subtableName").get<std::string>();
   config.m_pixelNoise = json.at("pixelNoise").get<double>();
-  config.m_rotNoise = json.at("rotNoise").get<std::vector<double>>();
-  config.m_transNoise = json.at("transNoise").get<std::vector<double>>();
 }

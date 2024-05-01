@@ -32,8 +32,8 @@
 using std::vector;
 using namespace gtsam;
 
-DataPublisher::OdomListner(std::string_view rootTable,
-                           std::shared_ptr<Localizer> localizer_)
+DataPublisher::DataPublisher(std::string rootTable,
+                             std::shared_ptr<Localizer> localizer_)
     : localizer(localizer_),
       optimizedPosePub(
           nt::NetworkTableInstance::GetDefault()
@@ -50,7 +50,7 @@ DataPublisher::OdomListner(std::string_view rootTable,
                                    .keepDuplicates = true,
                                })),
       stdDevPub(nt::NetworkTableInstance::GetDefault()
-                    .GetDoubleArrayTopi(rootTable + "/output/pose_stddev")
+                    .GetDoubleArrayTopic(rootTable + "/output/pose_stddev")
                     .Publish({
                         .sendAll = true,
                         .keepDuplicates = true,
@@ -62,13 +62,12 @@ void DataPublisher::Update() {
   }
 
   {
-
-    auto est = localizer.GetLatestWorldToBody();
+    auto est = localizer->GetLatestWorldToBody();
     optimizedPosePub.Set(GtsamToFrcPose3d(est));
   }
   {
-    auto mat = localizer.GetPoseComponentStdDevs();
+    auto mat = localizer->GetPoseComponentStdDevs();
     std::vector<double> vec(mat.data(), mat.data() + mat.rows() * mat.cols());
-    stdevPub.Set(vec);
+    stdDevPub.Set(vec);
   }
 }

@@ -26,7 +26,14 @@
 
 using namespace gtsam;
 
-Pose3 FrcToGtsamPose3(frc::Pose3d pose) {
+Pose3 Pose3dToGtsamPose3(frc::Pose3d pose) {
+  const auto q = pose.Rotation().GetQuaternion();
+  return Pose3{Rot3(q.W(), q.X(), q.Y(), q.Z()),
+               Point3(pose.X().to<double>(), pose.Y().to<double>(),
+                      pose.Z().to<double>())};
+}
+
+Pose3 Transform3dToGtsamPose3(frc::Transform3d pose) {
   const auto q = pose.Rotation().GetQuaternion();
   return Pose3{Rot3(q.W(), q.X(), q.Y(), q.Z()),
                Point3(pose.X().to<double>(), pose.Y().to<double>(),
@@ -54,10 +61,8 @@ gtsam::Point2_ PredictLandmarkImageLocation(gtsam::Pose3_ worldTbody_fac,
 }
 
 frc::Pose3d GtsamToFrcPose3d(gtsam::Pose3 pose) {
-  return frc::Pose3d {
-    frc::Translation3d{units::meter_t{pose.x()},
-                       units::meter_t{pose.y()},
-                       units::meter_t{pose.z()}},
-    frc::Rotation3d{pose.rotation().matrix()});
-  }
+  return frc::Pose3d{frc::Translation3d{units::meter_t{pose.x()},
+                                        units::meter_t{pose.y()},
+                                        units::meter_t{pose.z()}},
+                     frc::Rotation3d{pose.rotation().matrix()}};
 }

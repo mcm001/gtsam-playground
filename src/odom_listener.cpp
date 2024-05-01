@@ -32,11 +32,18 @@
 using std::vector;
 using namespace gtsam;
 
-OdomListener::OdomListner(std::string_view rootTable,
-                          std::shared_ptr<Localizer> localizer_)
+static Vector6 makeOdomNoise(const LocalizerConfig &config) {
+  return Vector6{config.rotNoise[0],   config.rotNoise[1],
+                 config.rotNoise[2],   config.transNoise[0],
+                 config.transNoise[1], config.transNoise[2]};
+}
+
+OdomListener::OdomListener(LocalizerConfig config,
+                           std::shared_ptr<Localizer> localizer_)
     : config(config), localizer(localizer_),
       odomSub(nt::NetworkTableInstance::GetDefault()
-                  .GetStructTopic<frc::Twist3d>(rootTable + "/input/odom_twist")
+                  .GetStructTopic<frc::Twist3d>(config.rootTableName +
+                                                "/input/odom_twist")
                   .Subscribe({},
                              {
                                  .pollStorage = 100,
@@ -45,12 +52,12 @@ OdomListener::OdomListner(std::string_view rootTable,
                              })),
       odomNoise(noiseModel::Diagonal::Sigmas(
           // Odoometry factor stdev: rad,rad,rad,m, m, m
-          (Vector(6) << config.rotNoise << config.transNoise).finished())),
+          makeOdomNoise(config))),
       priorNoise(noiseModel::Diagonal::Sigmas(
           // initial guess stdev: rad,rad,rad,m, m, m
           (Vector(6) << 1, 1, 1, 1, 1, 1).finished())) {}
 
-void OdomListener::Update() {
+bool OdomListener::Update() {
   if (!localizer) {
     throw std::runtime_error("Localizer was null");
   }
@@ -61,11 +68,11 @@ void OdomListener::Update() {
     // if not published, time will be zero
     if (last_wTr.time == 0) {
       fmt::println("Global: no wTr guess set?");
-      return;
+      return false;
     }
 
-    Pose3 wTr = FrcToGtsamPose3(last_wTr.value);
-    localizer->Reset(wTr, priorNosie, last_wTr.time);
+    Pose3 wTr = Pose3dToGtsamPose3(last_wTr.value);
+    localizer->Reset(wTr, priorNoise, last_wTr.time);
 
     hasInitialGuess = true;
   }
@@ -75,16 +82,18 @@ void OdomListener::Update() {
   for (const auto &o : odom) {
     auto &twist = o.value;
 
-    Pose3 odomPoseDelta = Pose3::Expmap(
-        (Vector6() << twist.rx.to<double>(), twist.ry.to<double>(),
-         twist.rz.to<double>(), twist.dx.to<double>(), twist.dy.to<double>(),
-         twist.dz.to<double>())
-            .finished());
+    Vector6 eigenTwist;
+    eigenTwist << twist.rx.to<double>(), twist.ry.to<double>(),
+        twist.rz.to<double>(), twist.dx.to<double>(), twist.dy.to<double>(),
+        twist.dz.to<double>();
+    Pose3 odomPoseDelta = Pose3::Expmap(eigenTwist);
 
     try {
-      localizer.AddOdometry(odomPoseDelta, odomNoise, o.time);
+      localizer->AddOdometry(odomPoseDelta, odomNoise, o.time);
     } catch (std::exception e) {
       fmt::println("whoops, {}", e.what());
     }
   }
+
+  return true;
 }

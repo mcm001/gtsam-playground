@@ -27,6 +27,7 @@
 #include <gtsam/linear/NoiseModel.h>
 
 #include <frc/geometry/Pose3d.h>
+#include <networktables/DoubleArrayTopic.h>
 #include <networktables/StructArrayTopic.h>
 #include <networktables/StructTopic.h>
 
@@ -40,8 +41,7 @@ class Localizer;
  */
 class DataPublisher {
 public:
-  DataPublisher(std::string_view rootTable,
-                std::shared_ptr<Localizer> localizer);
+  DataPublisher(std::string rootTable, std::shared_ptr<Localizer> localizer);
 
   /**
    * Publish new data to NT

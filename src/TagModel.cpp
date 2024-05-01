@@ -42,7 +42,7 @@ map<int, Pose3> TagLayoutToMap(const frc::AprilTagFieldLayout &layout) {
   map<int, Pose3> worldTtags;
 
   for (const frc::AprilTag &tag : layout.GetTags()) {
-    worldTtags[tag.ID] = FrcToGtsamPose3(tag.pose);
+    worldTtags[tag.ID] = Pose3dToGtsamPose3(tag.pose);
   }
 
   return worldTtags;
