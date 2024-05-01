@@ -27,25 +27,13 @@
 #include <gtsam/slam/expressions.h>
 
 #include <frc/geometry/Pose3d.h>
+#include <frc/geometry/Transform3d.h>
 
-gtsam::Pose3 FrcToGtsamPose3(frc::Pose3d pose);
+gtsam::Pose3 Pose3dToGtsamPose3(frc::Pose3d pose);
+gtsam::Pose3 Transform3dToGtsamPose3(frc::Transform3d pose);
+frc::Pose3d GtsamToFrcPose3d(gtsam::Pose3 pose);
 
-inline gtsam::Point2_ PredictLandmarkImageLocation(gtsam::Pose3_ worldTbody_fac,
-                                                   gtsam::Pose3 bodyPcamera,
-                                                   gtsam::Cal3_S2_ cameraCal,
-                                                   gtsam::Point3 worldPcorner) {
-  using namespace gtsam;
-
-  // world->camera pose as a composition of world->body factory and
-  // body->camera factor
-  const Pose3_ worldTcamera_fac =
-      Pose3_(worldTbody_fac, &Pose3::transformPoseFrom, Pose3_(bodyPcamera));
-  // Camera->tag corner vector
-  const Point3_ camPcorner = transformTo(worldTcamera_fac, worldPcorner);
-  // project from vector down to pinhole location, then uncalibrate to pixel
-  // locations
-  const Point2_ prediction =
-      uncalibrate<Cal3_S2>(cameraCal, project(camPcorner));
-
-  return prediction;
-}
+gtsam::Point2_ PredictLandmarkImageLocation(gtsam::Pose3_ worldTbody_fac,
+                                            gtsam::Pose3 bodyPcamera,
+                                            gtsam::Cal3_S2_ cameraCal,
+                                            gtsam::Point3 worldPcorner);

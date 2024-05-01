@@ -46,21 +46,26 @@ class Localizer {
   using LandmarkMap = map<Key, SmartFactor::shared_ptr>;
 
 public:
-  Localizer(Cal3_S2_ cameraCal, Pose3 bodyTcamera, SharedNoiseModel cameraNoise,
-            SharedNoiseModel odometryNoise, SharedNoiseModel posePriorNoise,
-            Pose3 initialPose);
+  Localizer();
 
-  void AddOdometry(Pose3 twist, units::microsecond_t time);
+  /**
+   * Add a prior factor on the world->robot pose
+   */
+  void Reset(Pose3 wTr, SharedNoiseModel noise, uint64_t timeUs);
 
-  void AddTagObservation(int tagID, vector<Point2> corners,
-                         units::microsecond_t time);
+  void AddOdometry(Pose3 twist, SharedNoiseModel noise, uint64_t timeUs);
+
+  void AddTagObservation(int tagID, Cal3_S2_ cameraCal, Pose3 robotTcamera,
+                         vector<Point2> corners, SharedNoiseModel noise,
+                         uint64_t timeUs);
 
   void Optimize();
 
   // inline void ExportGraph(std::ostream& os) {
   //   smootherISAM2.getFactors().saveGraph(os);
   // }
-  inline void Print() {
+  inline void Print(const std::string_view prefix = "") {
+    fmt::println("{}", prefix);
     smootherISAM2.print();
     smootherISAM2.getISAM2().getFactorsUnsafe().print();
     smootherISAM2.calculateEstimate().print("Current estimate:");
@@ -81,15 +86,10 @@ protected:
    * If a given time is fully within the smoother history, find or interplate a
    * key for it
    */
-  Key InsertIntoSmoother(Key lower, Key upper, Key newKey, double newTime);
+  Key InsertIntoSmoother(Key lower, Key upper, Key newKey, double newTime,
+                         SharedNoiseModel odometryNoise);
 
   Key GetOrInsertKey(Key newKey, double time);
-
-  Cal3_S2_ cameraCal;
-  Pose3 bodyPcamera;
-  SharedNoiseModel cameraNoise;
-  SharedNoiseModel odometryNoise;
-  SharedNoiseModel posePriorNoise;
 
   // New factor graph to add to our smoother at the next call to Optimize()
   ExpressionFactorGraph graph{};

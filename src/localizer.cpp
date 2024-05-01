@@ -35,12 +35,7 @@ using symbol_shorthand::X;
 
 constexpr int NUM_CORNERS = 4;
 
-Localizer::Localizer(Cal3_S2_ cameraCal, Pose3 bodyPcamera,
-                     SharedNoiseModel cameraNoise,
-                     SharedNoiseModel odometryNoise,
-                     SharedNoiseModel posePriorNoise, Pose3 initialPose)
-    : cameraCal(cameraCal), bodyPcamera(bodyPcamera), cameraNoise(cameraNoise),
-      odometryNoise(odometryNoise), posePriorNoise(posePriorNoise) {
+Localizer::Localizer() {
   ISAM2Params parameters;
   // parameters.relinearizeThreshold = 0.01;
   // parameters.relinearizeSkip = 1;
@@ -52,21 +47,40 @@ Localizer::Localizer(Cal3_S2_ cameraCal, Pose3 bodyPcamera,
   // TODO: make sure that timestamps in units of uS doesn't cause numerical
   // precision issues
   double lag = 5 * 1e6;
+  // double lag = 2;
   smootherISAM2 = IncrementalFixedLagSmoother(lag, parameters);
 
-  // Anchor graph using initial pose
-  graph.addPrior(X(0), initialPose, posePriorNoise);
-  currentEstimate.insert(X(0), initialPose);
-  newTimestamps[X(0)] = 0.0; // TODO this is a total hack
-
-  wTb_latest = initialPose;
-
-  // And make sure to call optimize first to get values
-  Optimize();
+  // // And make sure to call optimize first to get values
+  // TODO i killed maybe needed, idk
+  // Optimize();
 }
 
-void Localizer::AddOdometry(Pose3 poseDelta, units::microsecond_t time) {
-  Key newStateIdx = X(time.to<uint64_t>());
+void Localizer::Reset(Pose3 wTr, SharedNoiseModel noise, uint64_t timeUs) {
+  // Anchor graph using initial pose. I subtract one to make sure that we dont
+  // add this time to the estimate map twice
+  timeUs -= 1;
+
+  currStateIdx = X(timeUs);
+
+  smootherISAM2 = IncrementalFixedLagSmoother(smootherISAM2.smootherLag(),
+                                              smootherISAM2.params());
+
+  graph.resize(0);
+  currentEstimate.clear();
+  newTimestamps.clear();
+  factorsToRemove.clear();
+  twistsFromPreviousKey.clear();
+
+  graph.addPrior(currStateIdx, wTr, noise);
+  currentEstimate.insert(currStateIdx, wTr);
+  newTimestamps[currStateIdx] = timeUs;
+
+  wTb_latest = wTr;
+}
+
+void Localizer::AddOdometry(Pose3 poseDelta, SharedNoiseModel odometryNoise,
+                            uint64_t timeUs) {
+  Key newStateIdx = X(timeUs);
 
   // Add an odometry pose delta from our last state to our new one
   graph.emplace_shared<BetweenFactor<Pose3>>(currStateIdx, newStateIdx,
@@ -76,14 +90,15 @@ void Localizer::AddOdometry(Pose3 poseDelta, units::microsecond_t time) {
   wTb_latest = wTb_latest.transformPoseFrom(poseDelta);
   currentEstimate.insert(newStateIdx, wTb_latest);
 
-  newTimestamps[newStateIdx] = time.to<double>();
+  newTimestamps[newStateIdx] = timeUs;
   twistsFromPreviousKey[newStateIdx] = poseDelta;
 
   currStateIdx = newStateIdx;
 }
 
 Key Localizer::InsertIntoSmoother(Key lower, Key upper, Key newKey,
-                                  double newTime) {
+                                  double newTime,
+                                  SharedNoiseModel odometryNoise) {
   /**
    * Goal: find the FactorIndex that connects our lower/upper key, and replace
    * it with 2 new factors and an intermediatestate
@@ -362,17 +377,19 @@ Key Localizer::GetOrInsertKey(Key newKey, double time) {
   // }
 }
 
-void Localizer::AddTagObservation(int tagID, vector<Point2> corners,
-                                  units::microsecond_t time) {
+void Localizer::AddTagObservation(int tagID, Cal3_S2_ cameraCal,
+                                  Pose3 robotTcamera, vector<Point2> corners,
+                                  SharedNoiseModel cameraNoise,
+                                  uint64_t timeUs) {
   auto worldPcorners_opt = TagModel::WorldToCorners(tagID);
   if (!worldPcorners_opt) {
     // todo return bad thing
+    fmt::println("Could not find tag {} in our map!", tagID);
     return;
   }
   auto worldPcorners = worldPcorners_opt.value();
 
-  double timeUs = time.to<double>();
-  Key newKey = X(time.to<uint64_t>());
+  Key newKey = X(timeUs);
 
   // Find where we should attach our new factors to
   Key stateAtTime = GetOrInsertKey(newKey, timeUs);
@@ -384,7 +401,7 @@ void Localizer::AddTagObservation(int tagID, vector<Point2> corners,
     // current world->body pose
     const Pose3_ worldTbody_fac(stateAtTime);
     const auto prediction = PredictLandmarkImageLocation(
-        worldTbody_fac, bodyPcamera, cameraCal, worldPcorners[i]);
+        worldTbody_fac, robotTcamera, cameraCal, worldPcorners[i]);
 
     graph.addExpressionFactor(prediction, measurement, cameraNoise);
   }
@@ -392,6 +409,7 @@ void Localizer::AddTagObservation(int tagID, vector<Point2> corners,
 
 void Localizer::Optimize() {
   // fmt::println("Adding {} factors!", graph.size());
+  // graph.print("New factors: ");
 
   smootherISAM2.update(graph, currentEstimate, newTimestamps, factorsToRemove);
 

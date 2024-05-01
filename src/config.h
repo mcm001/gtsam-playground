@@ -36,22 +36,17 @@ struct CameraConfig {
   std::string m_subtableName;
 
   double m_pixelNoise;
-  std::vector<double> m_rotNoise;
-  std::vector<double> m_transNoise;
-};
-
-// Print CameraConfigs using fmtlib
-template <> struct fmt::formatter<CameraConfig> : formatter<string_view> {
-  auto format(CameraConfig const &c, format_context &ctx) const {
-    // return formatter<string_view>::format(c.m_subtableName, ctx);
-    return fmt::format_to(
-        ctx.out(), "(name={}, pixel={}, rot=[{}], trans=[{}])",
-        c.m_subtableName, c.m_pixelNoise, fmt::join(c.m_rotNoise, ", "),
-        fmt::join(c.m_transNoise, ", "));
-  }
 };
 
 struct LocalizerConfig {
+  // root NT path
+  std::string rootTableName = "/gtsam_meme";
+
+  // odometry noise factors
+  std::vector<double> rotNoise;
+  std::vector<double> transNoise;
+
+  // cameras
   std::vector<CameraConfig> cameras;
 
   void print(std::string_view prefix = "");
@@ -60,3 +55,12 @@ struct LocalizerConfig {
 LocalizerConfig ParseConfig(std::string_view path);
 
 void from_json(const wpi::json &json, CameraConfig &config);
+
+// Print CameraConfigs using fmtlib
+template <> struct fmt::formatter<CameraConfig> : formatter<string_view> {
+  auto format(CameraConfig const &c, format_context &ctx) const {
+    // return formatter<string_view>::format(c.m_subtableName, ctx);
+    return fmt::format_to(ctx.out(), "(name={}, pixel={})", c.m_subtableName,
+                          c.m_pixelNoise);
+  }
+};

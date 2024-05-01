@@ -67,6 +67,8 @@ add_library(gtsam-localizer
   src/gtsam_utils.cpp
   src/config.cpp
   src/camera_listener.cpp
+  src/odom_listener.cpp
+  src/data_publisher.cpp
   ${localizer_resources_src}
 )
 target_link_libraries(gtsam-localizer PUBLIC

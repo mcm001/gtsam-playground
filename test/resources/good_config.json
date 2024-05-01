@@ -1,18 +1,23 @@
 {
-"cameras": [
-    {
-        "subtableName": "sim_camera1",
-        "pixelNoise": 10,
-        "rotNoise": [
-            0.087263889,
-            0.087263889,
-            0.087263889
-        ],
-        "transNoise": [
-            0.087263889,
-            0.087263889,
-            0.087263889
-        ]
-    }
-]
+    "rootTableName": "gtsam_meme",
+    "cameras": [
+        {
+            "subtableName": "sim_camera1",
+            "pixelNoise": 10
+        },
+        {
+            "subtableName": "sim_camera2",
+            "pixelNoise": 12
+        }
+    ],
+    "rotNoise": [
+        0.087263889,
+        0.087263889,
+        0.087263889
+    ],
+    "transNoise": [
+        0.087263889,
+        0.087263889,
+        0.087263889
+    ]
 }

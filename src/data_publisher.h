@@ -24,15 +24,9 @@
 
 #pragma once
 
-#include <gtsam/geometry/Cal3_S2.h>
-#include <gtsam/geometry/Pose3.h>
 #include <gtsam/linear/NoiseModel.h>
 
-#include <optional>
-#include <string>
-
 #include <frc/geometry/Pose3d.h>
-#include <frc/geometry/Transform3d.h>
 #include <networktables/DoubleArrayTopic.h>
 #include <networktables/StructArrayTopic.h>
 #include <networktables/StructTopic.h>
@@ -42,31 +36,25 @@
 
 class Localizer;
 
-class CameraListener {
+/**
+ * Set of topics to publish things to NT
+ */
+class DataPublisher {
 public:
-  CameraListener(std::string rootTable, CameraConfig config,
-                 std::shared_ptr<Localizer> localizer);
+  DataPublisher(std::string rootTable, std::shared_ptr<Localizer> localizer);
 
   /**
-   * Add all new camera observations to the localizer
+   * Publish new data to NT
    */
-  bool Update();
+  void Update();
 
 private:
-  // Camera (pinhole) calibration coefficients
-  std::optional<gtsam::Cal3_S2> cameraK;
-
-  CameraConfig config;
-
   std::shared_ptr<Localizer> localizer;
 
-  // Tag detection messages
-  nt::StructArraySubscriber<TagDetection> tagSub;
-  // Robot->this particular camera
-  nt::StructSubscriber<frc::Transform3d> robotTcamSub;
-  // Camera calibration; assume all pixel inputs are already undistorted
-  nt::DoubleArraySubscriber pinholeIntrinsicsSub;
-
-  ::gtsam::noiseModel::Isotropic::shared_ptr measurementNoise;
-  ::gtsam::Pose3 robotTcamera;
+  // field-robot optimized pose
+  nt::StructPublisher<frc::Pose3d> optimizedPosePub;
+  // Trajectory over an arbitrary past time
+  nt::StructArrayPublisher<frc::Pose3d> trajectoryHistoryPub;
+  // standard deviations on rx ry rz tx ty tz
+  nt::DoubleArrayPublisher stdDevPub;
 };

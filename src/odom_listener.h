@@ -24,16 +24,10 @@
 
 #pragma once
 
-#include <gtsam/geometry/Cal3_S2.h>
-#include <gtsam/geometry/Pose3.h>
 #include <gtsam/linear/NoiseModel.h>
 
-#include <optional>
-#include <string>
-
 #include <frc/geometry/Pose3d.h>
-#include <frc/geometry/Transform3d.h>
-#include <networktables/DoubleArrayTopic.h>
+#include <frc/geometry/Twist3d.h>
 #include <networktables/StructArrayTopic.h>
 #include <networktables/StructTopic.h>
 
@@ -42,31 +36,27 @@
 
 class Localizer;
 
-class CameraListener {
+class OdomListener {
 public:
-  CameraListener(std::string rootTable, CameraConfig config,
-                 std::shared_ptr<Localizer> localizer);
+  OdomListener(LocalizerConfig config, std::shared_ptr<Localizer> localizer);
 
   /**
-   * Add all new camera observations to the localizer
+   * Add all new odometry factors to the localizer
    */
   bool Update();
 
 private:
-  // Camera (pinhole) calibration coefficients
-  std::optional<gtsam::Cal3_S2> cameraK;
+  // Initial guess, used for the first Optimize we ever do to keep us in the
+  // right ballpark
+  nt::StructSubscriber<frc::Pose3d> initialGuessSub;
+  bool hasInitialGuess = false;
 
-  CameraConfig config;
+  LocalizerConfig config;
 
   std::shared_ptr<Localizer> localizer;
 
-  // Tag detection messages
-  nt::StructArraySubscriber<TagDetection> tagSub;
-  // Robot->this particular camera
-  nt::StructSubscriber<frc::Transform3d> robotTcamSub;
-  // Camera calibration; assume all pixel inputs are already undistorted
-  nt::DoubleArraySubscriber pinholeIntrinsicsSub;
+  nt::StructSubscriber<frc::Twist3d> odomSub;
 
-  ::gtsam::noiseModel::Isotropic::shared_ptr measurementNoise;
-  ::gtsam::Pose3 robotTcamera;
+  ::gtsam::SharedNoiseModel odomNoise;
+  ::gtsam::SharedNoiseModel priorNoise;
 };
