@@ -41,6 +41,7 @@ struct CameraConfig {
 struct LocalizerConfig {
   // root NT path
   std::string rootTableName = "/gtsam_meme";
+  std::string ntServerURI;
 
   // odometry noise factors
   std::vector<double> rotNoise;

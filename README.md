@@ -5,20 +5,26 @@ These instructions are intended for use on Linux (including WSL) only.
 You'll probably need to install these packages:
 
 ```
-libboost-dev-all protobuf-compiler ninja-build
+build-essential cmake libboost-all-dev protobuf-compiler ninja-build
 ```
 
-Use this one-line cmake incantation:
+With these packages installed, configure using CMake. I'm using Ninja, but any generator will work.
 
 ```
 cmake -B build -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo
 ```
 
- Depending on your RAM, you may need to use `-j <number>` to control the number of jobs when building.
+Depending on your RAM, you may need to use `-j <number>` to control the number of jobs when building.
+
+And build and run the actual executable! This will take a while
+
+```
+clear && cmake --build build --target gtsam-node && ./build/gtsam-node
+```
 
 # Running a photon sim example
 
-[This sim example](https://github.com/PhotonVision/champs_2024/tree/gtsam-testing/sim_projects/apriltag_yaw_only) in the gtsam-testing branch is set up to provide simulated data to the current build of gtsam-playground. Just run it as a robot simulation project! Until I get CLI working, the gtsam node NT server IP address will need to be manually changed per-machine this is tested on.
+[This sim example](https://github.com/PhotonVision/champs_2024/tree/gtsam-testing/sim_projects/apriltag_yaw_only) in the gtsam-testing branch is set up to provide simulated data to the current build of gtsam-playground. Just run it as a robot simulation project! The NT server URI is set by changing the JSON below. If you're running this in WSL2, the URI must be set to the IP address of your computer in **Windows**.
 
 I visualize output data usually using advantagescope. The 3d visualizer is great.
 
@@ -26,11 +32,14 @@ In order for the data transfer to work properly, start advantagescope, then sim,
 
 # NT API
 
-As of right now, these are our publishers/subscribers. The NT4-provided set timestamp is used for latency compensation. The list of camera names is configured by changing the config JSON, located at a hard-coded path relative to the current working directory: currently, `test/resources/simulator.json`. The JSON example below shows two cameras with given tag corner pixel standard deviations, plus global odometry standard deviations on rotation and translation.
+As of right now, these are our publishers/subscribers. The NT4-provided set timestamp is used for latency compensation. The list of camera names is configured by changing the config JSON, located at a hard-coded path relative to the current working directory: currently, `test/resources/simulator.json`. The JSON example below shows two cameras with given tag corner pixel standard deviations, plus global odometry standard deviations on rotation and translation. 
+
+A [reference implementation from robot code](https://github.com/PhotonVision/champs_2024/blob/gtsam-testing/sim_projects/apriltag_yaw_only/src/main/java/frc/robot/GtsamInterface.java) is also available.
 
 ```json
 {
     "rootTableName": "gtsam_meme_localizer1",
+    "ntServerURI": "10.TE.AM.2",
     "cameras": [
         {
             "subtableName": "sim_camera1",

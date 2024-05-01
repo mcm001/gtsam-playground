@@ -59,41 +59,46 @@ TEST(LocalizerTest, LatencyCompensate) {
 
   Cal3_S2_ cal(K);
 
-  auto localizer = Localizer{cal,           bodyPcamera,    measurementNoise,
-                             odometryNoise, posePriorNoise, Pose3{}};
+  auto localizer = Localizer();
 
-  localizer.AddOdometry(Pose3{Rot3{}, Point3{1, 0, 0}}, 100_ms);
-  localizer.AddOdometry(Pose3{Rot3{}, Point3{1, 0, 0}}, 200_ms);
-  localizer.AddOdometry(Pose3{Rot3{}, Point3{1, 0, 0}}, 300_ms);
-  localizer.AddOdometry(Pose3{Rot3{}, Point3{1, 0, 0}}, 400_ms);
+  localizer.Reset(Pose3(), posePriorNoise, 5 * 1000);
+  localizer.AddOdometry(Pose3{Rot3{}, Point3{1, 0, 0}}, odometryNoise,
+                        100 * 1000);
+  localizer.AddOdometry(Pose3{Rot3{}, Point3{1, 0, 0}}, odometryNoise,
+                        200 * 1000);
+  localizer.AddOdometry(Pose3{Rot3{}, Point3{1, 0, 0}}, odometryNoise,
+                        300 * 1000);
+  localizer.AddOdometry(Pose3{Rot3{}, Point3{1, 0, 0}}, odometryNoise,
+                        400 * 1000);
   localizer.Optimize();
   auto pose = localizer.GetLatestWorldToBody();
   pose.print("Pose: ");
 
   // add vision to within isam's history
-  localizer.AddTagObservation(8,
+  localizer.AddTagObservation(8, cal, Pose3(),
                               {
                                   {414, 166},
                                   {457, 165},
                                   {457, 122},
                                   {412, 122},
                               },
-                              240_ms);
+                              measurementNoise, 240 * 1000);
 
   localizer.Optimize();
   pose = localizer.GetLatestWorldToBody();
   localizer.Print();
 
   // add but don't optimize
-  localizer.AddOdometry(Pose3{Rot3{}, Point3{1, 0, 0}}, 500_ms);
-  localizer.AddTagObservation(8,
+  localizer.AddOdometry(Pose3{Rot3{}, Point3{1, 0, 0}}, odometryNoise,
+                        500 * 1000);
+  localizer.AddTagObservation(8, cal, Pose3(),
                               {
                                   {414, 166},
                                   {457, 165},
                                   {457, 122},
                                   {412, 122},
                               },
-                              460_ms);
+                              measurementNoise, 460 * 1000);
   localizer.Optimize();
   pose = localizer.GetLatestWorldToBody();
   localizer.Print();

@@ -1,6 +1,0 @@
-[submodule "gtsam"]
-	path = gtsam
-	url = https://github.com/mcm001/gtsam
-[submodule "tracy"]
-	path = tracy
-	url = https://github.com/wolfpld/tracy
