@@ -92,6 +92,7 @@ void Localizer::AddOdometry(Pose3 poseDelta, SharedNoiseModel odometryNoise,
 
   newTimestamps[newStateIdx] = timeUs;
   twistsFromPreviousKey[newStateIdx] = poseDelta;
+  latestOdomTime = timeUs;
 
   currStateIdx = newStateIdx;
 }
@@ -410,6 +411,7 @@ void Localizer::AddTagObservation(int tagID, Cal3_S2_ cameraCal,
 void Localizer::Optimize() {
   // fmt::println("Adding {} factors!", graph.size());
   // graph.print("New factors: ");
+  // currentEstimate.print("New estimates: ");
 
   smootherISAM2.update(graph, currentEstimate, newTimestamps, factorsToRemove);
 
