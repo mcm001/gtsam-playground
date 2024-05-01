@@ -70,4 +70,11 @@ void DataPublisher::Update() {
     std::vector<double> vec(mat.data(), mat.data() + mat.rows() * mat.cols());
     stdDevPub.Set(vec);
   }
+  {
+    static int i;
+    i++;
+
+    if (i % 3 == 2)
+      trajectoryHistoryPub.Set(localizer->GetPoseHistory());
+  }
 }

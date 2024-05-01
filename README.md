@@ -14,7 +14,7 @@ I visualize output data usually using advantagescope. The 3d visualizer is great
 
 # NT API
 
-As of right now, these are our publishers/subscribers. The NT4-provided set timestamp is used for latency compensation. The list of camera names is configured by changing the config JSON, located at a hard-coded path relative to the current working directory. The JSON example below shows two cameras with given tag corner pixel standard deviations, plus global odometry standard deviations on rotation and translation.
+As of right now, these are our publishers/subscribers. The NT4-provided set timestamp is used for latency compensation. The list of camera names is configured by changing the config JSON, located at a hard-coded path relative to the current working directory: currently, `test/resources/simulator.json`. The JSON example below shows two cameras with given tag corner pixel standard deviations, plus global odometry standard deviations on rotation and translation.
 
 ```json
 {
@@ -30,7 +30,7 @@ As of right now, these are our publishers/subscribers. The NT4-provided set time
         }
     ],
     "rotNoise": [ 0.087263889, 0.087263889, 0.087263889 ],
-    "transNoise": [ 0.087263889, 0.087263889, 0.087263889 ]
+    "transNoise": [ 0.001, 0.001, 0.001 ]
 }
 
 ```
