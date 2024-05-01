@@ -37,10 +37,11 @@ class Localizer;
 
 /**
  * Set of topics to publish things to NT
-*/
+ */
 class DataPublisher {
 public:
-  DataPublisher(std::string_view rootTable, std::shared_ptr<Localizer> localizer);
+  DataPublisher(std::string_view rootTable,
+                std::shared_ptr<Localizer> localizer);
 
   /**
    * Publish new data to NT

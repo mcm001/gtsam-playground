@@ -26,21 +26,23 @@
 
 #include <gtsam/linear/NoiseModel.h>
 
+#include <optional>
+
 #include <frc/geometry/Pose3d.h>
 #include <frc/geometry/Transform3d.h>
+#include <networktables/DoubleArrayTopic.h>
 #include <networktables/StructArrayTopic.h>
 #include <networktables/StructTopic.h>
-#include <networktables/DoubleArrayTopic.h>
 
 #include "TagDetectionStruct.h"
 #include "config.h"
-#include <optional>
 
 class Localizer;
 
 class CameraListener {
 public:
-  CameraListener(std::string_view rootTable, CameraConfig config, std::shared_ptr<Localizer> localizer);
+  CameraListener(std::string_view rootTable, CameraConfig config,
+                 std::shared_ptr<Localizer> localizer);
 
   /**
    * Add all new camera observations to the localizer
@@ -51,7 +53,7 @@ private:
   // Camera (pinhole) calibration coefficients
   std::optional<Cal3_S2> cameraK;
 
-  CameraConfig config; 
+  CameraConfig config;
 
   std::shared_ptr<Localizer> localizer;
 

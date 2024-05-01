@@ -33,24 +33,22 @@ using std::vector;
 using namespace gtsam;
 
 OdomListener::OdomListner(std::string_view rootTable,
-                               std::shared_ptr<Localizer> localizer_)
+                          std::shared_ptr<Localizer> localizer_)
     : config(config), localizer(localizer_),
       odomSub(nt::NetworkTableInstance::GetDefault()
-                 .GetStructTopic<frc::Twist3d>(rootTable + "/input/odom_twist")
-                 .Subscribe({},
-                            {
-                                .pollStorage = 100,
-                                .sendAll = true,
-                                .keepDuplicates = true,
-                            })),
+                  .GetStructTopic<frc::Twist3d>(rootTable + "/input/odom_twist")
+                  .Subscribe({},
+                             {
+                                 .pollStorage = 100,
+                                 .sendAll = true,
+                                 .keepDuplicates = true,
+                             })),
       odomNoise(noiseModel::Diagonal::Sigmas(
-        // Odoometry factor stdev: rad,rad,rad,m, m, m
-        (Vector(6) << config.rotNoise << config.transNoise).finished())),  
+          // Odoometry factor stdev: rad,rad,rad,m, m, m
+          (Vector(6) << config.rotNoise << config.transNoise).finished())),
       priorNoise(noiseModel::Diagonal::Sigmas(
-        // initial guess stdev: rad,rad,rad,m, m, m
-        (Vector(6) << 1, 1, 1, 1, 1, 1).finished()))
-      {}
-
+          // initial guess stdev: rad,rad,rad,m, m, m
+          (Vector(6) << 1, 1, 1, 1, 1, 1).finished())) {}
 
 void OdomListener::Update() {
   if (!localizer) {
@@ -72,16 +70,15 @@ void OdomListener::Update() {
     hasInitialGuess = true;
   }
 
-
   const auto odom = odomSub.ReadQueue();
 
-  for (const auto& o : odom) {
-    auto& twist = o.value;
+  for (const auto &o : odom) {
+    auto &twist = o.value;
 
     Pose3 odomPoseDelta = Pose3::Expmap(
         (Vector6() << twist.rx.to<double>(), twist.ry.to<double>(),
-          twist.rz.to<double>(), twist.dx.to<double>(), twist.dy.to<double>(),
-          twist.dz.to<double>())
+         twist.rz.to<double>(), twist.dx.to<double>(), twist.dy.to<double>(),
+         twist.dz.to<double>())
             .finished());
 
     try {

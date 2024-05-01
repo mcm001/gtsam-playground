@@ -33,34 +33,42 @@ using std::vector;
 using namespace gtsam;
 
 DataPublisher::OdomListner(std::string_view rootTable,
-                               std::shared_ptr<Localizer> localizer_)
+                           std::shared_ptr<Localizer> localizer_)
     : localizer(localizer_),
-      optimizedPosePub(nt::NetworkTableInstance::GetDefault()
-                 .GetStructTopic<frc::Pose3d>(rootTable + "/output/optimized_pose")
-                 .Publish({
-                                .sendAll = true,
-                                .keepDuplicates = true,
-                            })),
+      optimizedPosePub(
+          nt::NetworkTableInstance::GetDefault()
+              .GetStructTopic<frc::Pose3d>(rootTable + "/output/optimized_pose")
+              .Publish({
+                  .sendAll = true,
+                  .keepDuplicates = true,
+              })),
       trajectoryHistoryPub(nt::NetworkTableInstance::GetDefault()
-                 .GetStructArrayTopic<frc::Pose3d>(rootTable + "/output/optimized_traj")
-                 .Publish({
-                                .sendAll = true,
-                                .keepDuplicates = true,
-                            })),
+                               .GetStructArrayTopic<frc::Pose3d>(
+                                   rootTable + "/output/optimized_traj")
+                               .Publish({
+                                   .sendAll = true,
+                                   .keepDuplicates = true,
+                               })),
       stdDevPub(nt::NetworkTableInstance::GetDefault()
-                 .GetDoubleArrayTopi(rootTable + "/output/pose_stddev")
-                 .Publish({
-                                .sendAll = true,
-                                .keepDuplicates = true,
-                            }))
-      {}
-
+                    .GetDoubleArrayTopi(rootTable + "/output/pose_stddev")
+                    .Publish({
+                        .sendAll = true,
+                        .keepDuplicates = true,
+                    })) {}
 
 void DataPublisher::Update() {
   if (!localizer) {
     throw std::runtime_error("Localizer was null");
   }
 
-  auto est = localizer.GetLatestWorldToBody();
-  optimizedPosePub.Set(GtsamToFrcPose3d(est));
+  {
+
+    auto est = localizer.GetLatestWorldToBody();
+    optimizedPosePub.Set(GtsamToFrcPose3d(est));
+  }
+  {
+    auto mat = localizer.GetPoseComponentStdDevs();
+    std::vector<double> vec(mat.data(), mat.data() + mat.rows() * mat.cols());
+    stdevPub.Set(vec);
+  }
 }

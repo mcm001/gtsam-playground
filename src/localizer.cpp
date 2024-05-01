@@ -57,8 +57,8 @@ Localizer::Localizer() {
 void Reset(Pose3 wTr, SharedNoiseModal noise, uint64_t timeUs) {
   currStateIdx = X(timeUs);
 
-  smootherISAM2 = IncrementalFixedLagSmoother(smootherISAM2.smootherLag(), 
-    smootherISAM2.params());
+  smootherISAM2 = IncrementalFixedLagSmoother(smootherISAM2.smootherLag(),
+                                              smootherISAM2.params());
 
   graph.resize(0);
   currentEstimate.clear();
@@ -73,7 +73,8 @@ void Reset(Pose3 wTr, SharedNoiseModal noise, uint64_t timeUs) {
   wTb_latest = wTr;
 }
 
-void Localizer::AddOdometry(Pose3 poseDelta, SharedNoiseModal odometryNoise, uint64_t timeUs) {
+void Localizer::AddOdometry(Pose3 poseDelta, SharedNoiseModal odometryNoise,
+                            uint64_t timeUs) {
   Key newStateIdx = X(timeUs);
 
   // Add an odometry pose delta from our last state to our new one
@@ -370,8 +371,10 @@ Key Localizer::GetOrInsertKey(Key newKey, double time) {
   // }
 }
 
-void Localizer::AddTagObservation(int tagID, Cal3_S2_ cameraCal, Pose3 robotTcamera, vector<Point2> corners,
-                                  SharedNoiseModal cameraNoise, uint64_t timeUs) {
+void Localizer::AddTagObservation(int tagID, Cal3_S2_ cameraCal,
+                                  Pose3 robotTcamera, vector<Point2> corners,
+                                  SharedNoiseModal cameraNoise,
+                                  uint64_t timeUs) {
   auto worldPcorners_opt = TagModel::WorldToCorners(tagID);
   if (!worldPcorners_opt) {
     // todo return bad thing

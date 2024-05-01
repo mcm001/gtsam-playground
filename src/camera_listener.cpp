@@ -36,7 +36,8 @@ CameraListener::CameraListener(std::string_view rootTable, CameraConfig config,
                                std::shared_ptr<Localizer> localizer_)
     : config(config), localizer(localizer_),
       tagSub(nt::NetworkTableInstance::GetDefault()
-                 .GetStructArrayTopic<TagDetection>(rootTable + config.m_subtagleName + "/input/tags")
+                 .GetStructArrayTopic<TagDetection>(
+                     rootTable + config.m_subtagleName + "/input/tags")
                  .Subscribe({},
                             {
                                 .pollStorage = 100,
@@ -44,23 +45,26 @@ CameraListener::CameraListener(std::string_view rootTable, CameraConfig config,
                                 .keepDuplicates = true,
                             })),
       robotTcamSub(nt::NetworkTableInstance::GetDefault()
-                 .GetStructTopic<frc::Transform3d>(rootTable + config.m_subtagleName + "/input/robotTcam")
-                 .Subscribe({},
-                            {
-                                .pollStorage = 100,
-                                .sendAll = true,
-                                .keepDuplicates = true,
-                            })),
+                       .GetStructTopic<frc::Transform3d>(rootTable +
+                                                         config.m_subtagleName +
+                                                         "/input/robotTcam")
+                       .Subscribe({},
+                                  {
+                                      .pollStorage = 100,
+                                      .sendAll = true,
+                                      .keepDuplicates = true,
+                                  })),
       pinholeIntrinsicsSub(nt::NetworkTableInstance::GetDefault()
-                 .GetDoubleArrayTopic(rootTable + config.m_subtagleName + "/input/cam_intrinsics")
-                 .Subscribe({},
-                            {
-                                .pollStorage = 100,
-                                .sendAll = true,
-                                .keepDuplicates = true,
-                            })),
+                               .GetDoubleArrayTopic(rootTable +
+                                                    config.m_subtagleName +
+                                                    "/input/cam_intrinsics")
+                               .Subscribe({},
+                                          {
+                                              .pollStorage = 100,
+                                              .sendAll = true,
+                                              .keepDuplicates = true,
+                                          })),
       measurementNoise(noiseModel::Isotropic::Sigma(2, config.m_pixelNoise)) {}
-
 
 void CameraListener::Update() {
   if (!localizer) {
@@ -74,17 +78,14 @@ void CameraListener::Update() {
     // Update calibration!
     std::vector<double> K_ = last_K.value;
     if (K_.size() != 4) {
-      fmt::println("Camera {}: K of odd size {}?", config.m_subtableName, K_.size());
+      fmt::println("Camera {}: K of odd size {}?", config.m_subtableName,
+                   K_.size());
       return;
     }
     // assume order is [fx fy cx cy] from NT
-    cameraK = Cal3_S2{
-      K_[0],
-      K_[1],
-      0, // no skew
-      K_[2],
-      K_[3]
-    };
+    cameraK = Cal3_S2{K_[0], K_[1],
+                      0, // no skew
+                      K_[2], K_[3]};
     cameraK.print("New camera calibration");
   }
   if (!cameraK) {
@@ -115,7 +116,7 @@ void CameraListener::Update() {
 
       try {
         localizer->AddTagObservation(t.id, robotTcam, cornersForGtsam,
-                                    measurementNoise, tarr.time);
+                                     measurementNoise, tarr.time);
       } catch (std::exception e) {
         fmt::println("exception adding tag, {}", e.what());
       }

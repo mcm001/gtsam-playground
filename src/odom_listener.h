@@ -37,7 +37,8 @@ class Localizer;
 
 class OdomListener {
 public:
-  OdomListener(std::string_view rootTable, std::shared_ptr<Localizer> localizer);
+  OdomListener(std::string_view rootTable,
+               std::shared_ptr<Localizer> localizer);
 
   /**
    * Add all new odometry factors to the localizer
@@ -45,11 +46,12 @@ public:
   void Update();
 
 private:
-  // Initial guess, used for the first Optimize we ever do to keep us in the right ballpark
+  // Initial guess, used for the first Optimize we ever do to keep us in the
+  // right ballpark
   nt::StructSubscriber<frc::Pose3d> initialGuessSub;
   bool hasInitialGuess = false;
 
-  CameraConfig config; 
+  CameraConfig config;
 
   std::shared_ptr<Localizer> localizer;
 

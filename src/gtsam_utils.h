@@ -32,6 +32,6 @@ gtsam::Pose3 FrcToGtsamPose3(frc::Pose3d pose);
 frc::Pose3d GtsamToFrcPose3d(gtsam::Pose3 pose);
 
 gtsam::Point2_ PredictLandmarkImageLocation(gtsam::Pose3_ worldTbody_fac,
-                                                   gtsam::Pose3 bodyPcamera,
-                                                   gtsam::Cal3_S2_ cameraCal,
-                                                   gtsam::Point3 worldPcorner);
+                                            gtsam::Pose3 bodyPcamera,
+                                            gtsam::Cal3_S2_ cameraCal,
+                                            gtsam::Point3 worldPcorner);

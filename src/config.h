@@ -50,8 +50,7 @@ template <> struct fmt::formatter<CameraConfig> : formatter<string_view> {
 };
 
 struct LocalizerConfig {
-  std::string rootTableName = "/gtsam_meme/"
-  std::vector<CameraConfig> cameras;
+  std::string rootTableName = "/gtsam_meme/" std::vector<CameraConfig> cameras;
 
   void print(std::string_view prefix = "");
 

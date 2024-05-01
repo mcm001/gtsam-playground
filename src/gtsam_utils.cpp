@@ -34,9 +34,9 @@ Pose3 FrcToGtsamPose3(frc::Pose3d pose) {
 }
 
 gtsam::Point2_ PredictLandmarkImageLocation(gtsam::Pose3_ worldTbody_fac,
-                                                   gtsam::Pose3 bodyPcamera,
-                                                   gtsam::Cal3_S2_ cameraCal,
-                                                   gtsam::Point3 worldPcorner) {
+                                            gtsam::Pose3 bodyPcamera,
+                                            gtsam::Cal3_S2_ cameraCal,
+                                            gtsam::Point3 worldPcorner) {
   using namespace gtsam;
 
   // world->camera pose as a composition of world->body factory and
@@ -54,7 +54,7 @@ gtsam::Point2_ PredictLandmarkImageLocation(gtsam::Pose3_ worldTbody_fac,
 }
 
 frc::Pose3d GtsamToFrcPose3d(gtsam::Pose3 pose) {
-  return frc::Pose3d{
+  return frc::Pose3d {
     frc::Translation3d{units::meter_t{pose.x()},
                        units::meter_t{pose.y()},
                        units::meter_t{pose.z()}},
