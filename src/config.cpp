@@ -50,6 +50,7 @@ LocalizerConfig ParseConfig(std::string_view path) {
 
   return LocalizerConfig{
       .rootTableName = json.at("rootTableName").get<std::string>(),
+      .ntServerURI = json.at("ntServerURI").get<std::string>(),
       .rotNoise = json.at("rotNoise").get<std::vector<double>>(),
       .transNoise = json.at("transNoise").get<std::vector<double>>(),
       .cameras = json.at("cameras").get<std::vector<CameraConfig>>()};

@@ -107,7 +107,7 @@ int main(int argc, char **argv) {
   nt::NetworkTableInstance inst = nt::NetworkTableInstance::GetDefault();
 
   inst.StopServer();
-  inst.SetServer("192.168.1.226");
+  inst.SetServer(config.ntServerURI.c_str());
   inst.StartClient4("gtsam-meme");
 
   LocalizerRunner runner(config);

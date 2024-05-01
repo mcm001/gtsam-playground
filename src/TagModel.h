@@ -36,6 +36,3 @@
 namespace TagModel {
 std::optional<std::vector<gtsam::Point3>> WorldToCorners(int id);
 } // namespace TagModel
-
-gtsam::Pose3 EstimateFieldToRobot(std::vector<TagDetection> tags,
-                                  gtsam::Cal3_S2 cal);
