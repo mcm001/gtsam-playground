@@ -52,9 +52,9 @@ CameraListener::CameraListener(std::string rootTable, CameraConfig config,
                            config.m_subtableName + "/input/robotTcam")
                        .Subscribe({},
                                   {
-                                      .pollStorage = 100,
-                                      .sendAll = true,
-                                      .keepDuplicates = true,
+                                      .pollStorage = 1,
+                                      .sendAll = false,
+                                      .keepDuplicates = false,
                                   })),
       pinholeIntrinsicsSub(
           nt::NetworkTableInstance::GetDefault()
@@ -63,9 +63,9 @@ CameraListener::CameraListener(std::string rootTable, CameraConfig config,
                   config.m_subtableName + "/input/cam_intrinsics")
               .Subscribe({},
                          {
-                             .pollStorage = 100,
-                             .sendAll = true,
-                             .keepDuplicates = true,
+                             .pollStorage = 1,
+                             .sendAll = false,
+                             .keepDuplicates = false,
                          })),
       measurementNoise(noiseModel::Isotropic::Sigma(2, config.m_pixelNoise)) {}
 
@@ -112,7 +112,8 @@ bool CameraListener::Update() {
   for (const auto &tarr : tags) {
     // For each tag in this tag array
     for (const auto &t : tarr.value) {
-      vector<Point2> cornersForGtsam(4);
+      vector<Point2> cornersForGtsam;
+      cornersForGtsam.reserve(4);
       for (const auto &c : t.corners) {
         cornersForGtsam.emplace_back(c.first, c.second);
       }

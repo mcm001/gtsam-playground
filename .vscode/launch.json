@@ -35,7 +35,7 @@
             "program": "${workspaceFolder}/build/gtsam-node",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${fileDirname}",
+            "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",

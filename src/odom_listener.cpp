@@ -50,6 +50,16 @@ OdomListener::OdomListener(LocalizerConfig config,
                                  .sendAll = true,
                                  .keepDuplicates = true,
                              })),
+      initialGuessSub(
+          nt::NetworkTableInstance::GetDefault()
+              .GetStructTopic<frc::Pose3d>(config.rootTableName +
+                                           "/input/pose_initial_guess")
+              .Subscribe({},
+                         {
+                             .pollStorage = 100,
+                             .sendAll = true,
+                             .keepDuplicates = true,
+                         })),
       odomNoise(noiseModel::Diagonal::Sigmas(
           // Odoometry factor stdev: rad,rad,rad,m, m, m
           makeOdomNoise(config))),

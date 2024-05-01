@@ -86,6 +86,7 @@ public:
       nt::NetworkTableInstance::GetDefault().Flush();
     } catch (std::exception e) {
       fmt::println("Exception optimizing: {}", e.what());
+      localizer->Print();
     }
   }
 };
