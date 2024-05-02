@@ -86,10 +86,13 @@ bool CameraListener::Update() {
       return false;
     }
     // assume order is [fx fy cx cy] from NT
-    this->cameraK = Cal3_S2{K_[0], K_[1],
+    auto newK = Cal3_S2{K_[0], K_[1],
                             0, // no skew
                             K_[2], K_[3]};
-    cameraK->print("New camera calibration");
+    if (!cameraK || !cameraK->equals(newK, 1e-6)) {
+      cameraK = newK;
+      cameraK->print("New camera calibration");
+    }
   }
   if (!cameraK) {
     fmt::println("Camera {}: no intrinsics set?", config.m_subtableName);

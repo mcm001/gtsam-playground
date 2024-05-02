@@ -72,6 +72,7 @@ public:
   }
 
   inline Key GetCurrStateIdx() const { return currStateIdx; }
+  inline uint64_t GetLastOdomTime() const { return latestOdomTime; }
 
   inline const Pose3 GetLatestWorldToBody() const { return wTb_latest; }
 
@@ -109,6 +110,7 @@ protected:
 
   // Current "tip" world->body estimate
   Pose3 wTb_latest;
+  uint64_t latestOdomTime;
 
   // keep track of our current state. State is encoded as X(uS since epoch).
   // the Key class uses the lower 56 bits for the index, and top 8 for symbol

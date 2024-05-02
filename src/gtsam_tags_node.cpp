@@ -115,7 +115,7 @@ int main(int argc, char **argv) {
   while (true) {
     runner.Update();
 
-    std::this_thread::sleep_for(100ms);
+    std::this_thread::sleep_for(10ms);
   }
 
   return 0;

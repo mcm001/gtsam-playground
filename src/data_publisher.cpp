@@ -61,14 +61,16 @@ void DataPublisher::Update() {
     throw std::runtime_error("Localizer was null");
   }
 
+  auto time = localizer->GetLastOdomTime();
+
   {
     auto est = localizer->GetLatestWorldToBody();
-    optimizedPosePub.Set(GtsamToFrcPose3d(est));
+    optimizedPosePub.Set(GtsamToFrcPose3d(est), time);
   }
   {
     auto mat = localizer->GetPoseComponentStdDevs();
     std::vector<double> vec(mat.data(), mat.data() + mat.rows() * mat.cols());
-    stdDevPub.Set(vec);
+    stdDevPub.Set(vec, time);
   }
   {
     static int i;
