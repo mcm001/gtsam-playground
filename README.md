@@ -19,7 +19,7 @@ Depending on your RAM, you may need to use `-j <number>` to control the number o
 And build and run the actual executable! This will take a while
 
 ```
-clear && cmake --build build --target gtsam-node && ./build/gtsam-node
+clear && cmake --build build --target gtsam-node && ./build/bin/gtsam-node
 ```
 
 # Running a photon sim example
