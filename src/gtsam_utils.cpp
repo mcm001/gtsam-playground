@@ -43,7 +43,7 @@ Pose3 Transform3dToGtsamPose3(frc::Transform3d pose) {
 gtsam::Point2_ PredictLandmarkImageLocation(gtsam::Pose3_ worldTbody_fac,
                                             gtsam::Pose3 bodyPcamera,
                                             gtsam::Cal3_S2_ cameraCal,
-                                            gtsam::Point3 worldPcorner) {
+                                            gtsam::Point3_ worldPcorner) {
   using namespace gtsam;
 
   // world->camera pose as a composition of world->body factory and

@@ -31,6 +31,8 @@
 #include <gtsam/slam/SmartProjectionPoseFactor.h>
 #include <gtsam_unstable/nonlinear/IncrementalFixedLagSmoother.h>
 
+#include <unordered_map>
+
 #include <frc/geometry/Pose3d.h>
 #include <units/time.h>
 
@@ -100,9 +102,13 @@ protected:
   FixedLagSmoother::KeyTimestampMap newTimestamps{};
   // Factors to delete
   FactorIndices factorsToRemove{};
-  // Log of old twists
+  // Log of old twists. TODO trim these down over time
   typedef std::map<Key, Pose3> KeyPoseDeltaMap;
   KeyPoseDeltaMap twistsFromPreviousKey{};
+
+  // Landmarks we've seen so far (so we know if we need to give them an initial
+  // guess or not)
+  std::unordered_map<Key, Pose3_> landmarksSeen;
 
   // ISAM-backed fixed-lag smoother. Will marginalize out states older then a
   // given lag.

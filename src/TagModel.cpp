@@ -31,7 +31,9 @@
 
 using gtsam::Cal3_S2;
 using gtsam::Point3;
+using gtsam::Point3_;
 using gtsam::Pose3;
+using gtsam::Pose3_;
 using gtsam::Rot3;
 using std::map;
 using std::vector;
@@ -52,17 +54,48 @@ inline const frc::AprilTagFieldLayout kTagLayout{
     frc::LoadAprilTagLayoutField(frc::AprilTagField::k2024Crescendo)};
 
 float width = 6.5 * 25.4 / 1000.0; // 6.5in wide tag
-vector<Point3> tagToCorners{
+const vector<Point3> tagToCorners{
     {0, -width / 2.0, -width / 2.0},
     {0, width / 2.0, -width / 2.0},
     {0, width / 2.0, width / 2.0},
     {0, -width / 2.0, width / 2.0},
+};
+const vector<Point3_> tagToCornersFac{
+    Point3{0, -width / 2.0, -width / 2.0},
+    Point3{0, width / 2.0, -width / 2.0},
+    Point3{0, width / 2.0, width / 2.0},
+    Point3{0, -width / 2.0, width / 2.0},
 };
 
 map<int, Pose3> worldTtags = TagLayoutToMap(kTagLayout);
 } // namespace
 
 namespace TagModel {
+
+std::optional<gtsam::Pose3> InitialWorldToTag(int id) {
+  auto maybePose = worldTtags.find(id);
+  if (maybePose == worldTtags.end()) {
+    return std::nullopt;
+  }
+  Pose3 worldTtag = maybePose->second;
+  return worldTtag;
+}
+
+vector<Point3_> WorldToCornersFactor(const gtsam::Pose3_ &worldTtag) {
+  vector<Point3_> out;
+  out.reserve(4);
+
+  for (int i = 0; i < 4; i++) {
+    out[i] = ::gtsam::transformFrom(worldTtag, tagToCornersFac[i]);
+  }
+
+  // std::transform(tagToCornersFac.begin(), tagToCornersFac.end(), out.begin(),
+  //                [&worldTtag](const auto &p) {
+  //                  return ::gtsam::transformFrom(worldTtag, p);
+  //                });
+
+  return out;
+}
 
 std::optional<vector<Point3>> WorldToCorners(int id) {
   auto maybePose = worldTtags.find(id);
@@ -71,7 +104,8 @@ std::optional<vector<Point3>> WorldToCorners(int id) {
   }
   Pose3 worldTtag = maybePose->second;
 
-  vector<Point3> out(4);
+  vector<Point3> out;
+  out.reserve(4);
   std::transform(
       tagToCorners.begin(), tagToCorners.end(), out.begin(),
       [&worldTtag](const auto &p) { return worldTtag.transformFrom(p); });

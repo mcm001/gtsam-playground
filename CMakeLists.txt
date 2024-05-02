@@ -42,6 +42,7 @@ target_link_libraries(gtsam-localizer PUBLIC
   wpimath
 )
 target_compile_options(gtsam-localizer PRIVATE -Wno-deprecated-enum-enum-conversion)
+target_compile_options(gtsam-localizer PRIVATE -g -Og)
 
 add_executable(gtsam-node 
   src/gtsam_tags_node.cpp

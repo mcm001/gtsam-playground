@@ -32,9 +32,12 @@ In order for the data transfer to work properly, start advantagescope, then sim,
 
 # NT API
 
-As of right now, these are our publishers/subscribers. The NT4-provided set timestamp is used for latency compensation. The list of camera names is configured by changing the config JSON, located at a hard-coded path relative to the current working directory: currently, `test/resources/simulator.json`. The JSON example below shows two cameras with given tag corner pixel standard deviations, plus global odometry standard deviations on rotation and translation. 
+As of right now, these are our publishers/subscribers. The NT4-provided set timestamp is used for latency compensation. The list of camera names is configured by changing the config JSON, located at a hard-coded path relative to the current working directory: currently, `test/resources/simulator.json`. The JSON example below shows two cameras with given tag corner pixel standard deviations, plus global odometry standard deviations on rotation and translation. A [reference implementation from robot code](https://github.com/PhotonVision/champs_2024/blob/gtsam-testing/sim_projects/apriltag_yaw_only/src/main/java/frc/robot/GtsamInterface.java) is also available.
 
-A [reference implementation from robot code](https://github.com/PhotonVision/champs_2024/blob/gtsam-testing/sim_projects/apriltag_yaw_only/src/main/java/frc/robot/GtsamInterface.java) is also available.
+- rotNoise: Standard deviation of gyro noise in rotation about [x,y,z], in rad
+- transNoise: Standard deviation of odometry translation noise in [x,y,z], in m
+- pixelNoise: Standard deviation of tag corner pixel locations noise, in pixels
+
 
 ```json
 {

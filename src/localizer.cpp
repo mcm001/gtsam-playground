@@ -24,6 +24,8 @@
 
 #include "localizer.h"
 
+#include <gtsam/slam/expressions.h>
+
 #include <algorithm>
 
 #include "TagModel.h"
@@ -31,6 +33,7 @@
 #include "gtsam_utils.h"
 
 using namespace gtsam;
+using symbol_shorthand::L;
 using symbol_shorthand::X;
 
 constexpr int NUM_CORNERS = 4;
@@ -382,13 +385,32 @@ void Localizer::AddTagObservation(int tagID, Cal3_S2_ cameraCal,
                                   Pose3 robotTcamera, vector<Point2> corners,
                                   SharedNoiseModel cameraNoise,
                                   uint64_t timeUs) {
-  auto worldPcorners_opt = TagModel::WorldToCorners(tagID);
-  if (!worldPcorners_opt) {
-    // todo return bad thing
-    fmt::println("Could not find tag {} in our map!", tagID);
-    return;
+  // auto worldPcorners_opt = TagModel::WorldToCorners(tagID);
+  // if (!worldPcorners_opt) {
+  //   // todo return bad thing
+  //   fmt::println("Could not find tag {} in our map!", tagID);
+  //   return;
+  // }
+  // auto worldPcorners = worldPcorners_opt.value();
+
+  // initial guess, might go unused if we've seen this tag before
+  auto initialLandmarkGuess = TagModel::InitialWorldToTag(tagID);
+  if (!initialLandmarkGuess) {
+    throw std::runtime_error("Tag not in map...");
   }
-  auto worldPcorners = worldPcorners_opt.value();
+
+  Key tagKey = L(tagID);
+
+  // Add initial guess if we need to
+  if (auto iter = landmarksSeen.find(tagKey); iter == landmarksSeen.end()) {
+    fmt::println("First time seeing tag {} / {}!", tagKey, tagID);
+    landmarksSeen.insert({tagKey, Pose3_(tagKey)});
+    currentEstimate.insert(tagKey, *initialLandmarkGuess);
+  }
+
+  Pose3_ &worldPtag = landmarksSeen.find(tagKey)->second;
+
+  auto worldPcorners = TagModel::WorldToCornersFactor(worldPtag);
 
   Key newKey = X(timeUs);
 
