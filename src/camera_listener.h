@@ -28,6 +28,7 @@
 #include <gtsam/geometry/Pose3.h>
 #include <gtsam/linear/NoiseModel.h>
 
+#include <memory>
 #include <optional>
 #include <string>
 

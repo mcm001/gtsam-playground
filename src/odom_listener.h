@@ -26,6 +26,9 @@
 
 #include <gtsam/linear/NoiseModel.h>
 
+#include <memory>
+#include <string>
+
 #include <frc/geometry/Pose3d.h>
 #include <frc/geometry/Twist3d.h>
 #include <networktables/StructArrayTopic.h>

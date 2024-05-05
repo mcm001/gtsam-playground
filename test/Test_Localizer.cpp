@@ -26,16 +26,16 @@
 
 #include "localizer.h"
 
-TEST(LocalizerTest, LatencyCompensate) {
-  // Hard-coded for now -- TODO move to configurable
-  const Pose3 bodyPcamera{/*
-                          We want:
-                          x in [0,-1,0]
-                          y in [0,0,-1]
-                          z in [1,0,0]
-                          */
-                          Rot3(0, 0, 1, -1, 0, 0, 0, -1, 0),
+using namespace gtsam;
 
+TEST(LocalizerTest, LatencyCompensate) {
+  /*
+  We want:
+  x in [0,-1,0]
+  y in [0,0,-1]
+  z in [1,0,0]
+  */
+  const Pose3 bodyPcamera{Rot3(0, 0, 1, -1, 0, 0, 0, -1, 0),
                           Point3{0.5, 0, 0.5}};
 
   // Cal3_S2 K(90, 960, 720);

@@ -31,19 +31,18 @@
 #include <gtsam/slam/SmartProjectionPoseFactor.h>
 #include <gtsam_unstable/nonlinear/IncrementalFixedLagSmoother.h>
 
+#include <map>
+#include <vector>
+
 #include <frc/geometry/Pose3d.h>
 #include <units/time.h>
 
 #include "gtsam/slam/expressions.h"
 
-using namespace gtsam;
-using std::map;
-using std::vector;
-using symbol_shorthand::X;
-
 class Localizer {
-  using SmartFactor = SmartProjectionPoseFactor<Cal3_S2>;
-  using LandmarkMap = map<Key, SmartFactor::shared_ptr>;
+  using Key = gtsam::Key;
+  using SmartFactor = gtsam::SmartProjectionPoseFactor<gtsam::Cal3_S2>;
+  using LandmarkMap = std::map<Key, SmartFactor::shared_ptr>;
 
 public:
   Localizer();
@@ -51,13 +50,15 @@ public:
   /**
    * Add a prior factor on the world->robot pose
    */
-  void Reset(Pose3 wTr, SharedNoiseModel noise, uint64_t timeUs);
+  void Reset(gtsam::Pose3 wTr, gtsam::SharedNoiseModel noise, uint64_t timeUs);
 
-  void AddOdometry(Pose3 twist, SharedNoiseModel noise, uint64_t timeUs);
+  void AddOdometry(gtsam::Pose3 twist, gtsam::SharedNoiseModel noise,
+                   uint64_t timeUs);
 
-  void AddTagObservation(int tagID, Cal3_S2_ cameraCal, Pose3 robotTcamera,
-                         vector<Point2> corners, SharedNoiseModel noise,
-                         uint64_t timeUs);
+  void AddTagObservation(int tagID, gtsam::Cal3_S2_ cameraCal,
+                         gtsam::Pose3 robotTcamera,
+                         std::vector<gtsam::Point2> corners,
+                         gtsam::SharedNoiseModel noise, uint64_t timeUs);
 
   void Optimize();
 
@@ -74,13 +75,13 @@ public:
   inline Key GetCurrStateIdx() const { return currStateIdx; }
   inline uint64_t GetLastOdomTime() const { return latestOdomTime; }
 
-  inline const Pose3 GetLatestWorldToBody() const { return wTb_latest; }
+  inline const gtsam::Pose3 GetLatestWorldToBody() const { return wTb_latest; }
 
-  Matrix GetLatestMarginals() const;
+  gtsam::Matrix GetLatestMarginals() const;
   // standard deviations on rx ry rz tx ty tz
-  Vector6 GetPoseComponentStdDevs() const;
+  gtsam::Vector6 GetPoseComponentStdDevs() const;
 
-  const vector<frc::Pose3d> GetPoseHistory() const;
+  const std::vector<frc::Pose3d> GetPoseHistory() const;
 
 protected:
   /**
@@ -88,33 +89,33 @@ protected:
    * key for it
    */
   Key InsertIntoSmoother(Key lower, Key upper, Key newKey, double newTime,
-                         SharedNoiseModel odometryNoise);
+                         gtsam::SharedNoiseModel odometryNoise);
 
   Key GetOrInsertKey(Key newKey, double time);
 
   // New factor graph to add to our smoother at the next call to Optimize()
-  ExpressionFactorGraph graph{};
+  gtsam::ExpressionFactorGraph graph{};
   // New inital guesses to add to our smoother at the next call to Optimize()
-  Values currentEstimate{};
+  gtsam::Values currentEstimate{};
   // New state timestamps to add to our smoother at the next call to Optimize()
-  FixedLagSmoother::KeyTimestampMap newTimestamps{};
+  gtsam::FixedLagSmoother::KeyTimestampMap newTimestamps{};
   // Factors to delete
-  FactorIndices factorsToRemove{};
+  gtsam::FactorIndices factorsToRemove{};
   // Log of old twists
-  typedef std::map<Key, Pose3> KeyPoseDeltaMap;
+  typedef std::map<Key, gtsam::Pose3> KeyPoseDeltaMap;
   KeyPoseDeltaMap twistsFromPreviousKey{};
 
   // ISAM-backed fixed-lag smoother. Will marginalize out states older then a
   // given lag.
-  IncrementalFixedLagSmoother smootherISAM2;
+  gtsam::IncrementalFixedLagSmoother smootherISAM2;
 
   // Current "tip" world->body estimate
-  Pose3 wTb_latest;
+  gtsam::Pose3 wTb_latest;
   uint64_t latestOdomTime;
 
   // keep track of our current state. State is encoded as X(uS since epoch).
   // the Key class uses the lower 56 bits for the index, and top 8 for symbol
   // 2^(64−8)÷10^6÷60÷60÷24÷365 = 2284 years, so as long as we use a sane epoch
-  // we're good This will only work on 64-bit machines, but oh well. big shame.
-  Key currStateIdx = X(0);
+  // we're good. This will only work on 64-bit machines, but oh well. big shame.
+  Key currStateIdx;
 };

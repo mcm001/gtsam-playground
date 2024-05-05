@@ -56,10 +56,9 @@ private:
   std::vector<CameraListener> cameraListeners;
 
 public:
-  LocalizerRunner(LocalizerConfig config)
+  explicit LocalizerRunner(LocalizerConfig config)
       : localizer(new Localizer()), odomListener{config, localizer},
         dataPublisher(config.rootTableName, localizer) {
-
     cameraListeners.reserve(config.cameras.size());
     for (const CameraConfig &camCfg : config.cameras) {
       cameraListeners.emplace_back(config.rootTableName, camCfg, localizer);
@@ -100,7 +99,6 @@ public:
 };
 
 int main(int argc, char **argv) {
-
   std::string configPath;
   if (argc == 1) {
     configPath = "test/resources/simulator.json";

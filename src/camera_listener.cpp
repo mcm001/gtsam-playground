@@ -110,14 +110,14 @@ bool CameraListener::Update() {
   Pose3 robotTcam = Transform3dToGtsamPose3(last_rTc.value);
   // add transform to change from the wpilib/photon default (camera optical axis
   // along +x) to the standard from opencv (z along optical axis)
+  /*
+  We want:
+  x in [0,-1,0]
+  y in [0,0,-1]
+  z in [1,0,0]
+  */
   robotTcam =
-      robotTcam * Pose3{/*
-                                     We want:
-                                     x in [0,-1,0]
-                                     y in [0,0,-1]
-                                     z in [1,0,0]
-                                     */
-                        Rot3(0, 0, 1, -1, 0, 0, 0, -1, 0), Point3{0.0, 0, 0.0}};
+      robotTcam * Pose3{Rot3(0, 0, 1, -1, 0, 0, 0, -1, 0), Point3{0.0, 0, 0.0}};
 
   // Hard-coded for now -- TODO move to configurable
   // const Pose3 bodyPcamera_cam1{/*

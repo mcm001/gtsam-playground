@@ -143,7 +143,8 @@ Key Localizer::InsertIntoSmoother(Key lower, Key upper, Key newKey,
         factorsToRemove.push_back(foundIndex);
 
         const auto totalTwist = Pose3::Logmap(poseDeltaLowerToUpper->second);
-        const double t = ((double)(newKey - lower)) / ((double)(upper - lower));
+        const double t = (static_cast<double>(newKey - lower)) /
+                         (static_cast<double>(upper - lower));
         const auto twistLowerToMid = totalTwist * t;
         const auto twistMidToHigh = totalTwist - twistLowerToMid;
 
@@ -379,7 +380,8 @@ Key Localizer::GetOrInsertKey(Key newKey, double time) {
 }
 
 void Localizer::AddTagObservation(int tagID, Cal3_S2_ cameraCal,
-                                  Pose3 robotTcamera, vector<Point2> corners,
+                                  Pose3 robotTcamera,
+                                  std::vector<Point2> corners,
                                   SharedNoiseModel cameraNoise,
                                   uint64_t timeUs) {
   auto worldPcorners_opt = TagModel::WorldToCorners(tagID);
@@ -435,14 +437,14 @@ Vector6 Localizer::GetPoseComponentStdDevs() const {
   return marginals.diagonal().cwiseSqrt();
 }
 
-const vector<frc::Pose3d> Localizer::GetPoseHistory() const {
+const std::vector<frc::Pose3d> Localizer::GetPoseHistory() const {
   // Plot all history, so grab the whole estimate
   Values result = smootherISAM2.calculateEstimate();
 
   // 5 seconds of history
   auto start = currStateIdx - (5 * 1e6);
 
-  vector<frc::Pose3d> ret;
+  std::vector<frc::Pose3d> ret;
   ret.reserve(1000);
 
   for (const Values::ConstKeyValuePair &estPair : result) {
