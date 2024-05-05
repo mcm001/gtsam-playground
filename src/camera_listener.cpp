@@ -87,8 +87,8 @@ bool CameraListener::Update() {
     }
     // assume order is [fx fy cx cy] from NT
     auto newK = Cal3_S2{K_[0], K_[1],
-                            0, // no skew
-                            K_[2], K_[3]};
+                        0, // no skew
+                        K_[2], K_[3]};
     if (!cameraK || !cameraK->equals(newK, 1e-6)) {
       cameraK = newK;
       cameraK->print("New camera calibration");

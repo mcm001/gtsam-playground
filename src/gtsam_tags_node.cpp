@@ -101,7 +101,18 @@ public:
 
 int main(int argc, char **argv) {
 
-  LocalizerConfig config = ParseConfig("test/resources/simulator.json");
+  std::string configPath;
+  if (argc == 1) {
+    configPath = "test/resources/simulator.json";
+  } else if (argc == 2) {
+    configPath = argv[1];
+  } else {
+    fmt::println("Got an odd number of program arguments!");
+    return -1;
+  }
+
+  fmt::println("Loading config from: {}", configPath);
+  LocalizerConfig config = ParseConfig(configPath);
   config.print("Loaded config:");
 
   nt::NetworkTableInstance inst = nt::NetworkTableInstance::GetDefault();
