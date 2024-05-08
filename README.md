@@ -1,4 +1,4 @@
-# Setup 
+# Setup
 
 These instructions are intended for use on Linux (including WSL) only.
 
@@ -32,7 +32,7 @@ In order for the data transfer to work properly, start advantagescope, then sim,
 
 # NT API
 
-As of right now, these are our publishers/subscribers. The NT4-provided set timestamp is used for latency compensation. The list of camera names is configured by changing the config JSON. If no arguemnts are provided, the config is pulled from the file `test/resources/simulator.json`. If one argument is provided to gtsam-node, then that arguemnt is used as the path instead. The JSON example below shows two cameras with given tag corner pixel standard deviations, plus global odometry standard deviations on rotation and translation. 
+As of right now, these are our publishers/subscribers. The NT4-provided set timestamp is used for latency compensation. The list of camera names is configured by changing the config JSON. If no arguemnts are provided, the config is pulled from the file `test/resources/simulator.json`. If one argument is provided to gtsam-node, then that arguemnt is used as the path instead. The JSON example below shows two cameras with given tag corner pixel standard deviations, plus global odometry standard deviations on rotation and translation.
 
 A [reference implementation from robot code](https://github.com/PhotonVision/champs_2024/blob/gtsam-testing/sim_projects/apriltag_yaw_only/src/main/java/frc/robot/GtsamInterface.java) is also available.
 

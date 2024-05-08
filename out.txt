@@ -6,309 +6,309 @@
 # Samples: 220K of event 'cycles'
 # Event count (approx.): 167625066739
 #
-# Children      Self  Command          Shared Object                             Symbol                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
+# Children      Self  Command          Shared Object                             Symbol
 # ........  ........  ...............  ........................................  ...................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
 #
     33.70%     0.00%  gtsam-node       [unknown]                                 [.] 0000000000000000
             |
             ---0
-               |          
+               |
                |--24.58%--0
-               |          |          
+               |          |
                |          |--13.19%--0x7faf14da574a
-               |          |          |          
+               |          |          |
                |          |           --0.54%--asm_sysvec_hyperv_stimer0
-               |          |                     |          
+               |          |                     |
                |          |                      --0.52%--sysvec_hyperv_stimer0
-               |          |          
+               |          |
                |          |--7.11%--__sched_yield
-               |          |          |          
+               |          |          |
                |          |          |--6.12%--entry_SYSCALL_64_after_hwframe
-               |          |          |          |          
+               |          |          |          |
                |          |          |           --5.92%--do_syscall_64
-               |          |          |                     |          
+               |          |          |                     |
                |          |          |                      --5.36%--__x64_sys_sched_yield
-               |          |          |                                |          
+               |          |          |                                |
                |          |          |                                |--3.57%--schedule
-               |          |          |                                |          |          
+               |          |          |                                |          |
                |          |          |                                |           --3.35%--__schedule
-               |          |          |                                |                     |          
+               |          |          |                                |                     |
                |          |          |                                |                     |--0.74%--__raw_callee_save___pv_queued_spin_unlock
-               |          |          |                                |                     |          
+               |          |          |                                |                     |
                |          |          |                                |                     |--0.71%--pick_next_task_fair
-               |          |          |                                |                     |          
+               |          |          |                                |                     |
                |          |          |                                |                      --0.65%--update_rq_clock
-               |          |          |                                |                                |          
+               |          |          |                                |                                |
                |          |          |                                |                                 --0.64%--sched_clock_cpu
-               |          |          |                                |                                           |          
+               |          |          |                                |                                           |
                |          |          |                                |                                            --0.63%--read_hv_sched_clock_tsc
-               |          |          |                                |                                                      |          
+               |          |          |                                |                                                      |
                |          |          |                                |                                                       --0.62%--read_hv_clock_tsc
-               |          |          |                                |          
+               |          |          |                                |
                |          |          |                                 --1.50%--do_sched_yield
-               |          |          |          
+               |          |          |
                |          |           --0.67%--entry_SYSCALL_64
-               |          |          
+               |          |
                |           --1.72%--0x7faf14da575a
-               |          
+               |
                |--3.01%--syscall
-               |          |          
+               |          |
                |           --2.90%--entry_SYSCALL_64_after_hwframe
-               |                     |          
+               |                     |
                |                      --2.88%--do_syscall_64
-               |                                |          
+               |                                |
                |                                 --2.57%--__x64_sys_futex
-               |                                           |          
+               |                                           |
                |                                            --2.54%--do_futex
-               |                                                      |          
+               |                                                      |
                |                                                       --2.50%--futex_wait
-               |                                                                 |          
+               |                                                                 |
                |                                                                  --2.35%--futex_wait_queue_me
-               |                                                                            |          
+               |                                                                            |
                |                                                                             --2.31%--schedule
-               |                                                                                       |          
+               |                                                                                       |
                |                                                                                        --2.28%--__schedule
-               |                                                                                                  |          
+               |                                                                                                  |
                |                                                                                                  |--1.08%--finish_task_switch.isra.0
-               |                                                                                                  |          |          
+               |                                                                                                  |          |
                |                                                                                                  |           --1.00%--__perf_event_task_sched_in
-               |                                                                                                  |                     |          
+               |                                                                                                  |                     |
                |                                                                                                  |                      --0.57%--ctx_sched_in
-               |                                                                                                  |                                |          
+               |                                                                                                  |                                |
                |                                                                                                  |                                 --0.56%--visit_groups_merge.constprop.0.isra.0
-               |                                                                                                  |          
+               |                                                                                                  |
                |                                                                                                   --0.71%--__perf_event_task_sched_out
-               |                                                                                                             |          
+               |                                                                                                             |
                |                                                                                                              --0.65%--amd_pmu_disable_all
-               |                                                                                                                        |          
+               |                                                                                                                        |
                |                                                                                                                         --0.65%--x86_pmu_disable_all
-               |          
+               |
                |--1.48%--0x7faf14db3dd8
-               |          |          
+               |          |
                |           --1.03%--__sched_yield
-               |                     |          
+               |                     |
                |                      --0.82%--entry_SYSCALL_64_after_hwframe
-               |                                |          
+               |                                |
                |                                 --0.81%--do_syscall_64
-               |                                           |          
+               |                                           |
                |                                            --0.76%--__x64_sys_sched_yield
-               |                                                      |          
+               |                                                      |
                |                                                       --0.50%--schedule
-               |          
+               |
                 --0.61%--0x7ffeedb99720
 
     29.63%     0.29%  gtsam-node       [kernel.kallsyms]                         [k] entry_SYSCALL_64_after_hwframe
-            |          
+            |
              --29.34%--entry_SYSCALL_64_after_hwframe
-                       |          
+                       |
                         --28.82%--do_syscall_64
-                                  |          
+                                  |
                                   |--21.98%--__x64_sys_sched_yield
-                                  |          |          
+                                  |          |
                                   |          |--14.65%--schedule
-                                  |          |          |          
+                                  |          |          |
                                   |          |           --13.57%--__schedule
-                                  |          |                     |          
+                                  |          |                     |
                                   |          |                     |--2.98%--__raw_callee_save___pv_queued_spin_unlock
-                                  |          |                     |          
+                                  |          |                     |
                                   |          |                     |--2.80%--pick_next_task_fair
-                                  |          |                     |          |          
+                                  |          |                     |          |
                                   |          |                     |          |--1.07%--update_curr
-                                  |          |                     |          |          |          
+                                  |          |                     |          |          |
                                   |          |                     |          |           --0.58%--cpuacct_charge
-                                  |          |                     |          |          
+                                  |          |                     |          |
                                   |          |                     |           --0.78%--__list_del_entry_valid
-                                  |          |                     |          
+                                  |          |                     |
                                   |          |                     |--2.69%--update_rq_clock
-                                  |          |                     |          |          
+                                  |          |                     |          |
                                   |          |                     |           --2.63%--sched_clock_cpu
-                                  |          |                     |                     |          
+                                  |          |                     |                     |
                                   |          |                     |                      --2.60%--read_hv_sched_clock_tsc
-                                  |          |                     |                                |          
+                                  |          |                     |                                |
                                   |          |                     |                                 --2.57%--read_hv_clock_tsc
-                                  |          |                     |          
+                                  |          |                     |
                                   |          |                      --1.74%--_raw_spin_lock
-                                  |          |          
+                                  |          |
                                   |           --6.06%--do_sched_yield
-                                  |                     |          
+                                  |                     |
                                   |                     |--1.75%--__raw_callee_save___pv_queued_spin_unlock
-                                  |                     |          
+                                  |                     |
                                   |                     |--1.41%--yield_task_fair
-                                  |                     |          
+                                  |                     |
                                   |                      --0.57%--_raw_spin_lock
-                                  |          
+                                  |
                                   |--4.10%--__x64_sys_futex
-                                  |          |          
+                                  |          |
                                   |           --4.04%--do_futex
-                                  |                     |          
+                                  |                     |
                                   |                     |--2.61%--futex_wait
-                                  |                     |          |          
+                                  |                     |          |
                                   |                     |           --2.45%--futex_wait_queue_me
-                                  |                     |                     |          
+                                  |                     |                     |
                                   |                     |                      --2.41%--schedule
-                                  |                     |                                |          
+                                  |                     |                                |
                                   |                     |                                 --2.38%--__schedule
-                                  |                     |                                           |          
+                                  |                     |                                           |
                                   |                     |                                           |--1.10%--finish_task_switch.isra.0
-                                  |                     |                                           |          |          
+                                  |                     |                                           |          |
                                   |                     |                                           |           --1.02%--__perf_event_task_sched_in
-                                  |                     |                                           |                     |          
+                                  |                     |                                           |                     |
                                   |                     |                                           |                      --0.58%--ctx_sched_in
-                                  |                     |                                           |                                |          
+                                  |                     |                                           |                                |
                                   |                     |                                           |                                 --0.57%--visit_groups_merge.constprop.0.isra.0
-                                  |                     |                                           |          
+                                  |                     |                                           |
                                   |                     |                                            --0.75%--__perf_event_task_sched_out
-                                  |                     |                                                      |          
+                                  |                     |                                                      |
                                   |                     |                                                       --0.69%--amd_pmu_disable_all
-                                  |                     |                                                                 |          
+                                  |                     |                                                                 |
                                   |                     |                                                                  --0.68%--x86_pmu_disable_all
-                                  |                     |          
+                                  |                     |
                                   |                      --1.36%--futex_wake
-                                  |                                |          
+                                  |                                |
                                   |                                 --1.14%--wake_up_q
-                                  |                                           |          
+                                  |                                           |
                                   |                                            --1.11%--try_to_wake_up
-                                  |                                                      |          
+                                  |                                                      |
                                   |                                                       --0.59%--__x86_return_thunk
-                                  |                                                                 |          
+                                  |                                                                 |
                                   |                                                                  --0.57%--asm_sysvec_hyperv_stimer0
-                                  |                                                                            |          
+                                  |                                                                            |
                                   |                                                                             --0.57%--sysvec_hyperv_stimer0
-                                  |                                                                                       |          
+                                  |                                                                                       |
                                   |                                                                                        --0.54%--__sysvec_hyperv_stimer0
-                                  |                                                                                                  |          
+                                  |                                                                                                  |
                                   |                                                                                                   --0.51%--hrtimer_interrupt
-                                  |          
+                                  |
                                    --0.60%--syscall_enter_from_user_mode
 
     29.00%     0.71%  gtsam-node       libc.so.6                                 [.] __sched_yield
-            |          
+            |
              --28.77%--__sched_yield
-                       |          
+                       |
                        |--24.89%--entry_SYSCALL_64_after_hwframe
-                       |          |          
+                       |          |
                        |           --24.13%--do_syscall_64
-                       |                     |          
+                       |                     |
                        |                     |--21.95%--__x64_sys_sched_yield
-                       |                     |          |          
+                       |                     |          |
                        |                     |          |--14.62%--schedule
-                       |                     |          |          |          
+                       |                     |          |          |
                        |                     |          |           --13.55%--__schedule
-                       |                     |          |                     |          
+                       |                     |          |                     |
                        |                     |          |                     |--2.98%--__raw_callee_save___pv_queued_spin_unlock
-                       |                     |          |                     |          
+                       |                     |          |                     |
                        |                     |          |                     |--2.80%--pick_next_task_fair
-                       |                     |          |                     |          |          
+                       |                     |          |                     |          |
                        |                     |          |                     |          |--1.07%--update_curr
-                       |                     |          |                     |          |          |          
+                       |                     |          |                     |          |          |
                        |                     |          |                     |          |           --0.58%--cpuacct_charge
-                       |                     |          |                     |          |          
+                       |                     |          |                     |          |
                        |                     |          |                     |           --0.78%--__list_del_entry_valid
-                       |                     |          |                     |          
+                       |                     |          |                     |
                        |                     |          |                     |--2.69%--update_rq_clock
-                       |                     |          |                     |          |          
+                       |                     |          |                     |          |
                        |                     |          |                     |           --2.63%--sched_clock_cpu
-                       |                     |          |                     |                     |          
+                       |                     |          |                     |                     |
                        |                     |          |                     |                      --2.60%--read_hv_sched_clock_tsc
-                       |                     |          |                     |                                |          
+                       |                     |          |                     |                                |
                        |                     |          |                     |                                 --2.57%--read_hv_clock_tsc
-                       |                     |          |                     |          
+                       |                     |          |                     |
                        |                     |          |                      --1.74%--_raw_spin_lock
-                       |                     |          |          
+                       |                     |          |
                        |                     |           --6.06%--do_sched_yield
-                       |                     |                     |          
+                       |                     |                     |
                        |                     |                     |--1.75%--__raw_callee_save___pv_queued_spin_unlock
-                       |                     |                     |          
+                       |                     |                     |
                        |                     |                     |--1.41%--yield_task_fair
-                       |                     |                     |          
+                       |                     |                     |
                        |                     |                      --0.57%--_raw_spin_lock
-                       |                     |          
+                       |                     |
                        |                      --0.58%--syscall_enter_from_user_mode
-                       |          
+                       |
                         --2.90%--entry_SYSCALL_64
 
     28.86%     1.49%  gtsam-node       [kernel.kallsyms]                         [k] do_syscall_64
-            |          
+            |
             |--27.37%--do_syscall_64
-            |          |          
+            |          |
             |          |--21.98%--__x64_sys_sched_yield
-            |          |          |          
+            |          |          |
             |          |          |--14.65%--schedule
-            |          |          |          |          
+            |          |          |          |
             |          |          |           --13.57%--__schedule
-            |          |          |                     |          
+            |          |          |                     |
             |          |          |                     |--2.98%--__raw_callee_save___pv_queued_spin_unlock
-            |          |          |                     |          
+            |          |          |                     |
             |          |          |                     |--2.80%--pick_next_task_fair
-            |          |          |                     |          |          
+            |          |          |                     |          |
             |          |          |                     |          |--1.07%--update_curr
-            |          |          |                     |          |          |          
+            |          |          |                     |          |          |
             |          |          |                     |          |           --0.58%--cpuacct_charge
-            |          |          |                     |          |          
+            |          |          |                     |          |
             |          |          |                     |           --0.78%--__list_del_entry_valid
-            |          |          |                     |          
+            |          |          |                     |
             |          |          |                     |--2.69%--update_rq_clock
-            |          |          |                     |          |          
+            |          |          |                     |          |
             |          |          |                     |           --2.63%--sched_clock_cpu
-            |          |          |                     |                     |          
+            |          |          |                     |                     |
             |          |          |                     |                      --2.60%--read_hv_sched_clock_tsc
-            |          |          |                     |                                |          
+            |          |          |                     |                                |
             |          |          |                     |                                 --2.57%--read_hv_clock_tsc
-            |          |          |                     |          
+            |          |          |                     |
             |          |          |                      --1.74%--_raw_spin_lock
-            |          |          |          
+            |          |          |
             |          |           --6.06%--do_sched_yield
-            |          |                     |          
+            |          |                     |
             |          |                     |--1.75%--__raw_callee_save___pv_queued_spin_unlock
-            |          |                     |          
+            |          |                     |
             |          |                     |--1.41%--yield_task_fair
-            |          |                     |          
+            |          |                     |
             |          |                      --0.57%--_raw_spin_lock
-            |          |          
+            |          |
             |          |--4.10%--__x64_sys_futex
-            |          |          |          
+            |          |          |
             |          |           --4.04%--do_futex
-            |          |                     |          
+            |          |                     |
             |          |                     |--2.61%--futex_wait
-            |          |                     |          |          
+            |          |                     |          |
             |          |                     |           --2.45%--futex_wait_queue_me
-            |          |                     |                     |          
+            |          |                     |                     |
             |          |                     |                      --2.41%--schedule
-            |          |                     |                                |          
+            |          |                     |                                |
             |          |                     |                                 --2.38%--__schedule
-            |          |                     |                                           |          
+            |          |                     |                                           |
             |          |                     |                                           |--1.10%--finish_task_switch.isra.0
-            |          |                     |                                           |          |          
+            |          |                     |                                           |          |
             |          |                     |                                           |           --1.02%--__perf_event_task_sched_in
-            |          |                     |                                           |                     |          
+            |          |                     |                                           |                     |
             |          |                     |                                           |                      --0.58%--ctx_sched_in
-            |          |                     |                                           |                                |          
+            |          |                     |                                           |                                |
             |          |                     |                                           |                                 --0.57%--visit_groups_merge.constprop.0.isra.0
-            |          |                     |                                           |          
+            |          |                     |                                           |
             |          |                     |                                            --0.75%--__perf_event_task_sched_out
-            |          |                     |                                                      |          
+            |          |                     |                                                      |
             |          |                     |                                                       --0.69%--amd_pmu_disable_all
-            |          |                     |                                                                 |          
+            |          |                     |                                                                 |
             |          |                     |                                                                  --0.68%--x86_pmu_disable_all
-            |          |                     |          
+            |          |                     |
             |          |                      --1.36%--futex_wake
-            |          |                                |          
+            |          |                                |
             |          |                                 --1.14%--wake_up_q
-            |          |                                           |          
+            |          |                                           |
             |          |                                            --1.11%--try_to_wake_up
-            |          |                                                      |          
+            |          |                                                      |
             |          |                                                       --0.59%--__x86_return_thunk
-            |          |                                                                 |          
+            |          |                                                                 |
             |          |                                                                  --0.57%--asm_sysvec_hyperv_stimer0
-            |          |                                                                            |          
+            |          |                                                                            |
             |          |                                                                             --0.57%--sysvec_hyperv_stimer0
-            |          |                                                                                       |          
+            |          |                                                                                       |
             |          |                                                                                        --0.54%--__sysvec_hyperv_stimer0
-            |          |                                                                                                  |          
+            |          |                                                                                                  |
             |          |                                                                                                   --0.51%--hrtimer_interrupt
-            |          |          
+            |          |
             |           --0.60%--syscall_enter_from_user_mode
-            |          
+            |
              --0.98%--__sched_yield
                        entry_SYSCALL_64_after_hwframe
                        do_syscall_64
@@ -316,11 +316,11 @@
     24.75%     0.00%  gtsam-node       libtbb.so.12.5                            [.] 0x00007faf14db8392
             |
             ---0x7faf14db8392
-               |          
+               |
                 --0.56%--asm_sysvec_hyperv_stimer0
-                          |          
+                          |
                            --0.54%--sysvec_hyperv_stimer0
-                                     |          
+                                     |
                                       --0.51%--__sysvec_hyperv_stimer0
 
     24.14%    24.14%  gtsam-node       libtbb.so.12.5                            [.] 0x0000000000027392
@@ -328,86 +328,86 @@
             ---0x7faf14db8392
 
     21.99%     1.21%  gtsam-node       [kernel.kallsyms]                         [k] __x64_sys_sched_yield
-            |          
+            |
             |--20.78%--__x64_sys_sched_yield
-            |          |          
+            |          |
             |          |--14.65%--schedule
-            |          |          |          
+            |          |          |
             |          |           --13.57%--__schedule
-            |          |                     |          
+            |          |                     |
             |          |                     |--2.98%--__raw_callee_save___pv_queued_spin_unlock
-            |          |                     |          
+            |          |                     |
             |          |                     |--2.80%--pick_next_task_fair
-            |          |                     |          |          
+            |          |                     |          |
             |          |                     |          |--1.07%--update_curr
-            |          |                     |          |          |          
+            |          |                     |          |          |
             |          |                     |          |           --0.58%--cpuacct_charge
-            |          |                     |          |          
+            |          |                     |          |
             |          |                     |           --0.78%--__list_del_entry_valid
-            |          |                     |          
+            |          |                     |
             |          |                     |--2.69%--update_rq_clock
-            |          |                     |          |          
+            |          |                     |          |
             |          |                     |           --2.63%--sched_clock_cpu
-            |          |                     |                     |          
+            |          |                     |                     |
             |          |                     |                      --2.60%--read_hv_sched_clock_tsc
-            |          |                     |                                |          
+            |          |                     |                                |
             |          |                     |                                 --2.57%--read_hv_clock_tsc
-            |          |                     |          
+            |          |                     |
             |          |                      --1.74%--_raw_spin_lock
-            |          |          
+            |          |
             |           --6.06%--do_sched_yield
-            |                     |          
+            |                     |
             |                     |--1.75%--__raw_callee_save___pv_queued_spin_unlock
-            |                     |          
+            |                     |
             |                     |--1.41%--yield_task_fair
-            |                     |          
+            |                     |
             |                      --0.57%--_raw_spin_lock
-            |          
+            |
              --0.86%--__sched_yield
                        entry_SYSCALL_64_after_hwframe
                        do_syscall_64
                        __x64_sys_sched_yield
 
     17.12%     1.10%  gtsam-node       [kernel.kallsyms]                         [k] schedule
-            |          
+            |
             |--16.03%--schedule
-            |          |          
+            |          |
             |           --15.99%--__schedule
-            |                     |          
+            |                     |
             |                     |--2.99%--pick_next_task_fair
-            |                     |          |          
+            |                     |          |
             |                     |          |--1.07%--update_curr
-            |                     |          |          |          
+            |                     |          |          |
             |                     |          |           --0.58%--cpuacct_charge
-            |                     |          |          
+            |                     |          |
             |                     |           --0.78%--__list_del_entry_valid
-            |                     |          
+            |                     |
             |                     |--2.98%--__raw_callee_save___pv_queued_spin_unlock
-            |                     |          
+            |                     |
             |                     |--2.71%--update_rq_clock
-            |                     |          |          
+            |                     |          |
             |                     |           --2.65%--sched_clock_cpu
-            |                     |                     |          
+            |                     |                     |
             |                     |                      --2.62%--read_hv_sched_clock_tsc
-            |                     |                                |          
+            |                     |                                |
             |                     |                                 --2.59%--read_hv_clock_tsc
-            |                     |          
+            |                     |
             |                     |--1.74%--_raw_spin_lock
-            |                     |          
+            |                     |
             |                     |--1.16%--finish_task_switch.isra.0
-            |                     |          |          
+            |                     |          |
             |                     |           --1.04%--__perf_event_task_sched_in
-            |                     |                     |          
+            |                     |                     |
             |                     |                      --0.59%--ctx_sched_in
-            |                     |                                |          
+            |                     |                                |
             |                     |                                 --0.58%--visit_groups_merge.constprop.0.isra.0
-            |                     |          
+            |                     |
             |                      --0.83%--__perf_event_task_sched_out
-            |                                |          
+            |                                |
             |                                 --0.74%--amd_pmu_disable_all
-            |                                           |          
+            |                                           |
             |                                            --0.74%--x86_pmu_disable_all
-            |          
+            |
              --0.76%--__sched_yield
                        entry_SYSCALL_64_after_hwframe
                        do_syscall_64
@@ -415,54 +415,54 @@
                        schedule
 
     16.03%     2.89%  gtsam-node       [kernel.kallsyms]                         [k] __schedule
-            |          
+            |
             |--13.14%--__schedule
-            |          |          
+            |          |
             |          |--2.99%--pick_next_task_fair
-            |          |          |          
+            |          |          |
             |          |          |--1.07%--update_curr
-            |          |          |          |          
+            |          |          |          |
             |          |          |           --0.58%--cpuacct_charge
-            |          |          |          
+            |          |          |
             |          |           --0.78%--__list_del_entry_valid
-            |          |          
+            |          |
             |          |--2.98%--__raw_callee_save___pv_queued_spin_unlock
-            |          |          
+            |          |
             |          |--2.71%--update_rq_clock
-            |          |          |          
+            |          |          |
             |          |           --2.65%--sched_clock_cpu
-            |          |                     |          
+            |          |                     |
             |          |                      --2.62%--read_hv_sched_clock_tsc
-            |          |                                |          
+            |          |                                |
             |          |                                 --2.59%--read_hv_clock_tsc
-            |          |          
+            |          |
             |          |--1.74%--_raw_spin_lock
-            |          |          
+            |          |
             |          |--1.16%--finish_task_switch.isra.0
-            |          |          |          
+            |          |          |
             |          |           --1.04%--__perf_event_task_sched_in
-            |          |                     |          
+            |          |                     |
             |          |                      --0.59%--ctx_sched_in
-            |          |                                |          
+            |          |                                |
             |          |                                 --0.58%--visit_groups_merge.constprop.0.isra.0
-            |          |          
+            |          |
             |           --0.83%--__perf_event_task_sched_out
-            |                     |          
+            |                     |
             |                      --0.74%--amd_pmu_disable_all
-            |                                |          
+            |                                |
             |                                 --0.74%--x86_pmu_disable_all
-            |          
+            |
             |--1.97%--__sched_yield
             |          entry_SYSCALL_64_after_hwframe
             |          do_syscall_64
             |          __x64_sys_sched_yield
             |          schedule
             |          __schedule
-            |          
+            |
              --0.87%--0
-                       |          
+                       |
                         --0.65%--0
-                                  |          
+                                  |
                                    --0.65%--__sched_yield
                                              entry_SYSCALL_64_after_hwframe
                                              do_syscall_64
@@ -473,38 +473,38 @@
     14.07%     0.00%  gtsam-node       libtbb.so.12.5                            [.] 0x00007faf14da574a
             |
             ---0x7faf14da574a
-               |          
+               |
                 --0.56%--asm_sysvec_hyperv_stimer0
-                          |          
+                          |
                            --0.54%--sysvec_hyperv_stimer0
-                                     |          
+                                     |
                                       --0.51%--__sysvec_hyperv_stimer0
 
     13.45%    13.45%  gtsam-node       libtbb.so.12.5                            [.] 0x000000000001474a
             |
             ---0
-               |          
+               |
                 --12.60%--0
                           0x7faf14da574a
 
      6.11%     2.28%  gtsam-node       [kernel.kallsyms]                         [k] do_sched_yield
-            |          
+            |
             |--3.83%--do_sched_yield
-            |          |          
+            |          |
             |          |--1.75%--__raw_callee_save___pv_queued_spin_unlock
-            |          |          
+            |          |
             |          |--1.41%--yield_task_fair
-            |          |          
+            |          |
             |           --0.57%--_raw_spin_lock
-            |          
+            |
             |--1.52%--__sched_yield
             |          entry_SYSCALL_64_after_hwframe
             |          do_syscall_64
             |          __x64_sys_sched_yield
             |          do_sched_yield
-            |          
+            |
              --0.69%--0
-                       |          
+                       |
                         --0.56%--0
                                   __sched_yield
                                   entry_SYSCALL_64_after_hwframe
@@ -513,249 +513,249 @@
                                   do_sched_yield
 
      4.90%     4.90%  gtsam-node       [kernel.kallsyms]                         [k] __raw_callee_save___pv_queued_spin_unlock
-            |          
+            |
             |--3.27%--__sched_yield
             |          entry_SYSCALL_64_after_hwframe
             |          do_syscall_64
-            |          |          
+            |          |
             |           --3.27%--__x64_sys_sched_yield
-            |                     |          
+            |                     |
             |                     |--2.06%--schedule
             |                     |          __schedule
             |                     |          __raw_callee_save___pv_queued_spin_unlock
-            |                     |          
+            |                     |
             |                      --1.22%--do_sched_yield
-            |                                |          
+            |                                |
             |                                 --1.22%--__raw_callee_save___pv_queued_spin_unlock
-            |          
+            |
              --1.48%--0
-                       |          
+                       |
                         --1.19%--0
-                                  |          
+                                  |
                                    --1.18%--__sched_yield
-                                             |          
+                                             |
                                               --1.18%--entry_SYSCALL_64_after_hwframe
                                                         do_syscall_64
-                                                        |          
+                                                        |
                                                          --1.18%--__x64_sys_sched_yield
-                                                                   |          
+                                                                   |
                                                                     --0.75%--schedule
                                                                               __schedule
-                                                                              |          
+                                                                              |
                                                                                --0.74%--__raw_callee_save___pv_queued_spin_unlock
 
      4.80%     0.05%  gtsam-node       libc.so.6                                 [.] syscall
-            |          
+            |
              --4.75%--syscall
-                       |          
+                       |
                         --4.51%--entry_SYSCALL_64_after_hwframe
-                                  |          
+                                  |
                                    --4.48%--do_syscall_64
-                                             |          
+                                             |
                                               --4.10%--__x64_sys_futex
-                                                        |          
+                                                        |
                                                          --4.04%--do_futex
-                                                                   |          
+                                                                   |
                                                                    |--2.61%--futex_wait
-                                                                   |          |          
+                                                                   |          |
                                                                    |           --2.45%--futex_wait_queue_me
-                                                                   |                     |          
+                                                                   |                     |
                                                                    |                      --2.41%--schedule
-                                                                   |                                |          
+                                                                   |                                |
                                                                    |                                 --2.38%--__schedule
-                                                                   |                                           |          
+                                                                   |                                           |
                                                                    |                                           |--1.10%--finish_task_switch.isra.0
-                                                                   |                                           |          |          
+                                                                   |                                           |          |
                                                                    |                                           |           --1.02%--__perf_event_task_sched_in
-                                                                   |                                           |                     |          
+                                                                   |                                           |                     |
                                                                    |                                           |                      --0.58%--ctx_sched_in
-                                                                   |                                           |                                |          
+                                                                   |                                           |                                |
                                                                    |                                           |                                 --0.57%--visit_groups_merge.constprop.0.isra.0
-                                                                   |                                           |          
+                                                                   |                                           |
                                                                    |                                            --0.74%--__perf_event_task_sched_out
-                                                                   |                                                      |          
+                                                                   |                                                      |
                                                                    |                                                       --0.69%--amd_pmu_disable_all
-                                                                   |                                                                 |          
+                                                                   |                                                                 |
                                                                    |                                                                  --0.68%--x86_pmu_disable_all
-                                                                   |          
+                                                                   |
                                                                     --1.36%--futex_wake
-                                                                              |          
+                                                                              |
                                                                                --1.14%--wake_up_q
-                                                                                         |          
+                                                                                         |
                                                                                           --1.11%--try_to_wake_up
-                                                                                                    |          
+                                                                                                    |
                                                                                                      --0.59%--__x86_return_thunk
-                                                                                                               |          
+                                                                                                               |
                                                                                                                 --0.57%--asm_sysvec_hyperv_stimer0
-                                                                                                                          |          
+                                                                                                                          |
                                                                                                                            --0.57%--sysvec_hyperv_stimer0
-                                                                                                                                     |          
+                                                                                                                                     |
                                                                                                                                       --0.54%--__sysvec_hyperv_stimer0
-                                                                                                                                                |          
+                                                                                                                                                |
                                                                                                                                                  --0.51%--hrtimer_interrupt
 
      4.10%     0.06%  gtsam-node       [kernel.kallsyms]                         [k] __x64_sys_futex
-            |          
+            |
              --4.04%--__x64_sys_futex
-                       |          
+                       |
                         --4.04%--do_futex
-                                  |          
+                                  |
                                   |--2.61%--futex_wait
-                                  |          |          
+                                  |          |
                                   |           --2.45%--futex_wait_queue_me
-                                  |                     |          
+                                  |                     |
                                   |                      --2.41%--schedule
-                                  |                                |          
+                                  |                                |
                                   |                                 --2.38%--__schedule
-                                  |                                           |          
+                                  |                                           |
                                   |                                           |--1.10%--finish_task_switch.isra.0
-                                  |                                           |          |          
+                                  |                                           |          |
                                   |                                           |           --1.02%--__perf_event_task_sched_in
-                                  |                                           |                     |          
+                                  |                                           |                     |
                                   |                                           |                      --0.58%--ctx_sched_in
-                                  |                                           |                                |          
+                                  |                                           |                                |
                                   |                                           |                                 --0.57%--visit_groups_merge.constprop.0.isra.0
-                                  |                                           |          
+                                  |                                           |
                                   |                                            --0.75%--__perf_event_task_sched_out
-                                  |                                                      |          
+                                  |                                                      |
                                   |                                                       --0.69%--amd_pmu_disable_all
-                                  |                                                                 |          
+                                  |                                                                 |
                                   |                                                                  --0.68%--x86_pmu_disable_all
-                                  |          
+                                  |
                                    --1.36%--futex_wake
-                                             |          
+                                             |
                                               --1.14%--wake_up_q
-                                                        |          
+                                                        |
                                                          --1.11%--try_to_wake_up
-                                                                   |          
+                                                                   |
                                                                     --0.59%--__x86_return_thunk
-                                                                              |          
+                                                                              |
                                                                                --0.57%--asm_sysvec_hyperv_stimer0
-                                                                                         |          
+                                                                                         |
                                                                                           --0.57%--sysvec_hyperv_stimer0
-                                                                                                    |          
+                                                                                                    |
                                                                                                      --0.54%--__sysvec_hyperv_stimer0
-                                                                                                               |          
+                                                                                                               |
                                                                                                                 --0.51%--hrtimer_interrupt
 
      4.04%     0.06%  gtsam-node       [kernel.kallsyms]                         [k] do_futex
-            |          
+            |
              --3.98%--do_futex
-                       |          
+                       |
                        |--2.61%--futex_wait
-                       |          |          
+                       |          |
                        |           --2.45%--futex_wait_queue_me
-                       |                     |          
+                       |                     |
                        |                      --2.41%--schedule
-                       |                                |          
+                       |                                |
                        |                                 --2.38%--__schedule
-                       |                                           |          
+                       |                                           |
                        |                                           |--1.10%--finish_task_switch.isra.0
-                       |                                           |          |          
+                       |                                           |          |
                        |                                           |           --1.02%--__perf_event_task_sched_in
-                       |                                           |                     |          
+                       |                                           |                     |
                        |                                           |                      --0.58%--ctx_sched_in
-                       |                                           |                                |          
+                       |                                           |                                |
                        |                                           |                                 --0.57%--visit_groups_merge.constprop.0.isra.0
-                       |                                           |          
+                       |                                           |
                        |                                            --0.75%--__perf_event_task_sched_out
-                       |                                                      |          
+                       |                                                      |
                        |                                                       --0.69%--amd_pmu_disable_all
-                       |                                                                 |          
+                       |                                                                 |
                        |                                                                  --0.68%--x86_pmu_disable_all
-                       |          
+                       |
                         --1.36%--futex_wake
-                                  |          
+                                  |
                                    --1.14%--wake_up_q
-                                             |          
+                                             |
                                               --1.11%--try_to_wake_up
-                                                        |          
+                                                        |
                                                          --0.59%--__x86_return_thunk
-                                                                   |          
+                                                                   |
                                                                     --0.57%--asm_sysvec_hyperv_stimer0
-                                                                              |          
+                                                                              |
                                                                                --0.57%--sysvec_hyperv_stimer0
-                                                                                         |          
+                                                                                         |
                                                                                           --0.54%--__sysvec_hyperv_stimer0
-                                                                                                    |          
+                                                                                                    |
                                                                                                      --0.51%--hrtimer_interrupt
 
      3.59%     0.21%  gtsam-node       [kernel.kallsyms]                         [k] asm_sysvec_hyperv_stimer0
-            |          
+            |
              --3.38%--asm_sysvec_hyperv_stimer0
-                       |          
+                       |
                         --3.34%--sysvec_hyperv_stimer0
-                                  |          
+                                  |
                                    --3.16%--__sysvec_hyperv_stimer0
-                                             |          
+                                             |
                                               --2.90%--hrtimer_interrupt
-                                                        |          
+                                                        |
                                                          --2.35%--__hrtimer_run_queues
-                                                                   |          
+                                                                   |
                                                                     --2.07%--perf_swevent_hrtimer
-                                                                              |          
+                                                                              |
                                                                                --1.85%--__perf_event_overflow
-                                                                                         |          
+                                                                                         |
                                                                                           --1.81%--perf_event_output_forward
-                                                                                                    |          
+                                                                                                    |
                                                                                                      --1.55%--perf_prepare_sample
-                                                                                                               |          
+                                                                                                               |
                                                                                                                 --1.27%--perf_callchain
-                                                                                                                          |          
+                                                                                                                          |
                                                                                                                            --1.25%--get_perf_callchain
-                                                                                                                                     |          
+                                                                                                                                     |
                                                                                                                                       --0.74%--perf_callchain_user
-                                                                                                                                                |          
+                                                                                                                                                |
                                                                                                                                                  --0.66%--__get_user_nocheck_8
 
      3.35%     0.05%  gtsam-node       [kernel.kallsyms]                         [k] sysvec_hyperv_stimer0
-            |          
+            |
              --3.29%--sysvec_hyperv_stimer0
-                       |          
+                       |
                         --3.16%--__sysvec_hyperv_stimer0
-                                  |          
+                                  |
                                    --2.90%--hrtimer_interrupt
-                                             |          
+                                             |
                                               --2.35%--__hrtimer_run_queues
-                                                        |          
+                                                        |
                                                          --2.07%--perf_swevent_hrtimer
-                                                                   |          
+                                                                   |
                                                                     --1.85%--__perf_event_overflow
-                                                                              |          
+                                                                              |
                                                                                --1.81%--perf_event_output_forward
-                                                                                         |          
+                                                                                         |
                                                                                           --1.55%--perf_prepare_sample
-                                                                                                    |          
+                                                                                                    |
                                                                                                      --1.27%--perf_callchain
-                                                                                                               |          
+                                                                                                               |
                                                                                                                 --1.25%--get_perf_callchain
-                                                                                                                          |          
+                                                                                                                          |
                                                                                                                            --0.74%--perf_callchain_user
-                                                                                                                                     |          
+                                                                                                                                     |
                                                                                                                                       --0.66%--__get_user_nocheck_8
 
      3.16%     0.08%  gtsam-node       [kernel.kallsyms]                         [k] __sysvec_hyperv_stimer0
-            |          
+            |
              --3.08%--__sysvec_hyperv_stimer0
-                       |          
+                       |
                         --2.90%--hrtimer_interrupt
-                                  |          
+                                  |
                                    --2.35%--__hrtimer_run_queues
-                                             |          
+                                             |
                                               --2.07%--perf_swevent_hrtimer
-                                                        |          
+                                                        |
                                                          --1.85%--__perf_event_overflow
-                                                                   |          
+                                                                   |
                                                                     --1.81%--perf_event_output_forward
-                                                                              |          
+                                                                              |
                                                                                --1.55%--perf_prepare_sample
-                                                                                         |          
+                                                                                         |
                                                                                           --1.27%--perf_callchain
-                                                                                                    |          
+                                                                                                    |
                                                                                                      --1.25%--get_perf_callchain
-                                                                                                               |          
+                                                                                                               |
                                                                                                                 --0.74%--perf_callchain_user
-                                                                                                                          |          
+                                                                                                                          |
                                                                                                                            --0.66%--__get_user_nocheck_8
 
      3.11%     0.00%  gtsam-node       libtbb.so.12.5                            [.] 0x00007faf14db83a2
@@ -763,14 +763,14 @@
             ---0x7faf14db83a2
 
      3.03%     3.03%  gtsam-node       [kernel.kallsyms]                         [k] entry_SYSCALL_64
-            |          
+            |
             |--1.94%--__sched_yield
             |          entry_SYSCALL_64
-            |          
+            |
              --0.95%--0
-                       |          
+                       |
                         --0.70%--0
-                                  |          
+                                  |
                                    --0.67%--__sched_yield
                                              entry_SYSCALL_64
 
@@ -779,134 +779,134 @@
             ---0x7faf14db83a2
 
      2.99%     0.54%  gtsam-node       [kernel.kallsyms]                         [k] pick_next_task_fair
-            |          
+            |
              --2.46%--pick_next_task_fair
-                       |          
+                       |
                        |--1.07%--update_curr
-                       |          |          
+                       |          |
                        |           --0.58%--cpuacct_charge
-                       |          
+                       |
                         --0.78%--__list_del_entry_valid
 
      2.90%     0.08%  gtsam-node       [kernel.kallsyms]                         [k] hrtimer_interrupt
-            |          
+            |
              --2.82%--hrtimer_interrupt
-                       |          
+                       |
                         --2.35%--__hrtimer_run_queues
-                                  |          
+                                  |
                                    --2.07%--perf_swevent_hrtimer
-                                             |          
+                                             |
                                               --1.85%--__perf_event_overflow
-                                                        |          
+                                                        |
                                                          --1.81%--perf_event_output_forward
-                                                                   |          
+                                                                   |
                                                                     --1.55%--perf_prepare_sample
-                                                                              |          
+                                                                              |
                                                                                --1.27%--perf_callchain
-                                                                                         |          
+                                                                                         |
                                                                                           --1.25%--get_perf_callchain
-                                                                                                    |          
+                                                                                                    |
                                                                                                      --0.74%--perf_callchain_user
-                                                                                                               |          
+                                                                                                               |
                                                                                                                 --0.66%--__get_user_nocheck_8
 
      2.79%     2.79%  gtsam-node       [kernel.kallsyms]                         [k] read_hv_clock_tsc
-            |          
+            |
             |--1.81%--__sched_yield
-            |          |          
+            |          |
             |           --1.81%--entry_SYSCALL_64_after_hwframe
             |                     do_syscall_64
-            |                     |          
+            |                     |
             |                      --1.81%--__x64_sys_sched_yield
-            |                                |          
+            |                                |
             |                                 --1.80%--schedule
-            |                                           |          
+            |                                           |
             |                                            --1.80%--__schedule
-            |                                                      |          
+            |                                                      |
             |                                                       --1.79%--update_rq_clock
             |                                                                 sched_clock_cpu
             |                                                                 read_hv_sched_clock_tsc
             |                                                                 read_hv_clock_tsc
-            |          
+            |
              --0.87%--0
-                       |          
+                       |
                         --0.66%--0
-                                  |          
+                                  |
                                    --0.63%--__sched_yield
                                              entry_SYSCALL_64_after_hwframe
                                              do_syscall_64
-                                             |          
+                                             |
                                               --0.63%--__x64_sys_sched_yield
-                                                        |          
+                                                        |
                                                          --0.62%--schedule
                                                                    __schedule
-                                                                   |          
+                                                                   |
                                                                     --0.62%--update_rq_clock
                                                                               sched_clock_cpu
                                                                               read_hv_sched_clock_tsc
                                                                               read_hv_clock_tsc
 
      2.78%     0.03%  gtsam-node       [kernel.kallsyms]                         [k] sched_clock_cpu
-            |          
+            |
              --2.75%--sched_clock_cpu
-                       |          
+                       |
                         --2.74%--read_hv_sched_clock_tsc
-                                  |          
+                                  |
                                    --2.70%--read_hv_clock_tsc
 
      2.74%     0.04%  gtsam-node       [kernel.kallsyms]                         [k] read_hv_sched_clock_tsc
-            |          
+            |
              --2.70%--read_hv_sched_clock_tsc
-                       |          
+                       |
                         --2.70%--read_hv_clock_tsc
 
      2.72%     0.07%  gtsam-node       [kernel.kallsyms]                         [k] update_rq_clock
-            |          
+            |
              --2.66%--update_rq_clock
                        sched_clock_cpu
-                       |          
+                       |
                         --2.63%--read_hv_sched_clock_tsc
-                                  |          
+                                  |
                                    --2.60%--read_hv_clock_tsc
 
      2.61%     0.05%  gtsam-node       [kernel.kallsyms]                         [k] futex_wait
-            |          
+            |
              --2.57%--futex_wait
-                       |          
+                       |
                         --2.45%--futex_wait_queue_me
-                                  |          
+                                  |
                                    --2.41%--schedule
-                                             |          
+                                             |
                                               --2.38%--__schedule
-                                                        |          
+                                                        |
                                                         |--1.10%--finish_task_switch.isra.0
-                                                        |          |          
+                                                        |          |
                                                         |           --1.02%--__perf_event_task_sched_in
-                                                        |                     |          
+                                                        |                     |
                                                         |                      --0.58%--ctx_sched_in
-                                                        |                                |          
+                                                        |                                |
                                                         |                                 --0.57%--visit_groups_merge.constprop.0.isra.0
-                                                        |          
+                                                        |
                                                          --0.75%--__perf_event_task_sched_out
-                                                                   |          
+                                                                   |
                                                                     --0.69%--amd_pmu_disable_all
-                                                                              |          
+                                                                              |
                                                                                --0.68%--x86_pmu_disable_all
 
      2.51%     2.40%  gtsam-node       [kernel.kallsyms]                         [k] _raw_spin_lock
-            |          
+            |
             |--1.62%--__sched_yield
             |          entry_SYSCALL_64_after_hwframe
             |          do_syscall_64
             |          __x64_sys_sched_yield
-            |          |          
+            |          |
             |           --1.23%--schedule
             |                     __schedule
-            |                     |          
+            |                     |
             |                      --1.23%--_raw_spin_lock
-            |          
+            |
              --0.71%--0
-                       |          
+                       |
                         --0.55%--0
                                   __sched_yield
                                   entry_SYSCALL_64_after_hwframe
@@ -914,79 +914,79 @@
                                   __x64_sys_sched_yield
 
      2.45%     0.02%  gtsam-node       [kernel.kallsyms]                         [k] futex_wait_queue_me
-            |          
+            |
              --2.44%--futex_wait_queue_me
-                       |          
+                       |
                         --2.41%--schedule
-                                  |          
+                                  |
                                    --2.38%--__schedule
-                                             |          
+                                             |
                                              |--1.10%--finish_task_switch.isra.0
-                                             |          |          
+                                             |          |
                                              |           --1.02%--__perf_event_task_sched_in
-                                             |                     |          
+                                             |                     |
                                              |                      --0.58%--ctx_sched_in
-                                             |                                |          
+                                             |                                |
                                              |                                 --0.57%--visit_groups_merge.constprop.0.isra.0
-                                             |          
+                                             |
                                               --0.75%--__perf_event_task_sched_out
-                                                        |          
+                                                        |
                                                          --0.69%--amd_pmu_disable_all
-                                                                   |          
+                                                                   |
                                                                     --0.68%--x86_pmu_disable_all
 
      2.35%     0.07%  gtsam-node       [kernel.kallsyms]                         [k] __hrtimer_run_queues
-            |          
+            |
              --2.29%--__hrtimer_run_queues
-                       |          
+                       |
                         --2.07%--perf_swevent_hrtimer
-                                  |          
+                                  |
                                    --1.85%--__perf_event_overflow
-                                             |          
+                                             |
                                               --1.81%--perf_event_output_forward
-                                                        |          
+                                                        |
                                                          --1.55%--perf_prepare_sample
-                                                                   |          
+                                                                   |
                                                                     --1.27%--perf_callchain
-                                                                              |          
+                                                                              |
                                                                                --1.25%--get_perf_callchain
-                                                                                         |          
+                                                                                         |
                                                                                           --0.74%--perf_callchain_user
-                                                                                                    |          
+                                                                                                    |
                                                                                                      --0.66%--__get_user_nocheck_8
 
      2.07%     0.08%  gtsam-node       [kernel.kallsyms]                         [k] perf_swevent_hrtimer
-            |          
+            |
              --1.99%--perf_swevent_hrtimer
-                       |          
+                       |
                         --1.85%--__perf_event_overflow
-                                  |          
+                                  |
                                    --1.81%--perf_event_output_forward
-                                             |          
+                                             |
                                               --1.55%--perf_prepare_sample
-                                                        |          
+                                                        |
                                                          --1.27%--perf_callchain
-                                                                   |          
+                                                                   |
                                                                     --1.25%--get_perf_callchain
-                                                                              |          
+                                                                              |
                                                                                --0.74%--perf_callchain_user
-                                                                                         |          
+                                                                                         |
                                                                                           --0.66%--__get_user_nocheck_8
 
      1.85%     0.04%  gtsam-node       [kernel.kallsyms]                         [k] __perf_event_overflow
-            |          
+            |
              --1.81%--__perf_event_overflow
-                       |          
+                       |
                         --1.81%--perf_event_output_forward
-                                  |          
+                                  |
                                    --1.55%--perf_prepare_sample
-                                             |          
+                                             |
                                               --1.27%--perf_callchain
-                                                        |          
+                                                        |
                                                          --1.25%--get_perf_callchain
-                                                                   |          
+                                                                   |
                                                                     --0.74%--perf_callchain_user
-                                                                              |          
+                                                                              |
                                                                                --0.66%--__get_user_nocheck_8
 
      1.83%     0.00%  gtsam-node       libtbb.so.12.5                            [.] 0x00007faf14da575a
@@ -994,82 +994,82 @@
             ---0x7faf14da575a
 
      1.81%     0.04%  gtsam-node       [kernel.kallsyms]                         [k] perf_event_output_forward
-            |          
+            |
              --1.77%--perf_event_output_forward
-                       |          
+                       |
                         --1.55%--perf_prepare_sample
-                                  |          
+                                  |
                                    --1.27%--perf_callchain
-                                             |          
+                                             |
                                               --1.25%--get_perf_callchain
-                                                        |          
+                                                        |
                                                          --0.74%--perf_callchain_user
-                                                                   |          
+                                                                   |
                                                                     --0.66%--__get_user_nocheck_8
 
      1.74%     1.74%  gtsam-node       libtbb.so.12.5                            [.] 0x000000000001475a
             |
             ---0
-               |          
+               |
                 --1.63%--0
                           0x7faf14da575a
 
      1.64%     0.00%  gtsam-node       [unknown]                                 [.] 0x00007faf13e73f80
             |
             ---0x7faf13e73f80
-               |          
+               |
                 --1.56%--syscall
-                          |          
+                          |
                            --1.41%--entry_SYSCALL_64_after_hwframe
-                                     |          
+                                     |
                                       --1.39%--do_syscall_64
-                                                |          
+                                                |
                                                  --1.34%--__x64_sys_futex
-                                                           |          
+                                                           |
                                                             --1.31%--do_futex
-                                                                      |          
+                                                                      |
                                                                        --1.29%--futex_wake
-                                                                                 |          
+                                                                                 |
                                                                                   --1.08%--wake_up_q
-                                                                                            |          
+                                                                                            |
                                                                                              --1.05%--try_to_wake_up
-                                                                                                       |          
+                                                                                                       |
                                                                                                         --0.56%--__x86_return_thunk
-                                                                                                                  |          
+                                                                                                                  |
                                                                                                                    --0.55%--asm_sysvec_hyperv_stimer0
-                                                                                                                             |          
+                                                                                                                             |
                                                                                                                               --0.54%--sysvec_hyperv_stimer0
-                                                                                                                                        |          
+                                                                                                                                        |
                                                                                                                                          --0.52%--__sysvec_hyperv_stimer0
 
      1.55%     0.06%  gtsam-node       [kernel.kallsyms]                         [k] perf_prepare_sample
-            |          
+            |
              --1.49%--perf_prepare_sample
-                       |          
+                       |
                         --1.27%--perf_callchain
-                                  |          
+                                  |
                                    --1.25%--get_perf_callchain
-                                             |          
+                                             |
                                               --0.74%--perf_callchain_user
-                                                        |          
+                                                        |
                                                          --0.66%--__get_user_nocheck_8
 
      1.48%     0.00%  gtsam-node       libtbb.so.12.5                            [.] 0x00007faf14db3dd8
             |
             ---0x7faf14db3dd8
-               |          
+               |
                 --1.03%--__sched_yield
-                          |          
+                          |
                            --0.82%--entry_SYSCALL_64_after_hwframe
-                                     |          
+                                     |
                                       --0.81%--do_syscall_64
-                                                |          
+                                                |
                                                  --0.76%--__x64_sys_sched_yield
-                                                           |          
+                                                           |
                                                             --0.50%--schedule
 
      1.44%     1.43%  gtsam-node       [kernel.kallsyms]                         [k] yield_task_fair
-            |          
+            |
              --0.98%--__sched_yield
                        entry_SYSCALL_64_after_hwframe
                        do_syscall_64
@@ -1078,38 +1078,38 @@
                        yield_task_fair
 
      1.36%     0.09%  gtsam-node       [kernel.kallsyms]                         [k] futex_wake
-            |          
+            |
              --1.27%--futex_wake
-                       |          
+                       |
                         --1.14%--wake_up_q
-                                  |          
+                                  |
                                    --1.11%--try_to_wake_up
-                                             |          
+                                             |
                                               --0.59%--__x86_return_thunk
-                                                        |          
+                                                        |
                                                          --0.57%--asm_sysvec_hyperv_stimer0
-                                                                   |          
+                                                                   |
                                                                     --0.57%--sysvec_hyperv_stimer0
-                                                                              |          
+                                                                              |
                                                                                --0.54%--__sysvec_hyperv_stimer0
-                                                                                         |          
+                                                                                         |
                                                                                           --0.51%--hrtimer_interrupt
 
      1.27%     0.02%  gtsam-node       [kernel.kallsyms]                         [k] perf_callchain
-            |          
+            |
              --1.25%--perf_callchain
                        get_perf_callchain
-                       |          
+                       |
                         --0.74%--perf_callchain_user
-                                  |          
+                                  |
                                    --0.66%--__get_user_nocheck_8
 
      1.25%     0.06%  gtsam-node       [kernel.kallsyms]                         [k] get_perf_callchain
-            |          
+            |
              --1.19%--get_perf_callchain
-                       |          
+                       |
                         --0.74%--perf_callchain_user
-                                  |          
+                                  |
                                    --0.66%--__get_user_nocheck_8
 
      1.24%     0.00%  gtsam-node       [unknown]                                 [k] 0x48fb8948530002a0
@@ -1122,57 +1122,57 @@
             ---gtsam::JacobianFactor::~JacobianFactor
 
      1.16%     0.03%  gtsam-node       [kernel.kallsyms]                         [k] finish_task_switch.isra.0
-            |          
+            |
              --1.13%--finish_task_switch.isra.0
-                       |          
+                       |
                         --1.04%--__perf_event_task_sched_in
-                                  |          
+                                  |
                                    --0.59%--ctx_sched_in
-                                             |          
+                                             |
                                               --0.58%--visit_groups_merge.constprop.0.isra.0
 
      1.14%     0.03%  gtsam-node       [kernel.kallsyms]                         [k] wake_up_q
-            |          
+            |
              --1.11%--wake_up_q
-                       |          
+                       |
                         --1.11%--try_to_wake_up
-                                  |          
+                                  |
                                    --0.59%--__x86_return_thunk
-                                             |          
+                                             |
                                               --0.57%--asm_sysvec_hyperv_stimer0
-                                                        |          
+                                                        |
                                                          --0.57%--sysvec_hyperv_stimer0
-                                                                   |          
+                                                                   |
                                                                     --0.54%--__sysvec_hyperv_stimer0
-                                                                              |          
+                                                                              |
                                                                                --0.51%--hrtimer_interrupt
 
      1.12%     0.13%  gtsam-node       [kernel.kallsyms]                         [k] try_to_wake_up
-            |          
+            |
              --0.99%--try_to_wake_up
-                       |          
+                       |
                         --0.59%--__x86_return_thunk
-                                  |          
+                                  |
                                    --0.57%--asm_sysvec_hyperv_stimer0
-                                             |          
+                                             |
                                               --0.57%--sysvec_hyperv_stimer0
-                                                        |          
+                                                        |
                                                          --0.54%--__sysvec_hyperv_stimer0
-                                                                   |          
+                                                                   |
                                                                     --0.51%--hrtimer_interrupt
 
      1.10%     0.34%  gtsam-node       [kernel.kallsyms]                         [k] update_curr
-            |          
+            |
              --0.76%--update_curr
-                       |          
+                       |
                         --0.59%--cpuacct_charge
 
      1.04%     0.07%  gtsam-node       [kernel.kallsyms]                         [k] __perf_event_task_sched_in
-            |          
+            |
              --0.98%--__perf_event_task_sched_in
-                       |          
+                       |
                         --0.59%--ctx_sched_in
-                                  |          
+                                  |
                                    --0.58%--visit_groups_merge.constprop.0.isra.0
 
      1.00%     0.00%  gtsam-node       libtbb.so.12.5                            [.] 0x00007faf14db8395
@@ -1184,21 +1184,21 @@
             ---0x7faf14db8395
 
      0.88%     0.05%  gtsam-node       libgtsamRelWithDebInfo.so.4.2.0           [.] gtsam::HessianFactor::HessianFactor
-            |          
+            |
              --0.87%--gtsam::HessianFactor::HessianFactor
-                       |          
+                       |
                         --0.77%--gtsam::JacobianFactor::updateHessian
 
      0.83%     0.05%  gtsam-node       [kernel.kallsyms]                         [k] __perf_event_task_sched_out
-            |          
+            |
              --0.78%--__perf_event_task_sched_out
-                       |          
+                       |
                         --0.74%--amd_pmu_disable_all
-                                  |          
+                                  |
                                    --0.74%--x86_pmu_disable_all
 
      0.81%     0.80%  gtsam-node       [kernel.kallsyms]                         [k] __list_del_entry_valid
-            |          
+            |
              --0.55%--__sched_yield
                        entry_SYSCALL_64_after_hwframe
                        do_syscall_64
@@ -1210,14 +1210,14 @@
 
      0.79%     0.31%  gtsam-node       libgtsamRelWithDebInfo.so.4.2.0           [.] gtsam::JacobianFactor::updateHessian
      0.77%     0.00%  gtsam-node       [kernel.kallsyms]                         [k] amd_pmu_disable_all
-            |          
+            |
              --0.76%--amd_pmu_disable_all
                        x86_pmu_disable_all
 
      0.76%     0.73%  gtsam-node       [kernel.kallsyms]                         [k] x86_pmu_disable_all
-            |          
+            |
              --0.67%--0
-                       |          
+                       |
                         --0.62%--syscall
                                   entry_SYSCALL_64_after_hwframe
                                   do_syscall_64
@@ -1227,15 +1227,15 @@
                                   futex_wait_queue_me
                                   schedule
                                   __schedule
-                                  |          
+                                  |
                                    --0.62%--__perf_event_task_sched_out
                                              amd_pmu_disable_all
                                              x86_pmu_disable_all
 
      0.74%     0.04%  gtsam-node       [kernel.kallsyms]                         [k] perf_callchain_user
-            |          
+            |
              --0.70%--perf_callchain_user
-                       |          
+                       |
                         --0.66%--__get_user_nocheck_8
 
      0.73%     0.00%  gtsam-node       libtbb.so.12.5                            [.] 0x00007faf14db8372
@@ -1248,27 +1248,27 @@
 
      0.66%     0.19%  gtsam-node       [kernel.kallsyms]                         [k] __get_user_nocheck_8
      0.66%     0.09%  gtsam-node       [kernel.kallsyms]                         [k] __x86_return_thunk
-            |          
+            |
              --0.57%--__x86_return_thunk
-                       |          
+                       |
                         --0.57%--asm_sysvec_hyperv_stimer0
-                                  |          
+                                  |
                                    --0.56%--sysvec_hyperv_stimer0
-                                             |          
+                                             |
                                               --0.54%--__sysvec_hyperv_stimer0
-                                                        |          
+                                                        |
                                                          --0.51%--hrtimer_interrupt
 
      0.65%     0.00%  gtsam-node       libgtsamRelWithDebInfo.so.4.2.0           [.] gtsam::SymmetricBlockMatrix::choleskyPartial
-            |          
+            |
              --0.65%--gtsam::SymmetricBlockMatrix::choleskyPartial
-                       |          
+                       |
                         --0.59%--gtsam::choleskyPartial
 
      0.65%     0.04%  gtsam-node       [kernel.kallsyms]                         [k] ctx_sched_in
-            |          
+            |
              --0.61%--ctx_sched_in
-                       |          
+                       |
                         --0.59%--visit_groups_merge.constprop.0.isra.0
 
      0.65%     0.61%  gtsam-node       libc.so.6                                 [.] _int_malloc
@@ -1280,7 +1280,7 @@
      0.60%     0.60%  gtsam-node       [kernel.kallsyms]                         [k] cpuacct_charge
      0.60%     0.19%  gtsam-node       libgtsamRelWithDebInfo.so.4.2.0           [.] gtsam::choleskyPartial
      0.59%     0.04%  gtsam-node       [kernel.kallsyms]                         [k] visit_groups_merge.constprop.0.isra.0
-            |          
+            |
              --0.56%--visit_groups_merge.constprop.0.isra.0
 
      0.52%     0.00%  gtsam-node       [unknown]                                 [.] 0xec8348fb89485355

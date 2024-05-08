@@ -38,6 +38,7 @@
 #include <units/time.h>
 
 #include "gtsam/slam/expressions.h"
+#include "gtsam_utils.h"
 
 class Localizer {
   using Key = gtsam::Key;
@@ -52,13 +53,9 @@ public:
    */
   void Reset(gtsam::Pose3 wTr, gtsam::SharedNoiseModel noise, uint64_t timeUs);
 
-  void AddOdometry(gtsam::Pose3 twist, gtsam::SharedNoiseModel noise,
-                   uint64_t timeUs);
+  void AddOdometry(OdometryObservation odom);
 
-  void AddTagObservation(int tagID, gtsam::Cal3_S2_ cameraCal,
-                         gtsam::Pose3 robotTcamera,
-                         std::vector<gtsam::Point2> corners,
-                         gtsam::SharedNoiseModel noise, uint64_t timeUs);
+  void AddTagObservation(CameraVisionObservation tagDetection);
 
   void Optimize();
 

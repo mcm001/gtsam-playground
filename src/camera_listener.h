@@ -40,26 +40,30 @@
 
 #include "TagDetectionStruct.h"
 #include "config.h"
-
-class Localizer;
+#include "gtsam_utils.h"
 
 class CameraListener {
 public:
-  CameraListener(std::string rootTable, CameraConfig config,
-                 std::shared_ptr<Localizer> localizer);
+  CameraListener(std::string rootTable, CameraConfig config);
+
+  /**
+   * If all required info (eg camera calibration, robot-cam offset) has been
+   * recieved and we're ready to go
+   */
+  bool ReadyToOptimize();
 
   /**
    * Add all new camera observations to the localizer
    */
-  bool Update();
+  std::vector<CameraVisionObservation> Update();
 
 private:
   // Camera (pinhole) calibration coefficients
   std::optional<gtsam::Cal3_S2> cameraK;
+  // Camera offset
+  std::optional<::gtsam::Pose3> robotTcamera;
 
   CameraConfig config;
-
-  std::shared_ptr<Localizer> localizer;
 
   // Tag detection messages
   nt::StructArraySubscriber<TagDetection> tagSub;
@@ -69,5 +73,4 @@ private:
   nt::DoubleArraySubscriber pinholeIntrinsicsSub;
 
   ::gtsam::noiseModel::Isotropic::shared_ptr measurementNoise;
-  ::gtsam::Pose3 robotTcamera;
 };

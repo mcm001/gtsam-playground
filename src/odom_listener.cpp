@@ -27,7 +27,6 @@
 #include <networktables/NetworkTableInstance.h>
 
 #include "gtsam_utils.h"
-#include "localizer.h"
 
 using std::vector;
 using namespace gtsam;
@@ -38,10 +37,8 @@ static Vector6 makeOdomNoise(const LocalizerConfig &config) {
                  config.transNoise[1], config.transNoise[2]};
 }
 
-OdomListener::OdomListener(LocalizerConfig config,
-                           std::shared_ptr<Localizer> localizer_)
-    : config(config), localizer(localizer_),
-      odomSub(nt::NetworkTableInstance::GetDefault()
+OdomListener::OdomListener(LocalizerConfig config)
+    : odomSub(nt::NetworkTableInstance::GetDefault()
                   .GetStructTopic<frc::Twist3d>(config.rootTableName +
                                                 "/input/odom_twist")
                   .Subscribe({},
@@ -67,11 +64,13 @@ OdomListener::OdomListener(LocalizerConfig config,
           // initial guess stdev: rad,rad,rad,m, m, m
           (Vector(6) << 1, 1, 1, 1, 1, 1).finished())) {}
 
-bool OdomListener::Update() {
-  if (!localizer) {
-    throw std::runtime_error("Localizer was null");
-  }
+std::optional<Timestamped<Pose3WithNoise>> OdomListener::NewPosePrior() {
+  auto ret = newPriorPose;
+  newPriorPose = std::nullopt;
+  return ret;
+}
 
+bool OdomListener::ReadyToOptimize() {
   if (!hasInitialGuess) {
     // grab the latest robot-cam transform
     const auto last_wTr = initialGuessSub.GetAtomic();
@@ -84,12 +83,19 @@ bool OdomListener::Update() {
     fmt::println("Global: Resetting localizer at {}", last_wTr.time);
 
     Pose3 wTr = Pose3dToGtsamPose3(last_wTr.value);
-    localizer->Reset(wTr, priorNoise, last_wTr.time);
+    newPriorPose = {last_wTr.time, {wTr, priorNoise}};
 
     hasInitialGuess = true;
   }
 
+  return hasInitialGuess;
+}
+
+std::vector<OdometryObservation> OdomListener::Update() {
   const auto odom = odomSub.ReadQueue();
+
+  std::vector<OdometryObservation> ret;
+  ret.reserve(odom.size());
 
   for (const auto &o : odom) {
     auto &twist = o.value;
@@ -100,12 +106,8 @@ bool OdomListener::Update() {
         twist.dz.to<double>();
     Pose3 odomPoseDelta = Pose3::Expmap(eigenTwist);
 
-    try {
-      localizer->AddOdometry(odomPoseDelta, odomNoise, o.time);
-    } catch (const std::exception &e) {
-      fmt::println("whoops, {}", e.what());
-    }
+    ret.emplace_back(o.time, odomPoseDelta, odomNoise);
   }
 
-  return true;
+  return ret;
 }

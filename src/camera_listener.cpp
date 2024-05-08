@@ -28,14 +28,12 @@
 #include <networktables/NetworkTableInstance.h>
 
 #include "gtsam_utils.h"
-#include "localizer.h"
 
 using std::vector;
 using namespace gtsam;
 
-CameraListener::CameraListener(std::string rootTable, CameraConfig config,
-                               std::shared_ptr<Localizer> localizer_)
-    : config(config), localizer(localizer_),
+CameraListener::CameraListener(std::string rootTable, CameraConfig config)
+    : config(config),
       tagSub(nt::NetworkTableInstance::GetDefault()
                  .GetStructArrayTopic<TagDetection>(
                      rootTable + nt::NetworkTable::PATH_SEPARATOR_CHAR +
@@ -69,11 +67,7 @@ CameraListener::CameraListener(std::string rootTable, CameraConfig config,
                          })),
       measurementNoise(noiseModel::Isotropic::Sigma(2, config.m_pixelNoise)) {}
 
-bool CameraListener::Update() {
-  if (!localizer) {
-    throw std::runtime_error("Localizer was null");
-  }
-
+bool CameraListener::ReadyToOptimize() {
   // grab the latest camera cal
   const auto last_K = pinholeIntrinsicsSub.GetAtomic();
   // if not published, time will be zero
@@ -107,31 +101,26 @@ bool CameraListener::Update() {
     return false;
   }
 
-  Pose3 robotTcam = Transform3dToGtsamPose3(last_rTc.value);
-  // add transform to change from the wpilib/photon default (camera optical axis
-  // along +x) to the standard from opencv (z along optical axis)
-  /*
-  We want:
-  x in [0,-1,0]
-  y in [0,0,-1]
-  z in [1,0,0]
-  */
-  robotTcam =
-      robotTcam * Pose3{Rot3(0, 0, 1, -1, 0, 0, 0, -1, 0), Point3{0.0, 0, 0.0}};
+  robotTcamera =
+      Transform3dToGtsamPose3(last_rTc.value)
+      // add transform to change from the wpilib/photon default (camera optical
+      // axis along +x) to the standard from opencv (z along optical axis)
+      /*
+      We want:
+      x in [0,-1,0]
+      y in [0,0,-1]
+      z in [1,0,0]
+      */
+      * Pose3{Rot3(0, 0, 1, -1, 0, 0, 0, -1, 0), Point3{0.0, 0, 0.0}};
 
-  // Hard-coded for now -- TODO move to configurable
-  // const Pose3 bodyPcamera_cam1{/*
-  //                         We want:
-  //                         x in [0,-1,0]
-  //                         y in [0,0,-1]
-  //                         z in [1,0,0]
-  //                         */
-  //                              Rot3(0, 0, 1, -1, 0, 0, 0, -1, 0),
+  return cameraK && robotTcamera;
+}
 
-  //                              Point3{0.5, 0, 0.5}};
-  // Cal3_S2 K_cam1(1000, 1000, 0, 960 / 2, 720 / 2);
-
+std::vector<CameraVisionObservation> CameraListener::Update() {
   const auto tags = tagSub.ReadQueue();
+
+  std::vector<CameraVisionObservation> ret;
+  ret.reserve(tags.size());
 
   // For each tag-array in the queue
   for (const auto &tarr : tags) {
@@ -143,14 +132,10 @@ bool CameraListener::Update() {
         cornersForGtsam.emplace_back(c.first, c.second);
       }
 
-      try {
-        localizer->AddTagObservation(t.id, *cameraK, robotTcam, cornersForGtsam,
-                                     measurementNoise, tarr.time);
-      } catch (const std::exception &e) {
-        fmt::println("exception adding tag, {}", e.what());
-      }
+      ret.emplace_back(tarr.time, t.id, cornersForGtsam, *cameraK,
+                       *robotTcamera, measurementNoise);
     }
   }
 
-  return true;
+  return ret;
 }

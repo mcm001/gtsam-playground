@@ -24,10 +24,46 @@
 
 #pragma once
 #include <gtsam/geometry/Pose3.h>
+#include <gtsam/linear/NoiseModel.h>
 #include <gtsam/slam/expressions.h>
 
 #include <frc/geometry/Pose3d.h>
 #include <frc/geometry/Transform3d.h>
+
+struct CameraVisionObservation {
+  // Tag observation timestamp
+  uint64_t timeUs;
+  // ID of observed tag, to later index into layout map
+  int tagID;
+  // Detected tag corners, in "canonical" order
+  std::vector<gtsam::Point2> corners;
+  // Calibration of camera observing this
+  // TODO: see if I can switch this to a shared-ptr, not sure if that's any
+  // faster
+  // TODO: maybe just unprojecting points to pinhole -1,1 would mean we could
+  // get rid of this entirely?
+  gtsam::Cal3_S2_ cameraCal;
+  // Offset from robot kinematic center -> camera optical center
+  gtsam::Pose3 robotTcamera;
+  // Pixel noise in camera
+  gtsam::SharedNoiseModel cameraNoise;
+};
+
+struct OdometryObservation {
+  uint64_t timeUs;
+  gtsam::Pose3 poseDelta;
+  gtsam::SharedNoiseModel odometryNoise;
+};
+
+template <typename T> struct Timestamped {
+  uint64_t time;
+  T value;
+};
+
+struct Pose3WithNoise {
+  gtsam::Pose3 pose;
+  gtsam::SharedNoiseModel noise;
+};
 
 gtsam::Pose3 Pose3dToGtsamPose3(frc::Pose3d pose);
 gtsam::Pose3 Transform3dToGtsamPose3(frc::Transform3d pose);

@@ -24,8 +24,8 @@ add_subdirectory(allwpilib)
 # Generate gtsam-localizer resources
 generate_resources(src/resources/ generated/main/cpp GTSAMLOCALIZER meme localizer_resources_src)
 
-add_library(gtsam-localizer 
-  src/localizer.cpp 
+add_library(gtsam-localizer
+  src/localizer.cpp
   src/TagModel.cpp
   src/gtsam_utils.cpp
   src/config.cpp
@@ -43,7 +43,7 @@ target_link_libraries(gtsam-localizer PUBLIC
 )
 target_compile_options(gtsam-localizer PRIVATE -Wno-deprecated-enum-enum-conversion)
 
-add_executable(gtsam-node 
+add_executable(gtsam-node
   src/gtsam_tags_node.cpp
 )
 target_compile_options(gtsam-localizer PRIVATE -Wno-deprecated-enum-enum-conversion)

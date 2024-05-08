@@ -57,24 +57,40 @@ private:
 
 public:
   explicit LocalizerRunner(LocalizerConfig config)
-      : localizer(new Localizer()), odomListener{config, localizer},
+      : localizer(std::make_shared<Localizer>()), odomListener{config},
         dataPublisher(config.rootTableName, localizer) {
     cameraListeners.reserve(config.cameras.size());
     for (const CameraConfig &camCfg : config.cameras) {
-      cameraListeners.emplace_back(config.rootTableName, camCfg, localizer);
+      cameraListeners.emplace_back(config.rootTableName, camCfg);
     }
   }
 
   void Update() {
     bool readyToOptimize = true;
 
-    readyToOptimize &= odomListener.Update();
+    bool odomReady = odomListener.ReadyToOptimize();
+    readyToOptimize &= odomReady;
+    if (odomReady) {
+      if (const auto prior = odomListener.NewPosePrior()) {
+        localizer->Reset(prior->value.pose, prior->value.noise, prior->time);
+      }
+      for (const auto &it : odomListener.Update()) {
+        localizer->AddOdometry(it);
+      }
+    }
 
     // localizer->Print("=========================\nAfter adding odometry
     // factors");
 
     for (auto &cam : cameraListeners) {
-      readyToOptimize &= cam.Update();
+      bool ready = cam.ReadyToOptimize();
+      readyToOptimize &= ready;
+
+      if (ready) {
+        for (const auto &it : cam.Update()) {
+          localizer->AddTagObservation(it);
+        }
+      }
     }
 
     if (!readyToOptimize) {

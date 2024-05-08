@@ -28,7 +28,6 @@
 
 #include "TagModel.h"
 #include "gtsam/nonlinear/Expression.h"
-#include "gtsam_utils.h"
 
 using namespace gtsam;
 using symbol_shorthand::X;
@@ -78,8 +77,11 @@ void Localizer::Reset(Pose3 wTr, SharedNoiseModel noise, uint64_t timeUs) {
   wTb_latest = wTr;
 }
 
-void Localizer::AddOdometry(Pose3 poseDelta, SharedNoiseModel odometryNoise,
-                            uint64_t timeUs) {
+void Localizer::AddOdometry(OdometryObservation odom) {
+  const Pose3 &poseDelta = odom.poseDelta;
+  const SharedNoiseModel &odometryNoise = odom.odometryNoise;
+  uint64_t timeUs = odom.timeUs;
+
   Key newStateIdx = X(timeUs);
 
   // Add an odometry pose delta from our last state to our new one
@@ -379,11 +381,15 @@ Key Localizer::GetOrInsertKey(Key newKey, double time) {
   // }
 }
 
-void Localizer::AddTagObservation(int tagID, Cal3_S2_ cameraCal,
-                                  Pose3 robotTcamera,
-                                  std::vector<Point2> corners,
-                                  SharedNoiseModel cameraNoise,
-                                  uint64_t timeUs) {
+void Localizer::AddTagObservation(CameraVisionObservation obs) {
+
+  int tagID = obs.tagID;
+  const Cal3_S2_ &cameraCal = obs.cameraCal;
+  const Pose3 &robotTcamera = obs.robotTcamera;
+  const std::vector<Point2> &corners = obs.corners;
+  const SharedNoiseModel cameraNoise = obs.cameraNoise;
+  const uint64_t timeUs = obs.timeUs;
+
   auto worldPcorners_opt = TagModel::WorldToCorners(tagID);
   if (!worldPcorners_opt) {
     // todo return bad thing

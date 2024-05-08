@@ -36,17 +36,15 @@
 
 #include "TagDetectionStruct.h"
 #include "config.h"
-
-class Localizer;
+#include "gtsam_utils.h"
 
 class OdomListener {
 public:
-  OdomListener(LocalizerConfig config, std::shared_ptr<Localizer> localizer);
+  OdomListener(LocalizerConfig config);
 
-  /**
-   * Add all new odometry factors to the localizer
-   */
-  bool Update();
+  bool ReadyToOptimize();
+  std::optional<Timestamped<Pose3WithNoise>> NewPosePrior();
+  std::vector<OdometryObservation> Update();
 
 private:
   // Initial guess, used for the first Optimize we ever do to keep us in the
@@ -54,12 +52,10 @@ private:
   nt::StructSubscriber<frc::Pose3d> initialGuessSub;
   bool hasInitialGuess = false;
 
-  LocalizerConfig config;
-
-  std::shared_ptr<Localizer> localizer;
-
   nt::StructSubscriber<frc::Twist3d> odomSub;
 
   ::gtsam::SharedNoiseModel odomNoise;
   ::gtsam::SharedNoiseModel priorNoise;
+
+  std::optional<Timestamped<Pose3WithNoise>> newPriorPose;
 };
