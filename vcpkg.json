@@ -1,0 +1,17 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "name": "gtsam-playground",
+  "dependencies": [
+    "boost-system",
+    "boost-serialization",
+    "boost-filesystem",
+    "boost-thread",
+    "boost-program-options",
+    "boost-date-time",
+    "boost-timer",
+    "boost-chrono",
+    "boost-regex",
+    "protobuf",
+    "libssh"
+  ]
+}

@@ -170,3 +170,5 @@ compile_commands.json
 .clang
 .clangd/
 .cache/
+
+vcpkg_installed

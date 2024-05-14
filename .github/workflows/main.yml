@@ -1,0 +1,168 @@
+name: CMake
+
+on:
+  push:
+    branches: [ "main" ]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+
+jobs:
+  build-host:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            arch-name: linuxx86-64
+
+    runs-on: ${{ matrix.os }}
+    name: "grsam-meme - Build - ${{ matrix.arch-name }}"
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: 'true'
+        fetch-depth: 0
+
+    - name: Fetch tags
+      run: git fetch --tags --force
+    - run: git describe --tags
+
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v1.13
+
+    - name: Install deps
+      run: |
+        sudo apt-get install -y cmake gcc g++ libboost-all-dev libssh-dev protobuf-compiler
+
+    - name: Configure CMake
+      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
+      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DOPENCV_ARCH=${{ matrix.arch-name }}
+
+    - name: Build shared gtsam-node
+      # Build your program with the given configuration
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} ${{ (startsWith(matrix.arch-name, 'windowx86-64') && '--config Release') || '' }}
+
+    - uses: actions/upload-artifact@master
+      with:
+        name: gtsam-meme-${{ matrix.arch-name }}
+        path: |
+          ${{ github.workspace }}/build/bin/*
+          ${{ github.workspace }}/build/lib/*
+
+  build-raspi:
+    runs-on: ubuntu-latest
+    steps:
+
+    - uses: actions/checkout@v3
+      with:
+        submodules: 'true'
+        fetch-depth: 0
+    - name: Fetch tags
+      run: git fetch --tags --force
+    - run: git describe --tags
+    - uses: pguyot/arm-runner-action@v2
+      with:
+        base_image: raspios_lite_arm64:latest
+        cpu: cortex-a7
+        image_additional_mb: 2500
+        bind_mount_repository: true
+        commands: |
+          sudo apt install cmake git gcc g++ libboost-all-dev libssh-dev protobuf-compiler -y
+          cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DOPENCV_ARCH=linuxarm64
+          cmake --build build --config ${{env.BUILD_TYPE}}
+
+    - uses: actions/upload-artifact@v3
+      name: Upload jar
+      with:
+        name: gtsam-meme-pi
+        path: |
+          ${{ github.workspace }}/build/bin/*
+          ${{ github.workspace }}/build/lib/*
+
+  build-windows:
+    runs-on: windows-latest
+
+    name: "gtsam-meme - Build - Windows"
+
+    env:
+      BUILD_TYPE: "Release"
+
+    steps:
+    # Borrowed from https://github.com/wpilibsuite/allwpilib/blob/main/.github/workflows/cmake.yml
+    - uses: ilammy/msvc-dev-cmd@v1
+
+    - name: Install CMake
+      uses: lukka/get-cmake@v3.27.6
+
+    - name: Run sccache-cache
+      uses: mozilla-actions/sccache-action@v0.0.3
+
+    - uses: actions/checkout@v3
+      with:
+        submodules: 'true'
+        fetch-depth: 0
+
+    - name: Fetch tags
+      run: git fetch --tags --force
+    - run: git describe --tags
+
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v1.13
+
+    - name: Setup anew (or from cache) vcpkg (and does not build any package)
+      uses: lukka/run-vcpkg@v11 
+      with:
+        runVcpkgInstall: true
+
+    - name: Configure CMake
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DOPENCV_ARCH=windowsx86-64 -T ClangCl -A x64 -G "Visual Studio 17 2022" -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake"  -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache -DVCPKG_INSTALL_OPTIONS=--clean-after-build -DVCPKG_TARGET_TRIPLET=x64-windows-release -DVCPKG_HOST_TRIPLET=x64-windows-release
+      env:
+        SCCACHE_GHA_ENABLED: "true"
+
+    - name: Build shared gtsam-node
+      # Build your program with the given configuration
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+    - uses: actions/upload-artifact@master
+      with:
+        name: gtsam-meme-windowsx64
+        path: |
+          ${{ github.workspace }}/build/bin/*
+          ${{ github.workspace }}/build/lib/*
+
+  release:
+    needs: [build-host, build-raspi, build-windows]
+    runs-on: ubuntu-22.04
+    steps:
+      # Download literally every single artifact. This also downloads client and docs,
+      # but the filtering below won't pick these up (I hope)
+      - uses: actions/download-artifact@v2
+
+      - run: find
+
+      # Push to dev release on pushes to master
+      - uses: pyTooling/Actions/releaser@r0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: 'Dev'
+          rm: true
+          files: |
+            **/*
+        if: github.event_name == 'push'
+
+      # Push to actual release, if tagged
+      - uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            **/*
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
