@@ -24,32 +24,24 @@
 
 #pragma once
 
-#include <gtsam/linear/NoiseModel.h>
-
 #include <memory>
 #include <string>
-#include <vector>
 
-#include <frc/geometry/Pose3d.h>
-#include <frc/geometry/Twist3d.h>
-#include <networktables/StructArrayTopic.h>
+#include <frc/apriltag/AprilTagFieldLayout.h>
+#include <networktables/StringTopic.h>
 #include <networktables/StructTopic.h>
 
-#include "TagDetectionStruct.h"
 #include "config.h"
 #include "gtsam_utils.h"
 
-class OdomListener {
+class ConfigListener {
 public:
-  explicit OdomListener(LocalizerConfig config);
+  explicit ConfigListener(LocalizerConfig config);
 
-  std::vector<OdometryObservation> Update();
+  std::optional<frc::AprilTagFieldLayout> NewTagLayout();
+  std::optional<Timestamped<Pose3WithNoise>> NewPosePrior();
 
 private:
-  nt::StructSubscriber<frc::Twist3d> odomSub;
-
-  ::gtsam::SharedNoiseModel odomNoise;
-  ::gtsam::SharedNoiseModel priorNoise;
-
-  std::optional<Timestamped<Pose3WithNoise>> newPriorPose;
+  nt::StringSubscriber layoutSub;
+  nt::StructSubscriber<frc::Pose3d> initialGuessSub;
 };

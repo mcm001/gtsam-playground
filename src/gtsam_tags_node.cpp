@@ -39,6 +39,7 @@
 #include "TagModel.h"
 #include "camera_listener.h"
 #include "config.h"
+#include "config_listener.h"
 #include "data_publisher.h"
 #include "gtsam_utils.h"
 #include "localizer.h"
@@ -53,12 +54,15 @@ private:
   std::shared_ptr<Localizer> localizer;
   OdomListener odomListener;
   DataPublisher dataPublisher;
+  ConfigListener configListener;
   std::vector<CameraListener> cameraListeners;
+
+  bool gotInitialGuess = false;
 
 public:
   explicit LocalizerRunner(LocalizerConfig config)
       : localizer(std::make_shared<Localizer>()), odomListener{config},
-        dataPublisher(config.rootTableName, localizer) {
+        dataPublisher(config.rootTableName, localizer), configListener(config) {
     cameraListeners.reserve(config.cameras.size());
     for (const CameraConfig &camCfg : config.cameras) {
       cameraListeners.emplace_back(config.rootTableName, camCfg);
@@ -68,15 +72,23 @@ public:
   void Update() {
     bool readyToOptimize = true;
 
-    bool odomReady = odomListener.ReadyToOptimize();
-    readyToOptimize &= odomReady;
-    if (odomReady) {
-      if (const auto prior = odomListener.NewPosePrior()) {
-        localizer->Reset(prior->value.pose, prior->value.noise, prior->time);
-      }
-      for (const auto &it : odomListener.Update()) {
-        localizer->AddOdometry(it);
-      }
+    if (const auto prior = configListener.NewPosePrior()) {
+      localizer->Reset(prior->value.pose, prior->value.noise, prior->time);
+      gotInitialGuess = true;
+    }
+
+    if (const auto layout = configListener.NewTagLayout()) {
+      TagModel::SetLayout(*layout);
+
+      // Reset initial guess tracking since we got a new layout and our factors
+      // are technically now wrong
+      gotInitialGuess = false;
+    }
+
+    readyToOptimize &= gotInitialGuess;
+
+    for (const auto &it : odomListener.Update()) {
+      localizer->AddOdometry(it);
     }
 
     // localizer->Print("=========================\nAfter adding odometry

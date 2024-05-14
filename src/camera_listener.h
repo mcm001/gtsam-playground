@@ -31,6 +31,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <vector>
 
 #include <frc/geometry/Pose3d.h>
 #include <frc/geometry/Transform3d.h>

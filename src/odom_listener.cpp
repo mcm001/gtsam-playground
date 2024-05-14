@@ -47,49 +47,12 @@ OdomListener::OdomListener(LocalizerConfig config)
                                  .sendAll = true,
                                  .keepDuplicates = true,
                              })),
-      initialGuessSub(
-          nt::NetworkTableInstance::GetDefault()
-              .GetStructTopic<frc::Pose3d>(config.rootTableName +
-                                           "/input/pose_initial_guess")
-              .Subscribe({},
-                         {
-                             .pollStorage = 100,
-                             .sendAll = true,
-                             .keepDuplicates = true,
-                         })),
       odomNoise(noiseModel::Diagonal::Sigmas(
           // Odoometry factor stdev: rad,rad,rad,m, m, m
           makeOdomNoise(config))),
       priorNoise(noiseModel::Diagonal::Sigmas(
           // initial guess stdev: rad,rad,rad,m, m, m
           (Vector(6) << 1, 1, 1, 1, 1, 1).finished())) {}
-
-std::optional<Timestamped<Pose3WithNoise>> OdomListener::NewPosePrior() {
-  auto ret = newPriorPose;
-  newPriorPose = std::nullopt;
-  return ret;
-}
-
-bool OdomListener::ReadyToOptimize() {
-  if (!hasInitialGuess) {
-    // grab the latest robot-cam transform
-    const auto last_wTr = initialGuessSub.GetAtomic();
-    // if not published, time will be zero
-    if (last_wTr.time == 0) {
-      fmt::println("Global: no wTr guess set?");
-      return false;
-    }
-
-    fmt::println("Global: Resetting localizer at {}", last_wTr.time);
-
-    Pose3 wTr = Pose3dToGtsamPose3(last_wTr.value);
-    newPriorPose = {last_wTr.time, {wTr, priorNoise}};
-
-    hasInitialGuess = true;
-  }
-
-  return hasInitialGuess;
-}
 
 std::vector<OdometryObservation> OdomListener::Update() {
   const auto odom = odomSub.ReadQueue();

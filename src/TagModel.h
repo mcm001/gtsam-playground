@@ -31,8 +31,11 @@
 #include <optional>
 #include <vector>
 
+#include <frc/apriltag/AprilTagFieldLayout.h>
+
 #include "TagDetection.h"
 
 namespace TagModel {
+void SetLayout(const frc::AprilTagFieldLayout &layout);
 std::optional<std::vector<gtsam::Point3>> WorldToCorners(int id);
 } // namespace TagModel

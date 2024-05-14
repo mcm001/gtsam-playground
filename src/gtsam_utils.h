@@ -27,6 +27,8 @@
 #include <gtsam/linear/NoiseModel.h>
 #include <gtsam/slam/expressions.h>
 
+#include <vector>
+
 #include <frc/geometry/Pose3d.h>
 #include <frc/geometry/Transform3d.h>
 

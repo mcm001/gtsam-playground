@@ -382,7 +382,6 @@ Key Localizer::GetOrInsertKey(Key newKey, double time) {
 }
 
 void Localizer::AddTagObservation(CameraVisionObservation obs) {
-
   int tagID = obs.tagID;
   const Cal3_S2_ &cameraCal = obs.cameraCal;
   const Pose3 &robotTcamera = obs.robotTcamera;

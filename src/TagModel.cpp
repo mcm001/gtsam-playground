@@ -48,7 +48,7 @@ map<int, Pose3> TagLayoutToMap(const frc::AprilTagFieldLayout &layout) {
   return worldTtags;
 }
 
-inline const frc::AprilTagFieldLayout kTagLayout{
+inline const frc::AprilTagFieldLayout kDefaultLayout{
     frc::LoadAprilTagLayoutField(frc::AprilTagField::k2024Crescendo)};
 
 float width = 6.5 * 25.4 / 1000.0; // 6.5in wide tag
@@ -59,10 +59,14 @@ vector<Point3> tagToCorners{
     {0, -width / 2.0, width / 2.0},
 };
 
-map<int, Pose3> worldTtags = TagLayoutToMap(kTagLayout);
+map<int, Pose3> worldTtags = TagLayoutToMap(kDefaultLayout);
 } // namespace
 
 namespace TagModel {
+
+void SetLayout(const frc::AprilTagFieldLayout &layout) {
+  worldTtags = TagLayoutToMap(layout);
+}
 
 std::optional<vector<Point3>> WorldToCorners(int id) {
   auto maybePose = worldTtags.find(id);
