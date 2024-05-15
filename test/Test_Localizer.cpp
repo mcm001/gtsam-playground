@@ -62,43 +62,54 @@ TEST(LocalizerTest, LatencyCompensate) {
   auto localizer = Localizer();
 
   localizer.Reset(Pose3(), posePriorNoise, 5 * 1000);
-  localizer.AddOdometry(Pose3{Rot3{}, Point3{1, 0, 0}}, odometryNoise,
-                        100 * 1000);
-  localizer.AddOdometry(Pose3{Rot3{}, Point3{1, 0, 0}}, odometryNoise,
-                        200 * 1000);
-  localizer.AddOdometry(Pose3{Rot3{}, Point3{1, 0, 0}}, odometryNoise,
-                        300 * 1000);
-  localizer.AddOdometry(Pose3{Rot3{}, Point3{1, 0, 0}}, odometryNoise,
-                        400 * 1000);
+  localizer.AddOdometry(OdometryObservation{
+      100 * 1000, Pose3{Rot3{}, Point3{1, 0, 0}}, odometryNoise});
+  localizer.AddOdometry(OdometryObservation{
+      200 * 1000, Pose3{Rot3{}, Point3{1, 0, 0}}, odometryNoise});
+  localizer.AddOdometry(OdometryObservation{
+      300 * 1000, Pose3{Rot3{}, Point3{1, 0, 0}}, odometryNoise});
+  localizer.AddOdometry(OdometryObservation{
+      400 * 1000, Pose3{Rot3{}, Point3{1, 0, 0}}, odometryNoise});
   localizer.Optimize();
   auto pose = localizer.GetLatestWorldToBody();
   pose.print("Pose: ");
 
-  // add vision to within isam's history
-  localizer.AddTagObservation(8, cal, Pose3(),
+  CameraVisionObservation obs{240000,
+                              8,
                               {
                                   {414, 166},
                                   {457, 165},
                                   {457, 122},
                                   {412, 122},
                               },
-                              measurementNoise, 240 * 1000);
+                              cal,
+                              Pose3(),
+                              measurementNoise};
+
+  // add vision to within isam's history
+  localizer.AddTagObservation(obs);
 
   localizer.Optimize();
   pose = localizer.GetLatestWorldToBody();
   localizer.Print();
 
   // add but don't optimize
-  localizer.AddOdometry(Pose3{Rot3{}, Point3{1, 0, 0}}, odometryNoise,
-                        500 * 1000);
-  localizer.AddTagObservation(8, cal, Pose3(),
-                              {
-                                  {414, 166},
-                                  {457, 165},
-                                  {457, 122},
-                                  {412, 122},
-                              },
-                              measurementNoise, 460 * 1000);
+  localizer.AddOdometry(OdometryObservation{
+      500 * 1000, Pose3{Rot3{}, Point3{1, 0, 0}}, odometryNoise});
+
+  obs = {460000,
+         8,
+         {
+             {414, 166},
+             {457, 165},
+             {457, 122},
+             {412, 122},
+         },
+         cal,
+         Pose3(),
+         measurementNoise};
+
+  localizer.AddTagObservation(obs);
   localizer.Optimize();
   pose = localizer.GetLatestWorldToBody();
   localizer.Print();
