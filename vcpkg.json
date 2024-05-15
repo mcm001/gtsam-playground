@@ -12,6 +12,6 @@
     "boost-chrono",
     "boost-regex",
     "protobuf",
-    "libssh"
+    "wpilib"
   ]
 }

@@ -19,7 +19,11 @@ set(CXXFLAGS "${CXXFLAGS} -fno-omit-frame-pointer")
 set(CMAKE_INSTALL_RPATH "lib")
 
 add_subdirectory(gtsam)
+
+if (NOT WIN32)
+message("Adding allwpilib!")
 add_subdirectory(allwpilib)
+endif()
 
 # Generate gtsam-localizer resources
 generate_resources(src/resources/ generated/main/cpp GTSAMLOCALIZER meme localizer_resources_src)
@@ -35,6 +39,7 @@ add_library(gtsam-localizer
   src/config_listener.cpp
   ${localizer_resources_src}
 )
+
 target_link_libraries(gtsam-localizer PUBLIC
   gtsam
   gtsam_unstable
