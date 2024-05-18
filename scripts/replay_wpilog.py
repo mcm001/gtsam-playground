@@ -6,7 +6,8 @@ import struct
 
 wpilog = DataLogReader(
     # "/home/matt/Documents/GitHub/gtsam-playground/data/factor_graph_reference_1.wpilog"
-    "/home/matt/Downloads/harry-gtsam-data/Log_24-04-20_08-56-21_e2_sim.wpilog"
+    # "/home/matt/Downloads/harry-gtsam-data/Log_24-04-20_08-56-21_e2_sim.wpilog"
+    "/mnt/d/Documents/matt logs ebr 20240516/logs_matt/matt_1715909200111.wpilog"
 )
 
 from dataclasses import dataclass
@@ -15,9 +16,13 @@ from photonlibpy.packet import Packet
 from wpimath.geometry import Translation2d
 from ntcore import GenericPublisher, NetworkTableInstance, Value, _now
 
-NetworkTableInstance.getDefault().stopClient()
-NetworkTableInstance.getDefault().startServer()
+inst = NetworkTableInstance.getDefault()
+inst.stopClient()
+inst.startServer()
 
+while not any([it.remote_id.startswith("gtsam-meme") for it in inst.getConnections()]):
+    print("Waiting for gtsam-meme: " + str([it.remote_id for it in inst.getConnections()]))
+    sleep(1)
 
 def recordToNt(record: DataLogRecord, entry: GenericPublisher):
     """

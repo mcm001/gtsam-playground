@@ -52,6 +52,15 @@ target_link_libraries(gtsam-node gtsam-localizer)
 
 install(TARGETS gtsam-node)
 
+add_executable(tag-mapper 
+  src/sfm_mapper/main.cpp
+)
+target_compile_options(tag-mapper PRIVATE -Wno-deprecated-enum-enum-conversion)
+target_link_libraries(tag-mapper gtsam-localizer)
+target_include_directories(tag-mapper PRIVATE src)
+
+install(TARGETS tag-mapper)
+
 include(FetchContent)
 FetchContent_Declare(
   googletest
