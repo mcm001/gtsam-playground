@@ -24,8 +24,6 @@
 
 #include "localizer.h"
 
-#include <algorithm>
-
 #include "TagModel.h"
 #include "gtsam/nonlinear/Expression.h"
 

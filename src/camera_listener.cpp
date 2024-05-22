@@ -37,7 +37,7 @@ CameraListener::CameraListener(std::string rootTable, CameraConfig config)
       tagSub(nt::NetworkTableInstance::GetDefault()
                  .GetStructArrayTopic<TagDetection>(
                      rootTable + nt::NetworkTable::PATH_SEPARATOR_CHAR +
-                     config.m_subtableName + "/input/tags")
+                     config.subtableName + "/input/tags")
                  .Subscribe({},
                             {
                                 .pollStorage = 100,
@@ -47,7 +47,7 @@ CameraListener::CameraListener(std::string rootTable, CameraConfig config)
       robotTcamSub(nt::NetworkTableInstance::GetDefault()
                        .GetStructTopic<frc::Transform3d>(
                            rootTable + nt::NetworkTable::PATH_SEPARATOR_CHAR +
-                           config.m_subtableName + "/input/robotTcam")
+                           config.subtableName + "/input/robotTcam")
                        .Subscribe({},
                                   {
                                       .pollStorage = 1,
@@ -58,14 +58,14 @@ CameraListener::CameraListener(std::string rootTable, CameraConfig config)
           nt::NetworkTableInstance::GetDefault()
               .GetDoubleArrayTopic(
                   rootTable + nt::NetworkTable::PATH_SEPARATOR_CHAR +
-                  config.m_subtableName + "/input/cam_intrinsics")
+                  config.subtableName + "/input/cam_intrinsics")
               .Subscribe({},
                          {
                              .pollStorage = 1,
                              .sendAll = false,
                              .keepDuplicates = false,
                          })),
-      measurementNoise(noiseModel::Isotropic::Sigma(2, config.m_pixelNoise)) {}
+      measurementNoise(noiseModel::Isotropic::Sigma(2, config.pixelNoise)) {}
 
 bool CameraListener::ReadyToOptimize() {
   // grab the latest camera cal
@@ -75,7 +75,7 @@ bool CameraListener::ReadyToOptimize() {
     // Update calibration!
     std::vector<double> K_ = last_K.value;
     if (K_.size() != 4) {
-      fmt::println("Camera {}: K of odd size {}?", config.m_subtableName,
+      fmt::println("Camera {}: K of odd size {}?", config.subtableName,
                    K_.size());
       return false;
     }
@@ -89,7 +89,7 @@ bool CameraListener::ReadyToOptimize() {
     }
   }
   if (!cameraK) {
-    fmt::println("Camera {}: no intrinsics set?", config.m_subtableName);
+    fmt::println("Camera {}: no intrinsics set?", config.subtableName);
     return false;
   }
 
@@ -97,7 +97,7 @@ bool CameraListener::ReadyToOptimize() {
   const auto last_rTc = robotTcamSub.GetAtomic();
   // if not published, time will be zero
   if (last_rTc.time == 0) {
-    fmt::println("Camera {}: no robot-cam set?", config.m_subtableName);
+    fmt::println("Camera {}: no robot-cam set?", config.subtableName);
     return false;
   }
 
