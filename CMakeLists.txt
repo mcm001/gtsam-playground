@@ -15,7 +15,7 @@ set( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib )
 include(GenResources)
 
 add_compile_options(-fno-omit-frame-pointer)
-set(CXXFLAGS "${CXXFLAGS} -fno-omit-frame-pointer")
+set(CXXFLAGS "${CXXFLAGS} -fno-omit-frame-pointer -Wno-psabi")
 set(CMAKE_INSTALL_RPATH "lib")
 
 add_subdirectory(gtsam)
