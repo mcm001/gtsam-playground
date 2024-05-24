@@ -73,22 +73,29 @@ public:
     bool readyToOptimize = true;
 
     if (const auto prior = configListener.NewPosePrior()) {
+      fmt::println("Got new pose-prior! Resetting!");
       localizer->Reset(prior->value.pose, prior->value.noise, prior->time);
       gotInitialGuess = true;
     }
 
-    if (const auto layout = configListener.NewTagLayout()) {
-      TagModel::SetLayout(*layout);
+    // if (const auto layout = configListener.NewTagLayout()) {
+    //   fmt::println("Got new tag layout! Waiting for new initial guess!");
+    //   TagModel::SetLayout(*layout);
 
-      // Reset initial guess tracking since we got a new layout and our factors
-      // are technically now wrong
-      gotInitialGuess = false;
-    }
+    //   // Reset initial guess tracking since we got a new layout and our factors
+    //   // are technically now wrong
+    //   gotInitialGuess = false;
+    // }
 
     readyToOptimize &= gotInitialGuess;
 
+    // We can give up early with no guess yet
+    if (!readyToOptimize) {
+      return;
+    }
+
     for (const auto &it : odomListener.Update()) {
-      fmt::println("Adding odometry at {}", it.timeUs);
+      fmt::println("Adding odometry at {}", it.timeUs / 1e6);
       localizer->AddOdometry(it);
     }
 
@@ -99,10 +106,17 @@ public:
       bool ready = cam.ReadyToOptimize();
       readyToOptimize &= ready;
 
-      if (ready) {
+      // Need to wait for optimize() to be called at least once before we try adding vision measurements
+      if (readyToOptimize) {
         for (const auto &it : cam.Update()) {
-          fmt::println("Adding tag observation at {}", it.timeUs);
-          localizer->AddTagObservation(it);
+          fmt::println("Adding tag observation at {}", it.timeUs / 1e6);
+          
+          // TODO: replace try-catch with error codes
+          try {
+            localizer->AddTagObservation(it);
+          } catch (const std::exception& e) {
+            fmt::println("While adding tag: {}", e.what());
+          }
         }
       }
     }

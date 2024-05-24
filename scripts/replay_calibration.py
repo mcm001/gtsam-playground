@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from photonlibpy.photonPipelineResult import PhotonPipelineResult
 from photonlibpy.packet import Packet
 from wpimath.geometry import Translation2d
-from ntcore import GenericPublisher, NetworkTableInstance, Value, _now
+from ntcore import FloatArrayPublisher, FloatArrayTopic, GenericPublisher, NetworkTableInstance, PubSubOptions, Value, _now
 
 inst = NetworkTableInstance.getDefault()
 inst.stopServer()
@@ -20,9 +20,9 @@ inst.startClient4("cal-replay")
 pubMap = {}
 
 
-def getPublisher(path):
+def getPublisher(path) -> FloatArrayPublisher:
     if path not in pubMap:
-        pubMap[path] = inst.getFloatArrayTopic(path).publish()
+        pubMap[path] = inst.getFloatArrayTopic(path).publish(PubSubOptions())
 
     return pubMap[path]
 
@@ -39,6 +39,12 @@ def publish():
         intrinsics = data["cameraIntrinsics"]["data"]
 
         # print("Publishing for camera " + ntName)
+        getPublisher(f"/gtsam_meme/{ntName}/input/cam_intrinsics").setDefault(
+            [intrinsics[0], intrinsics[4], intrinsics[2], intrinsics[5]]
+        )
+        getPublisher(f"/gtsam_meme/{ntName}/input/cam_distortion").setDefault(
+            data["distCoeffs"]["data"]
+        )
         getPublisher(f"/gtsam_meme/{ntName}/input/cam_intrinsics").set(
             [intrinsics[0], intrinsics[4], intrinsics[2], intrinsics[5]]
         )

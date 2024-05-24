@@ -45,7 +45,7 @@ Localizer::Localizer() {
 
   // TODO: make sure that timestamps in units of uS doesn't cause numerical
   // precision issues
-  double lag = 5 * 1e6;
+  double lag = 500 * 1e6;
   // double lag = 2;
   smootherISAM2 = IncrementalFixedLagSmoother(lag, parameters);
 
@@ -191,8 +191,14 @@ static KeyTimeConstIt FindCloser(KeyTimeConstIt left, KeyTimeConstIt right,
 Key Localizer::GetOrInsertKey(Key newKey, double time) {
   using KeyTimeMap = FixedLagSmoother::KeyTimestampMap;
 
+  // TODO: this logic breaks if optimize has been called exactly zero times, as isamEntryAfter will not be valid!
+
   const KeyTimeMap &isamTimestamps = smootherISAM2.timestamps();
   const auto &isamEntryAfter = isamTimestamps.upper_bound(newKey);
+  
+  fmt::println("ISAM has {} timestamps", isamTimestamps.size());
+  if (isamTimestamps.size()) fmt::println("ISAM times go from {} to {}", isamTimestamps.begin()->second / 1000000, std::prev(isamTimestamps.end())->second / 1000000);
+
   if (isamEntryAfter == isamTimestamps.begin()) {
     throw std::runtime_error("Timestamp is before even isam history");
   }

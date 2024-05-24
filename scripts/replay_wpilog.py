@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from photonlibpy.photonPipelineResult import PhotonPipelineResult
 from photonlibpy.packet import Packet
 from wpimath.geometry import Translation2d
-from ntcore import GenericPublisher, NetworkTableInstance, Value, _now
+from ntcore import GenericPublisher, NetworkTableInstance, PubSubOptions, Value, _now
 
 inst = NetworkTableInstance.getDefault()
 inst.stopClient()
@@ -40,28 +40,28 @@ def recordToNt(record: DataLogRecord, entry: GenericPublisher):
         or type.startswith("struct:")
         or type == "structschema"
     ):
-        entry.setRaw(record.getRaw())
+        entry.setRaw(record.getRaw(), record.getTimestamp())
         return
 
     match type:
         case "int64":
-            entry.setInteger(record.getInteger())
+            entry.setInteger(record.getInteger(), record.getTimestamp())
         case "double[]":
-            entry.setDoubleArray(record.getDoubleArray())
+            entry.setDoubleArray(record.getDoubleArray(), record.getTimestamp())
         case "double":
-            entry.setDouble(record.getDouble())
+            entry.setDouble(record.getDouble(), record.getTimestamp())
         case "float[]":
-            entry.setFloatArray(record.getFloatArray())
+            entry.setFloatArray(record.getFloatArray(), record.getTimestamp())
         case "boolean":
-            entry.setBoolean(record.getBoolean())
+            entry.setBoolean(record.getBoolean(), record.getTimestamp())
         case "string":
-            entry.setString(record.getString())
+            entry.setString(record.getString(), record.getTimestamp())
         case "string[]":
-            entry.setStringArray(record.getStringArray())
+            entry.setStringArray(record.getStringArray(), record.getTimestamp())
         case "int64[]":
-            entry.setIntegerArray(record.getIntegerArray())
+            entry.setIntegerArray(record.getIntegerArray(), record.getTimestamp())
         case "raw" | "rawBytes":
-            entry.setRaw(record.getRaw())
+            entry.setRaw(record.getRaw(), record.getTimestamp())
         case _:
             raise Exception("Unknown type string " + type)
 
@@ -71,7 +71,9 @@ def topicNameToPublisher(start: StartRecordData):
     return (
         NetworkTableInstance.getDefault()
         .getTopic(start.name)
-        .genericPublish(start.type)
+        .genericPublish(
+            start.type, PubSubOptions(sendAll=True, keepDuplicates=True, periodic=0.01)
+        )
     )
 
 
@@ -129,3 +131,4 @@ for msg in wpilog:
 
         pub: GenericPublisher = topicMap[entry]
         recordToNt(msg, pub)
+        inst.flush()
