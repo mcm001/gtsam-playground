@@ -59,12 +59,13 @@ vector<Point3> tagToCorners{
     {0, -width / 2.0, width / 2.0},
 };
 
-map<int, Pose3> worldTtags; // = TagLayoutToMap(kDefaultLayout);
+map<int, Pose3> worldTtags = TagLayoutToMap(kDefaultLayout);
 } // namespace
 
 namespace TagModel {
 
 void SetLayout(const frc::AprilTagFieldLayout &layout) {
+  fmt::println("Resetting layout!");
   worldTtags = TagLayoutToMap(layout);
 }
 

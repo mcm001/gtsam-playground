@@ -1,9 +1,9 @@
 {
     "rootTableName": "/gtsam_meme",
-    "ntServerURI": "192.168.1.226",
+    "ntServerURI": "127.0.0.1",
     "cameras": [
         {
-            "subtableName": "sim_camera1",
+            "subtableName": "Camera1",
             "pixelNoise": 10
         }
     ],

@@ -88,6 +88,7 @@ public:
     readyToOptimize &= gotInitialGuess;
 
     for (const auto &it : odomListener.Update()) {
+      fmt::println("Adding odometry at {}", it.timeUs);
       localizer->AddOdometry(it);
     }
 
@@ -100,6 +101,7 @@ public:
 
       if (ready) {
         for (const auto &it : cam.Update()) {
+          fmt::println("Adding tag observation at {}", it.timeUs);
           localizer->AddTagObservation(it);
         }
       }

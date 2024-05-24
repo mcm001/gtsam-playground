@@ -172,3 +172,5 @@ compile_commands.json
 .cache/
 
 vcpkg_installed
+
+networktables.json
