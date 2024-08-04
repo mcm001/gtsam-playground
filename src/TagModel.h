@@ -26,6 +26,7 @@
 
 #include <gtsam/geometry/Cal3_S2.h>
 #include <gtsam/geometry/Pose3.h>
+#include <gtsam/slam/expressions.h>
 
 #include <map>
 #include <optional>
@@ -35,5 +36,6 @@
 
 namespace TagModel {
 std::optional<std::vector<gtsam::Point3>> WorldToCorners(int id);
+std::vector<gtsam::Point3_> WorldToCornersFactor(gtsam::Pose3_ worldTtag);
 std::optional<gtsam::Pose3> worldToTag(int id);
 } // namespace TagModel

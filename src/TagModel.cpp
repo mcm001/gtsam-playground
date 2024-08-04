@@ -31,7 +31,9 @@
 
 using gtsam::Cal3_S2;
 using gtsam::Point3;
+using gtsam::Point3_;
 using gtsam::Pose3;
+using gtsam::Pose3_;
 using gtsam::Rot3;
 using std::map;
 using std::vector;
@@ -63,6 +65,15 @@ map<int, Pose3> worldTtags = TagLayoutToMap(kTagLayout);
 } // namespace
 
 namespace TagModel {
+
+vector<Point3_> WorldToCornersFactor(Pose3_ worldTtag) {
+  vector<Point3_> out;
+  for (const auto &p : tagToCorners) {
+    out.push_back(transformFrom(worldTtag, p));
+  }
+
+  return out;
+}
 
 std::optional<vector<Point3>> WorldToCorners(int id) {
   auto maybePose = worldTtags.find(id);

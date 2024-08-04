@@ -59,7 +59,6 @@ using namespace noiseModel;
 using symbol_shorthand::L;
 using symbol_shorthand::X;
 
-
 /**
  * Estimate where our camera was at using the seed map
  */
@@ -82,7 +81,7 @@ int main() {
   auto posePriorNoise = noiseModel::Diagonal::Sigmas(sigmas);
 
   // Our platform and camera are coincident
-  gtsam::Pose3 robotTcamera {};
+  gtsam::Pose3 robotTcamera{};
 
   // constant Expression for the calibration we can reuse
   Cal3_S2_ cameraCal(K);
@@ -100,13 +99,7 @@ int main() {
   // Add all our tag observations
   for (const auto &[stateKey, tags] : points) {
     for (const TagDetection &tag : tags) {
-      auto worldPcorners_opt = TagModel::WorldToCorners(tag.id);
-      if (!worldPcorners_opt) {
-        // todo return bad thing
-        fmt::println("Could not find tag {} in our map!", tag.id);
-        continue;
-      }
-      auto worldPcorners = *worldPcorners_opt;
+      auto worldPcorners = TagModel::WorldToCornersFactor(L(tag.id));
 
       // add each tag corner
       constexpr int NUM_CORNERS = 4;
@@ -114,7 +107,7 @@ int main() {
         // Decision variable - where our camera is in the world
         const Pose3_ worldTbody_fac(stateKey);
         // Where we'd predict the i'th corner of the tag to be
-        const auto prediction = PredictLandmarkImageLocation(
+        const auto prediction = PredictLandmarkImageLocationFactor(
             worldTbody_fac, robotTcamera, cameraCal, worldPcorners[i]);
         // where we saw the i'th corner in the image
         Point2 measurement = {tag.corners[i].first, tag.corners[i].second};
@@ -136,11 +129,17 @@ int main() {
   // accuracy doesn't super matter
   Values initial;
 
+  // Guess for all camera poses
   for (const auto &[stateKey, tags] : points) {
     // Initial guess at camera pose based on regular old multi tag pose
     // esitmation
     auto worldTcam_guess = estimateObservationPose(tags, tagLayoutGuess);
     initial.insert<Pose3>(stateKey, worldTcam_guess);
+  }
+
+  // Guess for tag locations
+  for (const frc::AprilTag &tag : tagLayoutGuess.GetTags()) {
+    initial.insert(L(tag.ID), Pose3dToGtsamPose3(tag.pose));
   }
 
   /* Optimize the graph and print results */
