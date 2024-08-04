@@ -35,4 +35,5 @@
 
 namespace TagModel {
 std::optional<std::vector<gtsam::Point3>> WorldToCorners(int id);
+std::optional<gtsam::Pose3> worldToTag(int id);
 } // namespace TagModel

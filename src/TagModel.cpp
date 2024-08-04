@@ -78,4 +78,13 @@ std::optional<vector<Point3>> WorldToCorners(int id) {
 
   return out;
 }
+
+std::optional<gtsam::Pose3> worldToTag(int id) {
+  if (auto it = worldTtags.find(id); it != worldTtags.end()) {
+    return it->second;
+  } else {
+    return std::nullopt;
+  }
+}
+
 } // namespace TagModel
