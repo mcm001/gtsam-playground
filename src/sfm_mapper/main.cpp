@@ -36,12 +36,9 @@
 #include "TagModel.h"
 #include "gtsam_utils.h"
 
-// The two new headers that allow using our Automatic Differentiation Expression
-// framework
 #include <gtsam/nonlinear/ExpressionFactorGraph.h>
 #include <gtsam/slam/expressions.h>
 
-// Header order is close to far
 #include <gtsam/geometry/Point2.h>
 #include <gtsam/inference/Symbol.h>
 #include <gtsam/nonlinear/DoglegOptimizer.h>
@@ -53,11 +50,27 @@
 #include <frc/geometry/Twist3d.h>
 #include <gtsam/inference/Symbol.h>
 
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <wpi/json.h>
+
 using namespace std;
 using namespace gtsam;
 using namespace noiseModel;
 using symbol_shorthand::L;
 using symbol_shorthand::X;
+
+void from_json(const wpi::json &json, TagDetection &tag) {
+  tag.id = json.at("id").get<int>();
+  tag.corners =
+      json.at("corners").get<std::vector<std::pair<double, double>>>();
+}
+
+void from_json(const wpi::json &json, TargetCorner &corner) {
+  corner.x = json.at("x").get<double>();
+  corner.y = json.at("y").get<double>();
+}
 
 /**
  * Estimate where our camera was at using the seed map
@@ -66,6 +79,26 @@ gtsam::Pose3 estimateObservationPose(std::vector<TagDetection> tags,
                                      frc::AprilTagFieldLayout layout) {
   // TODO
   return {};
+}
+
+auto tagLayoutGuess =
+    frc::LoadAprilTagLayoutField(frc::AprilTagField::k2024Crescendo);
+
+map<Key, vector<TagDetection>> ParseFile() {
+  map<Key, vector<TagDetection>> ret;
+
+  std::ifstream infile("data/field_tags_2024.jsonl");
+  std::string line;
+  Key observation_idx = 0;
+  while (std::getline(infile, line)) {
+    wpi::json line_json = wpi::json::parse(line);
+
+    ret[observation_idx] = line_json.get<vector<TagDetection>>();
+
+    observation_idx++;
+  }
+
+  return ret;
 }
 
 int main() {
@@ -89,9 +122,7 @@ int main() {
   // ======================
 
   // List of tag observations - TODO
-  map<Key, vector<TagDetection>> points{};
-  auto tagLayoutGuess =
-      frc::LoadAprilTagLayoutField(frc::AprilTagField::k2024Crescendo);
+  map<Key, vector<TagDetection>> points = ParseFile();
 
   // Create a factor graph
   ExpressionFactorGraph graph;

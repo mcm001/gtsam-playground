@@ -63,14 +63,14 @@ template <> struct WPILIB_DLLEXPORT wpi::Struct<TagDetection> {
 
   static void Pack(std::span<uint8_t> data, const TagDetection &value) {
     wpi::PackStruct<0>(data, value.id);
-    wpi::PackStruct<4 + 8 * 0>(data, value.corners[0].first);
-    wpi::PackStruct<4 + 8 * 1>(data, value.corners[0].second);
-    wpi::PackStruct<4 + 8 * 2>(data, value.corners[1].first);
-    wpi::PackStruct<4 + 8 * 3>(data, value.corners[1].second);
-    wpi::PackStruct<4 + 8 * 4>(data, value.corners[2].first);
-    wpi::PackStruct<4 + 8 * 5>(data, value.corners[2].second);
-    wpi::PackStruct<4 + 8 * 6>(data, value.corners[3].first);
-    wpi::PackStruct<4 + 8 * 7>(data, value.corners[3].second);
+    wpi::PackStruct<4 + 8 * 0>(data, value.corners[0].x);
+    wpi::PackStruct<4 + 8 * 1>(data, value.corners[0].y);
+    wpi::PackStruct<4 + 8 * 2>(data, value.corners[1].x);
+    wpi::PackStruct<4 + 8 * 3>(data, value.corners[1].y);
+    wpi::PackStruct<4 + 8 * 4>(data, value.corners[2].x);
+    wpi::PackStruct<4 + 8 * 5>(data, value.corners[2].y);
+    wpi::PackStruct<4 + 8 * 6>(data, value.corners[3].x);
+    wpi::PackStruct<4 + 8 * 7>(data, value.corners[3].y);
   }
 };
 

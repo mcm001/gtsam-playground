@@ -29,7 +29,12 @@
 #include <utility>
 #include <vector>
 
+struct TargetCorner {
+  double x;
+  double y;
+};
+
 struct TagDetection {
   int32_t id;
-  std::vector<std::pair<double, double>> corners;
+  std::vector<TargetCorner> corners;
 };
