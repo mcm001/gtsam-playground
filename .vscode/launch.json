@@ -5,12 +5,6 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "command": "./build/bin/tag-mapper",
-            "name": "Run tag-mapper",
-            "request": "launch",
-            // "type": "terminal"
-        },
-        {
             "name": "(gdb) Launch tag-mapper",
             "type": "cppdbg",
             "request": "launch",

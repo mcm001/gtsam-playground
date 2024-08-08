@@ -56,58 +56,17 @@
 #include <string>
 #include <wpi/json.h>
 
+#include "helpers.h"
+
 using namespace std;
 using namespace gtsam;
 using namespace noiseModel;
 using symbol_shorthand::L;
 using symbol_shorthand::X;
 
-void from_json(const wpi::json &json, TargetCorner &corner) {
-  corner.x = json.at("x").get<double>();
-  corner.y = json.at("y").get<double>();
-}
-
-void from_json(const wpi::json &json, TagDetection &tag) {
-  tag.id = json.at("id").get<int>();
-  tag.corners =
-      json.at("corners").get<std::vector<TargetCorner>>();
-}
-
-auto tagLayoutGuess =
+static frc::AprilTagFieldLayout tagLayoutGuess =
     frc::LoadAprilTagLayoutField(frc::AprilTagField::k2024Crescendo);
 
-map<Key, vector<TagDetection>> ParseFile() {
-  map<Key, vector<TagDetection>> ret;
-
-  std::ifstream infile("data/field_tags_2024.jsonl");
-  std::string line;
-  Key observation_idx = 0;
-  while (std::getline(infile, line)) {
-    wpi::json line_json = wpi::json::parse(line);
-
-    ret[observation_idx] = line_json.get<vector<TagDetection>>();
-
-    observation_idx++;
-  }
-
-  return ret;
-}
-
-/**
- * Estimate where our camera was at using the seed map
- */
-std::optional<gtsam::Pose3> estimateObservationPose(std::vector<TagDetection> tags,
-                                     frc::AprilTagFieldLayout layout) {
-  static CameraMatrix calCore;
-  calCore << 1, 0, 0, 0, 1, 0, 0, 0, 1;
-  static DistortionMatrix calDist = DistortionMatrix::Zeros();
-
-  if (const auto worldTcam = photon::MultiTagOnRioStrategy(tags, layout, calCore, calDist)) {
-    return Pose3dToGtsamPose3(*worldTcam);
-  } else {
-    return std::nullopt;
-  }
-}
 
 int main() {
   // Camera calibration parameters. Order is [fx fy skew cx cy] in pixels
@@ -129,7 +88,7 @@ int main() {
 
   // ======================
 
-  // List of tag observations - TODO
+  // Map of [observation state ID] to [tags seen]
   map<Key, vector<TagDetection>> points = ParseFile();
 
   // Create a factor graph
@@ -156,8 +115,8 @@ int main() {
     }
   }
 
-  // Add pose prior on our fixed tag. Right now, foce it to be tag 1
-  int FIXED_TAG = 1;
+  // Add pose prior on our fixed tag. Right now, foce it to be a tag in our dataset
+  int FIXED_TAG = 10;
   auto worldTtag1 = TagModel::worldToTag(FIXED_TAG);
   if (!worldTtag1) {
     fmt::println("Couldnt find tag {} in map!", FIXED_TAG);
@@ -185,11 +144,14 @@ int main() {
     initial.insert(L(tag.ID), Pose3dToGtsamPose3(tag.pose));
   }
 
-  graph.print("Final pose graph");
+  graph.print("Final pose graph\n");
 
   /* Optimize the graph and print results */
+  cout << "initial error = " << graph.error(initial) << endl;
+  initial.print("Initial state:\n");
   Values result = DoglegOptimizer(graph, initial).optimize();
   cout << "final error = " << graph.error(result) << endl;
+  result.print("Final state:\n");
 
   return 0;
 }

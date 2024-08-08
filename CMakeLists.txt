@@ -77,6 +77,7 @@ target_link_libraries(gtsam-node gtsam-localizer)
 add_executable(tag-mapper 
   src/sfm_mapper/main.cpp
   src/sfm_mapper/PhotonPoseEstimator.cpp
+  src/sfm_mapper/helpers.cpp
 )
 target_compile_options(tag-mapper PRIVATE -Wno-deprecated-enum-enum-conversion)
 target_link_libraries(tag-mapper gtsam-localizer /home/mmorley/gtsam-playground/build/_deps/opencv_lib-src/linux/x86-64/static/libopencv460.a)
