@@ -140,7 +140,7 @@ bool CameraListener::Update() {
       vector<Point2> cornersForGtsam;
       cornersForGtsam.reserve(4);
       for (const auto &c : t.corners) {
-        cornersForGtsam.emplace_back(c.first, c.second);
+        cornersForGtsam.emplace_back(c.x, c.y);
       }
 
       try {

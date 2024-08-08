@@ -49,6 +49,7 @@
 
 #include <frc/geometry/Twist3d.h>
 #include <gtsam/inference/Symbol.h>
+#include "PhotonPoseEstimator.h"
 
 #include <fstream>
 #include <sstream>
@@ -61,24 +62,15 @@ using namespace noiseModel;
 using symbol_shorthand::L;
 using symbol_shorthand::X;
 
-void from_json(const wpi::json &json, TagDetection &tag) {
-  tag.id = json.at("id").get<int>();
-  tag.corners =
-      json.at("corners").get<std::vector<std::pair<double, double>>>();
-}
-
 void from_json(const wpi::json &json, TargetCorner &corner) {
   corner.x = json.at("x").get<double>();
   corner.y = json.at("y").get<double>();
 }
 
-/**
- * Estimate where our camera was at using the seed map
- */
-gtsam::Pose3 estimateObservationPose(std::vector<TagDetection> tags,
-                                     frc::AprilTagFieldLayout layout) {
-  // TODO
-  return {};
+void from_json(const wpi::json &json, TagDetection &tag) {
+  tag.id = json.at("id").get<int>();
+  tag.corners =
+      json.at("corners").get<std::vector<TargetCorner>>();
 }
 
 auto tagLayoutGuess =
@@ -99,6 +91,22 @@ map<Key, vector<TagDetection>> ParseFile() {
   }
 
   return ret;
+}
+
+/**
+ * Estimate where our camera was at using the seed map
+ */
+std::optional<gtsam::Pose3> estimateObservationPose(std::vector<TagDetection> tags,
+                                     frc::AprilTagFieldLayout layout) {
+  static CameraMatrix calCore;
+  calCore << 1, 0, 0, 0, 1, 0, 0, 0, 1;
+  static DistortionMatrix calDist = DistortionMatrix::Zeros();
+
+  if (const auto worldTcam = photon::MultiTagOnRioStrategy(tags, layout, calCore, calDist)) {
+    return Pose3dToGtsamPose3(*worldTcam);
+  } else {
+    return std::nullopt;
+  }
 }
 
 int main() {
@@ -141,7 +149,7 @@ int main() {
         const auto prediction = PredictLandmarkImageLocationFactor(
             worldTbody_fac, robotTcamera, cameraCal, worldPcorners[i]);
         // where we saw the i'th corner in the image
-        Point2 measurement = {tag.corners[i].first, tag.corners[i].second};
+        Point2 measurement = {tag.corners[i].x, tag.corners[i].y};
         // Add this prediction/measurement pair to our graph
         graph.addExpressionFactor(prediction, measurement, cameraNoise);
       }
@@ -165,13 +173,19 @@ int main() {
     // Initial guess at camera pose based on regular old multi tag pose
     // esitmation
     auto worldTcam_guess = estimateObservationPose(tags, tagLayoutGuess);
-    initial.insert<Pose3>(stateKey, worldTcam_guess);
+    if (!worldTcam_guess) {
+      std::cerr << "Can't guess pose of camera for observation " << stateKey << std::endl;;
+    } else {
+      initial.insert<Pose3>(stateKey, *worldTcam_guess);
+    }
   }
 
   // Guess for tag locations
   for (const frc::AprilTag &tag : tagLayoutGuess.GetTags()) {
     initial.insert(L(tag.ID), Pose3dToGtsamPose3(tag.pose));
   }
+
+  graph.print("Final pose graph");
 
   /* Optimize the graph and print results */
   Values result = DoglegOptimizer(graph, initial).optimize();

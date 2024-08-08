@@ -21,6 +21,31 @@ set(CMAKE_INSTALL_RPATH "lib")
 add_subdirectory(gtsam)
 add_subdirectory(allwpilib)
 
+# OpenCV stuff
+
+set(OPENCV_YEAR "frc2023")
+set(OPENCV_VERSION "4.6.0-5")
+if (NOT DEFINED  OPENCV_ARCH)
+  set(OPENCV_ARCH "linuxx86-64")
+endif()
+
+# type can be "", "debug", "static", or "staticdebug"
+set(OPENCV_TYPE "static")
+
+# Download opencv, and save the path
+FetchContent_Declare(
+    opencv_lib
+    URL https://frcmaven.wpi.edu/artifactory/release/edu/wpi/first/thirdparty/${OPENCV_YEAR}/opencv/opencv-cpp/${OPENCV_VERSION}/opencv-cpp-${OPENCV_VERSION}-${OPENCV_ARCH}${OPENCV_TYPE}.zip
+)
+FetchContent_MakeAvailable(opencv_lib)
+
+# download OpenCV headers
+FetchContent_Declare(
+    opencv_header
+    URL https://frcmaven.wpi.edu/artifactory/release/edu/wpi/first/thirdparty/${OPENCV_YEAR}/opencv/opencv-cpp/${OPENCV_VERSION}/opencv-cpp-${OPENCV_VERSION}-headers.zip
+)
+FetchContent_MakeAvailable(opencv_header)
+
 # Generate gtsam-localizer resources
 generate_resources(src/resources/ generated/main/cpp GTSAMLOCALIZER meme localizer_resources_src)
 
@@ -51,10 +76,11 @@ target_link_libraries(gtsam-node gtsam-localizer)
 
 add_executable(tag-mapper 
   src/sfm_mapper/main.cpp
+  src/sfm_mapper/PhotonPoseEstimator.cpp
 )
 target_compile_options(tag-mapper PRIVATE -Wno-deprecated-enum-enum-conversion)
-target_link_libraries(tag-mapper gtsam-localizer)
-target_include_directories(tag-mapper PRIVATE src)
+target_link_libraries(tag-mapper gtsam-localizer /home/mmorley/gtsam-playground/build/_deps/opencv_lib-src/linux/x86-64/static/libopencv460.a)
+target_include_directories(tag-mapper PRIVATE src /home/mmorley/gtsam-playground/build/_deps/opencv_header-src)
 
 install(TARGETS tag-mapper)
 install(TARGETS gtsam-node)

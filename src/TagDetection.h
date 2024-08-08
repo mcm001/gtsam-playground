@@ -37,4 +37,8 @@ struct TargetCorner {
 struct TagDetection {
   int32_t id;
   std::vector<TargetCorner> corners;
+
+  inline const int GetFiducialId() {
+    return id;
+  }
 };
