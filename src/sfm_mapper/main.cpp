@@ -141,7 +141,8 @@ int main() {
 
   // Guess for tag locations
   for (const frc::AprilTag &tag : tagLayoutGuess.GetTags()) {
-    initial.insert(L(tag.ID), Pose3dToGtsamPose3(tag.pose));
+    if (tagWasUsed(points, tag.ID))
+      initial.insert(L(tag.ID), Pose3dToGtsamPose3(tag.pose));
   }
 
   graph.print("Final pose graph\n");

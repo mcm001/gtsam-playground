@@ -13,3 +13,4 @@ void from_json(const wpi::json &json, TagDetection &tag);
 std::map<gtsam::Key, std::vector<TagDetection>> ParseFile();
 std::optional<gtsam::Pose3> estimateObservationPose(std::vector<TagDetection> tags,
                                      frc::AprilTagFieldLayout layout);
+bool tagWasUsed(std::map<gtsam::Key, std::vector<TagDetection>> tags, int id);

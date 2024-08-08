@@ -80,3 +80,15 @@ std::optional<gtsam::Pose3> estimateObservationPose(std::vector<TagDetection> ta
     return std::nullopt;
   }
 }
+
+bool tagWasUsed(std::map<gtsam::Key, std::vector<TagDetection>> tags, int id) {
+  for (const auto& [key, tags] : tags) {
+    for (const TagDetection& tag : tags) {
+      if (tag.id == id) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
