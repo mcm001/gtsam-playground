@@ -23,39 +23,31 @@
  */
 
 #include <fmt/core.h>
+#include <gtsam/geometry/Point2.h>
+#include <gtsam/inference/Symbol.h>
+#include <gtsam/nonlinear/DoglegOptimizer.h>
+#include <gtsam/nonlinear/ExpressionFactorGraph.h>
+#include <gtsam/nonlinear/Values.h>
+#include <gtsam/slam/expressions.h>
 #include <ntcore_cpp_types.h>
 
+#include <fstream>
+#include <sstream>
+#include <string>
 #include <variant>
 #include <vector>
 
 #include <frc/apriltag/AprilTagFieldLayout.h>
 #include <frc/apriltag/AprilTagFields.h>
+#include <frc/geometry/Twist3d.h>
 #include <wpi/DataLogReader.h>
 #include <wpi/DenseMap.h>
-
-#include "TagModel.h"
-#include "gtsam_utils.h"
-
-#include <gtsam/nonlinear/ExpressionFactorGraph.h>
-#include <gtsam/slam/expressions.h>
-
-#include <gtsam/geometry/Point2.h>
-#include <gtsam/inference/Symbol.h>
-#include <gtsam/nonlinear/DoglegOptimizer.h>
-#include <gtsam/nonlinear/Values.h>
-
-#include "TagDetection.h"
-#include <vector>
-
-#include <frc/geometry/Twist3d.h>
-#include <gtsam/inference/Symbol.h>
-#include "PhotonPoseEstimator.h"
-
-#include <fstream>
-#include <sstream>
-#include <string>
 #include <wpi/json.h>
 
+#include "PhotonPoseEstimator.h"
+#include "TagDetection.h"
+#include "TagModel.h"
+#include "gtsam_utils.h"
 #include "helpers.h"
 
 using namespace std;
@@ -67,10 +59,9 @@ using symbol_shorthand::X;
 static frc::AprilTagFieldLayout tagLayoutGuess =
     frc::LoadAprilTagLayoutField(frc::AprilTagField::k2024Crescendo);
 
-
 int main() {
   // Camera calibration parameters. Order is [fx fy skew cx cy] in pixels
-  Cal3_S2 K(50.0, 50.0, 0.0, 50.0, 50.0);
+  Cal3_S2 K(cam_fx, cam_fy, 0.0, cam_cx, cam_cy);
   Isotropic::shared_ptr cameraNoise =
       Isotropic::Sigma(2, 1.0); // one pixel in u and v
 
@@ -115,8 +106,9 @@ int main() {
     }
   }
 
-  // Add pose prior on our fixed tag. Right now, foce it to be a tag in our dataset
-  int FIXED_TAG = 10;
+  // Add pose prior on our fixed tag. Right now, foce it to be a tag in our
+  // dataset
+  int FIXED_TAG = 7;
   auto worldTtag1 = TagModel::worldToTag(FIXED_TAG);
   if (!worldTtag1) {
     fmt::println("Couldnt find tag {} in map!", FIXED_TAG);
@@ -133,7 +125,9 @@ int main() {
     // esitmation
     auto worldTcam_guess = estimateObservationPose(tags, tagLayoutGuess);
     if (!worldTcam_guess) {
-      std::cerr << "Can't guess pose of camera for observation " << stateKey << std::endl;;
+      std::cerr << "Can't guess pose of camera for observation " << stateKey
+                << std::endl;
+      ;
     } else {
       initial.insert<Pose3>(stateKey, *worldTcam_guess);
     }
@@ -145,14 +139,14 @@ int main() {
       initial.insert(L(tag.ID), Pose3dToGtsamPose3(tag.pose));
   }
 
-  graph.print("Final pose graph\n");
+  graph.print("===============================\nFinal pose graph\n");
 
   /* Optimize the graph and print results */
-  cout << "initial error = " << graph.error(initial) << endl;
-  initial.print("Initial state:\n");
+  cout << "==========================\ninitial error = " << graph.error(initial) << endl;
+  initial.print("==========================\nInitial state:\n");
   Values result = DoglegOptimizer(graph, initial).optimize();
-  cout << "final error = " << graph.error(result) << endl;
-  result.print("Final state:\n");
+  cout << "======================\nfinal error = " << graph.error(result) << endl;
+  result.print("======================\nFinal state:\n");
 
   return 0;
 }

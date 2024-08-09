@@ -34,6 +34,8 @@
 #include <utility>
 #include <vector>
 
+#include "TagModel.h"
+#include "gtsam_utils.h"
 #include <Eigen/Core>
 #include <frc/geometry/Pose3d.h>
 #include <frc/geometry/Rotation3d.h>
@@ -50,16 +52,16 @@
 namespace photon {
 
 namespace detail {
-cv::Point3d ToPoint3d(const frc::Translation3d& translation);
-std::optional<std::array<cv::Point3d, 4>> CalcTagCorners(
-    int tagID, const frc::AprilTagFieldLayout& aprilTags);
-frc::Pose3d ToPose3d(const cv::Mat& tvec, const cv::Mat& rvec);
+cv::Point3d ToPoint3d(const frc::Translation3d &translation);
+std::optional<std::array<cv::Point3d, 4>>
+CalcTagCorners(int tagID, const frc::AprilTagFieldLayout &aprilTags);
+frc::Pose3d ToPose3d(const cv::Mat &tvec, const cv::Mat &rvec);
 cv::Point3d TagCornerToObjectPoint(units::meter_t cornerX,
                                    units::meter_t cornerY, frc::Pose3d tagPose);
-}  // namespace detail
+} // namespace detail
 
-std::optional<std::array<cv::Point3d, 4>> detail::CalcTagCorners(
-    int tagID, const frc::AprilTagFieldLayout& aprilTags) {
+std::optional<std::array<cv::Point3d, 4>>
+detail::CalcTagCorners(int tagID, const frc::AprilTagFieldLayout &aprilTags) {
   if (auto tagPose = aprilTags.GetTagPose(tagID); tagPose.has_value()) {
     return std::array{TagCornerToObjectPoint(-3_in, -3_in, *tagPose),
                       TagCornerToObjectPoint(+3_in, -3_in, *tagPose),
@@ -70,7 +72,7 @@ std::optional<std::array<cv::Point3d, 4>> detail::CalcTagCorners(
   }
 }
 
-cv::Point3d detail::ToPoint3d(const frc::Translation3d& translation) {
+cv::Point3d detail::ToPoint3d(const frc::Translation3d &translation) {
   return cv::Point3d(-translation.Y().value(), -translation.Z().value(),
                      +translation.X().value());
 }
@@ -84,34 +86,33 @@ cv::Point3d detail::TagCornerToObjectPoint(units::meter_t cornerX,
   return ToPoint3d(cornerTrans);
 }
 
-frc::Pose3d detail::ToPose3d(const cv::Mat& tvec, const cv::Mat& rvec) {
+frc::Pose3d detail::ToPose3d(const cv::Mat &tvec, const cv::Mat &rvec) {
   using namespace frc;
   using namespace units;
 
-  cv::Mat R;
-  cv::Rodrigues(rvec, R);  // R is 3x3
-
-  R = R.t();                  // rotation of inverse
-  cv::Mat tvecI = -R * tvec;  // translation of inverse
+  // cv::Mat R;
+  // cv::Rodrigues(rvec, R); // R is 3x3
+  // R = R.t();                 // rotation of inverse
+  // cv::Mat tvecI = -R * tvec; // translation of inverse
 
   Eigen::Matrix<double, 3, 1> tv;
-  tv[0] = +tvecI.at<double>(2, 0);
-  tv[1] = -tvecI.at<double>(0, 0);
-  tv[2] = -tvecI.at<double>(1, 0);
+  tv[0] = tvec.at<double>(0, 0);
+  tv[1] = tvec.at<double>(1, 0);
+  tv[2] = tvec.at<double>(2, 0);
   Eigen::Matrix<double, 3, 1> rv;
-  rv[0] = +rvec.at<double>(2, 0);
-  rv[1] = -rvec.at<double>(0, 0);
-  rv[2] = +rvec.at<double>(1, 0);
+  rv[0] = rvec.at<double>(0, 0);
+  rv[1] = rvec.at<double>(1, 0);
+  rv[2] = rvec.at<double>(2, 0);
 
   return Pose3d(Translation3d(meter_t{tv[0]}, meter_t{tv[1]}, meter_t{tv[2]}),
                 Rotation3d(rv));
 }
 
-std::optional<frc::Pose3d> MultiTagOnRioStrategy(
-    std::vector<TagDetection> targets,
-    frc::AprilTagFieldLayout aprilTags,
-    std::optional<CameraMatrix> camMat,
-    std::optional<DistortionMatrix> distCoeffs) {
+std::optional<frc::Pose3d>
+MultiTagOnRioStrategy(std::vector<TagDetection> targets,
+                      frc::AprilTagFieldLayout aprilTags,
+                      std::optional<CameraMatrix> camMat,
+                      std::optional<DistortionMatrix> distCoeffs) {
   using namespace frc;
 
   if (!camMat || !distCoeffs) {
@@ -156,9 +157,85 @@ std::optional<frc::Pose3d> MultiTagOnRioStrategy(
                  tvec, false, cv::SOLVEPNP_SQPNP);
   }
 
+  std::cout << "Estimate rvec " << rvec << " tvec " << tvec << std::endl;
+
   const Pose3d pose = detail::ToPose3d(tvec, rvec);
 
   return pose;
 }
 
-}  // namespace photon
+std::optional<gtsam::Pose3>
+EstimateWorldTCam_SingleTag(std::vector<TagDetection> result,
+                            frc::AprilTagFieldLayout aprilTags,
+                            std::optional<CameraMatrix> camMat,
+                            std::optional<DistortionMatrix> distCoeffs) {
+  if (!camMat || !distCoeffs || !result.size()) {
+    return std::nullopt;
+  }
+
+  auto tagToUse = result[0];
+
+  // List of corners mapped from 3d space (meters) to the 2d camera screen
+  // (pixels).
+  /*
+    ⟶ +X  3 ----- 2
+    |      |       |
+    V      |       |
+    +Y     0 ----- 1
+
+    In object space, we have this order, with origin at the center and +X out of the tag
+    ^ +Z          3 --- 2
+    |             |     |
+    -----> +Y     0 --- 1
+  */
+  auto TagCorner = [](units::meter_t x, units::meter_t y) {
+    // Tag coordinate system 
+    return cv::Point3f{0, (float)x.to<double>(), (float)y.to<double>()};
+  };
+  std::vector<cv::Point3f> objectPoints{
+      TagCorner(-3_in, -3_in), TagCorner(+3_in, -3_in), TagCorner(+3_in, +3_in),
+      TagCorner(-3_in, +3_in)};
+
+  std::vector<cv::Point2f> imagePoints;
+  for (const auto &corner : tagToUse.corners) {
+    imagePoints.emplace_back(corner.x, corner.y);
+  }
+
+  // eigen/cv marshalling
+  cv::Mat cameraMatCV(camMat->rows(), camMat->cols(), CV_64F);
+  cv::eigen2cv(*camMat, cameraMatCV);
+  cv::Mat distCoeffsMatCV(distCoeffs->rows(), distCoeffs->cols(), CV_64F);
+  cv::eigen2cv(*distCoeffs, distCoeffsMatCV);
+
+  // actually do solvepnp
+  cv::Mat rvec(3, 1, cv::DataType<double>::type);
+  cv::Mat tvec(3, 1, cv::DataType<double>::type);
+  cv::solvePnP(objectPoints, imagePoints, cameraMatCV, distCoeffsMatCV, rvec,
+               tvec);
+
+  std::cout << "rvec: " << rvec << std::endl;
+  std::cout << "tvec: " << tvec << std::endl;
+
+  std::vector<cv::Point2f> projectedPoints;
+  cv::projectPoints(objectPoints, rvec, tvec, cameraMatCV, distCoeffsMatCV,
+                    projectedPoints);
+
+  for (unsigned int i = 0; i < projectedPoints.size(); ++i) {
+    std::cout << "Image point: " << imagePoints[i] << " Projected to "
+              << projectedPoints[i] << std::endl;
+  }
+
+  if (const auto w2tag = TagModel::worldToTag(tagToUse.id)) {
+    auto camToTag = Pose3dToGtsamPose3(detail::ToPose3d(tvec, rvec));
+    std::cout << " > world2tag\n" << *w2tag << std::endl;
+    std::cout << " > cam2tag\n" << camToTag << std::endl;
+    auto tag2cam = camToTag.inverse();
+    std::cout << " > tag2cam\n" << tag2cam << std::endl;
+
+    return (*w2tag).transformPoseFrom(tag2cam);
+  } else {
+    return std::nullopt;
+  }
+}
+
+} // namespace photon
