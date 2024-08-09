@@ -27,6 +27,7 @@
 #include <gtsam/inference/Symbol.h>
 #include <gtsam/nonlinear/DoglegOptimizer.h>
 #include <gtsam/nonlinear/ExpressionFactorGraph.h>
+#include <gtsam/nonlinear/Marginals.h>
 #include <gtsam/nonlinear/Values.h>
 #include <gtsam/slam/expressions.h>
 #include <ntcore_cpp_types.h>
@@ -150,9 +151,18 @@ int main() {
   Values result = DoglegOptimizer(graph, initial).optimize();
   auto end = std::chrono::steady_clock::now();
   auto dt = end - start;
-  long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(dt).count();
-  cout << "======================\nSolved in " << microseconds << " uS! final error = " << graph.error(result)
-       << endl;
+  long long microseconds =
+      std::chrono::duration_cast<std::chrono::microseconds>(dt).count();
+
+  gtsam::Marginals marginals(graph, result);
+  for (auto [key, value] : result) {
+    // Covariance is the variance of x_i with x_i - stddev is sqrt(var)
+    std::cout << "Marginals for key " << gtsam::Symbol(key) << "\n"
+              << marginals.marginalCovariance(key).diagonal().cwiseSqrt() << std::endl;
+  }
+
+  cout << "======================\nSolved in " << microseconds
+       << " uS! final error = " << graph.error(result) << endl;
   result.print("======================\nFinal state:\n");
 
   return 0;
