@@ -31,6 +31,7 @@
 #include <gtsam/slam/expressions.h>
 #include <ntcore_cpp_types.h>
 
+#include <chrono>
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -142,10 +143,16 @@ int main() {
   graph.print("===============================\nFinal pose graph\n");
 
   /* Optimize the graph and print results */
-  cout << "==========================\ninitial error = " << graph.error(initial) << endl;
+  cout << "==========================\ninitial error = " << graph.error(initial)
+       << endl;
   initial.print("==========================\nInitial state:\n");
+  auto start = std::chrono::steady_clock::now();
   Values result = DoglegOptimizer(graph, initial).optimize();
-  cout << "======================\nfinal error = " << graph.error(result) << endl;
+  auto end = std::chrono::steady_clock::now();
+  auto dt = end - start;
+  long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(dt).count();
+  cout << "======================\nSolved in " << microseconds << " uS! final error = " << graph.error(result)
+       << endl;
   result.print("======================\nFinal state:\n");
 
   return 0;

@@ -34,8 +34,6 @@
 #include <utility>
 #include <vector>
 
-#include "TagModel.h"
-#include "gtsam_utils.h"
 #include <Eigen/Core>
 #include <frc/geometry/Pose3d.h>
 #include <frc/geometry/Rotation3d.h>
@@ -45,6 +43,9 @@
 #include <opencv2/core/types.hpp>
 #include <units/math.h>
 #include <units/time.h>
+
+#include "TagModel.h"
+#include "gtsam_utils.h"
 
 #define OPENCV_DISABLE_EIGEN_TENSOR_SUPPORT
 #include <opencv2/core/eigen.hpp>
@@ -183,13 +184,12 @@ EstimateWorldTCam_SingleTag(std::vector<TagDetection> result,
     V      |       |
     +Y     0 ----- 1
 
-    In object space, we have this order, with origin at the center and +X out of the tag
-    ^ +Z          3 --- 2
-    |             |     |
+    In object space, we have this order, with origin at the center and +X out of
+    the tag ^ +Z          3 --- 2 |             |     |
     -----> +Y     0 --- 1
   */
   auto TagCorner = [](units::meter_t x, units::meter_t y) {
-    // Tag coordinate system 
+    // Tag coordinate system
     return cv::Point3f{0, (float)x.to<double>(), (float)y.to<double>()};
   };
   std::vector<cv::Point3f> objectPoints{

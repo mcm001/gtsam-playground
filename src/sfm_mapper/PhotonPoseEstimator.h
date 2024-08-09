@@ -24,6 +24,8 @@
 
 #pragma once
 
+#include <gtsam/geometry/Pose3.h>
+
 #include <optional>
 #include <vector>
 
@@ -32,7 +34,6 @@
 #include <frc/geometry/Transform3d.h>
 #include <opencv2/core/mat.hpp>
 #include <units/time.h>
-#include <gtsam/geometry/Pose3.h>
 
 #include "TagDetection.h"
 
