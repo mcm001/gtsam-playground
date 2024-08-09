@@ -63,7 +63,7 @@ void from_json(const wpi::json &json, TagDetection &tag) {
 map<Key, vector<TagDetection>> ParseFile() {
   map<Key, vector<TagDetection>> ret;
 
-  std::ifstream infile("data/2024_tags_7-8_x4.8_y5.30_z0.50_rz180.jsonl");
+  std::ifstream infile("data/field_tags_2024_trim.jsonl");
   std::string line;
   Key observation_idx = 0;
   while (std::getline(infile, line)) {

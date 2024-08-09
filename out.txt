@@ -1,61 +1,2248 @@
-r: [-0.02415722175668796;
- 2.654677685803844;
- -0.001284968994492732]
-t: [-4.33176143348643;
- 0.547199802108445;
- 5.947452587009005]
-Reprojection error: []
-Guess for tags 10 
+rvec: [1.267466784668999;
+ 1.195885866135057;
+ -1.128077833041258]
+tvec: [-0.8901715357308363;
+ -0.7668339867979082;
+ 2.482192451435529]
+Image point: [245.84, 192.537] Projected to [245.803, 192.487]
+Image point: [283.334, 193.467] Projected to [283.381, 193.516]
+Image point: [283.312, 156.371] Projected to [283.266, 156.332]
+Image point: [245.546, 155.1] Projected to [245.582, 155.14]
+ > world2tag
 R: [
 	1, 0, 0;
 	0, 1, 0;
 	0, 0, 1
 ]
-t: -1.73911e-321 -4.74303e-322  -4.6611e-310
-Final pose graph
-size: 5
-
-Factor 0:   keys = { l10 x0 }
-  noise model: unit (2) 
-ExpressionFactor with measurement: [
-	44.506;
-	267.746
+t: 5.32079 4.10515  1.3208
+ > cam2tag
+R: [
+	0.0693277, 0.997524, 0.0118153;
+	0.0463663, 0.00860903, -0.998887;
+	-0.996516, 0.0697984, -0.0456546
 ]
-
-Factor 1:   keys = { l10 x0 }
-  noise model: unit (2) 
-ExpressionFactor with measurement: [
-	58.9329;
-	270.574
+t: -0.890172 -0.766834   2.48219
+ > tag2cam
+R: [
+	0.0693277, 0.0463663, -0.996516;
+	0.997524, 0.00860903, 0.0697984;
+	0.0118153, -0.998887, -0.0456546
 ]
-
-Factor 2:   keys = { l10 x0 }
-  noise model: unit (2) 
-ExpressionFactor with measurement: [
-	59.2499;
-	251.934
+t:  2.57081 0.721316 -0.64214
+ >>> World2cam_singletag:
+ R: [
+	0.0693277, 0.0463663, -0.996516;
+	0.997524, 0.00860903, 0.0697984;
+	0.0118153, -0.998887, -0.0456546
 ]
-
-Factor 3:   keys = { l10 x0 }
-  noise model: unit (2) 
-ExpressionFactor with measurement: [
-	44.9801;
-	248.141
-]
-
-Factor 4: PriorFactor on l10
-  prior mean:  R: [
-	0.5, -0.866025, 0;
-	0.866025, 0.5, 0;
+t:  7.8916 4.82646 0.67866
+rvec: [0.06158593552513506;
+ 2.170087132103886;
+ -2.184569047043921]
+tvec: [1.985589882224011;
+ -0.7980546315531941;
+ 2.988017514828518]
+Image point: [866.617, 218.335] Projected to [866.69, 218.404]
+Image point: [889.232, 210.911] Projected to [889.161, 210.847]
+Image point: [889.412, 179.495] Projected to [889.482, 179.556]
+Image point: [867.077, 188.73] Projected to [867.003, 188.663]
+ > world2tag
+R: [
+	-2.22045e-16, 1, -0;
+	-1, -2.22045e-16, 0;
 	0, 0, 1
 ]
-t:  1.46152 0.245872  1.35585
+t:  1.8415  8.2042 1.35585
+ > cam2tag
+R: [
+	-0.997295, 0.0719269, 0.0151436;
+	-0.0156217, -0.00608859, -0.999859;
+	-0.0718246, -0.997391, 0.00719574
+]
+t:   1.98559 -0.798055   2.98802
+ > tag2cam
+R: [
+	-0.997295, -0.0156217, -0.0718246;
+	0.0719269, -0.00608859, -0.997391;
+	0.0151436, -0.999859, 0.00719574
+]
+t:   2.18236   2.83255 -0.849512
+ >>> World2cam_singletag:
+ R: [
+	0.0719269, -0.00608859, -0.997391;
+	0.997295, 0.0156217, 0.0718246;
+	0.0151436, -0.999859, 0.00719574
+]
+t: 4.67405 6.02184 0.50634
+rvec: [1.351704193716331;
+ 1.76041465404289;
+ -1.496606498274289]
+tvec: [2.471006337012153;
+ -0.8822417952354877;
+ 3.359809358108618]
+Image point: [904.182, 218.232] Projected to [904.191, 218.195]
+Image point: [937.293, 213.087] Projected to [937.283, 213.128]
+Image point: [937.02, 185.608] Projected to [937.024, 185.565]
+Image point: [903.49, 191.249] Projected to [903.487, 191.287]
+ > world2tag
+R: [
+	1, 0, 0;
+	0, 1, 0;
+	0, 0, 1
+]
+t: -0.0381 5.54787  1.4511
+ > cam2tag
+R: [
+	-0.411072, 0.879448, -0.239982;
+	0.37839, -0.0748931, -0.922612;
+	-0.829362, -0.470066, -0.301988
+]
+t:   2.47101 -0.882242   3.35981
+ > tag2cam
+R: [
+	-0.411072, 0.37839, -0.829362;
+	0.879448, -0.0748931, -0.470066;
+	-0.239982, -0.922612, -0.301988
+]
+t:   4.13609 -0.659863  0.793651
+ >>> World2cam_singletag:
+ R: [
+	-0.411072, 0.37839, -0.829362;
+	0.879448, -0.0748931, -0.470066;
+	-0.239982, -0.922612, -0.301988
+]
+t: 4.09799   4.888 2.24475
+rvec: [1.384070461707233;
+ 1.77168105713673;
+ -1.269694767787271]
+tvec: [1.357437502327136;
+ -0.8618099429644577;
+ 4.756179126458245]
+Image point: [640.87, 260.67] Projected to [640.801, 260.604]
+Image point: [660.536, 259.904] Projected to [660.597, 259.961]
+Image point: [660.619, 241.087] Projected to [660.565, 241.027]
+Image point: [640.455, 241.816] Projected to [640.515, 241.884]
+ > world2tag
+R: [
+	1, 0, 0;
+	0, 1, 0;
+	0, 0, 1
+]
+t: -0.0381 5.54787  1.4511
+ > cam2tag
+R: [
+	-0.316595, 0.940586, -0.122739;
+	0.418487, 0.0223799, -0.907947;
+	-0.851256, -0.338816, -0.400708
+]
+t:  1.35744 -0.86181  4.75618
+ > tag2cam
+R: [
+	-0.316595, 0.418487, -0.851256;
+	0.940586, 0.0223799, -0.338816;
+	-0.122739, -0.907947, -0.400708
+]
+t: 4.83914 0.35397 1.28997
+ >>> World2cam_singletag:
+ R: [
+	-0.316595, 0.418487, -0.851256;
+	0.940586, 0.0223799, -0.338816;
+	-0.122739, -0.907947, -0.400708
+]
+t: 4.80104 5.90184 2.74108
+rvec: [1.430341301795139;
+ 0.8454589565837591;
+ -0.7899328221370103]
+tvec: [-0.9502469778159094;
+ -0.7630994495319623;
+ 2.054394824112755]
+Image point: [177.395, 155.543] Projected to [177.31, 155.577]
+Image point: [225.984, 163.076] Projected to [226.063, 163.06]
+Image point: [226.457, 118.932] Projected to [226.361, 118.938]
+Image point: [177.399, 109.792] Projected to [177.5, 109.768]
+ > world2tag
+R: [
+	1, 0, 0;
+	0, 1, 0;
+	0, 0, 1
+]
+t: 5.32079 4.10515  1.3208
+ > cam2tag
+R: [
+	0.499349, 0.866158, 0.020507;
+	0.0382895, 0.0015841, -0.999265;
+	-0.865555, 0.499767, -0.0323738
+]
+t: -0.950247 -0.763099   2.05439
+ > tag2cam
+R: [
+	0.499349, 0.0382895, -0.865555;
+	0.866158, 0.0015841, 0.499767;
+	0.020507, -0.999265, -0.0323738
+]
+t:   2.28191 -0.202446 -0.676544
+ >>> World2cam_singletag:
+ R: [
+	0.499349, 0.0382895, -0.865555;
+	0.866158, 0.0015841, 0.499767;
+	0.020507, -0.999265, -0.0323738
+]
+t:  7.60271   3.9027 0.644256
+rvec: [1.364586039607213;
+ 0.9586904096106054;
+ -0.934874384457499]
+tvec: [-0.1800369066315094;
+ -0.7622080563876816;
+ 2.021991428205357]
+Image point: [403.941, 153.52] Projected to [403.839, 153.63]
+Image point: [447.525, 159.077] Projected to [447.609, 158.965]
+Image point: [447.961, 114.047] Projected to [447.876, 114.136]
+Image point: [403.96, 107.699] Projected to [404.062, 107.611]
+ > world2tag
+R: [
+	1, 0, 0;
+	0, 1, 0;
+	0, 0, 1
+]
+t: 5.32079 4.10515  1.3208
+ > cam2tag
+R: [
+	0.345359, 0.938446, 0.00680812;
+	0.0167966, 0.0010723, -0.999858;
+	-0.93832, 0.345424, -0.0153924
+]
+t: -0.180037 -0.762208   2.02199
+ > tag2cam
+R: [
+	0.345359, 0.0167966, -0.93832;
+	0.938446, 0.0010723, 0.345424;
+	0.00680812, -0.999858, -0.0153924
+]
+t:   1.97226 -0.528672 -0.729751
+ >>> World2cam_singletag:
+ R: [
+	0.345359, 0.0167966, -0.93832;
+	0.938446, 0.0010723, 0.345424;
+	0.00680812, -0.999858, -0.0153924
+]
+t:  7.29305  3.57648 0.591049
+rvec: [1.346975867728778;
+ 0.9709897368726649;
+ -0.961541392504923]
+tvec: [-0.5527945686415994;
+ -0.761489475950234;
+ 1.881512135136285]
+Image point: [277.707, 138.209] Projected to [277.726, 138.384]
+Image point: [328.338, 144.35] Projected to [328.288, 144.153]
+Image point: [328.36, 95.9978] Projected to [328.427, 96.1613]
+Image point: [277.885, 89.2727] Projected to [277.85, 89.13]
+ > world2tag
+R: [
+	1, 0, 0;
+	0, 1, 0;
+	0, 0, 1
+]
+t: 5.32079 4.10515  1.3208
+ > cam2tag
+R: [
+	0.319838, 0.947464, 0.00396856;
+	0.00529591, 0.00240078, -0.999983;
+	-0.947457, 0.319854, -0.00424982
+]
+t: -0.552795 -0.761489   1.88151
+ > tag2cam
+R: [
+	0.319838, 0.00529591, -0.947457;
+	0.947464, 0.00240078, 0.319854;
+	0.00396856, -0.999983, -0.00424982
+]
+t:    1.96349 -0.0762273  -0.751287
+ >>> World2cam_singletag:
+ R: [
+	0.319838, 0.00529591, -0.947457;
+	0.947464, 0.00240078, 0.319854;
+	0.00396856, -0.999983, -0.00424982
+]
+t:  7.28428  4.02892 0.569513
+rvec: [1.38165568329298;
+ 0.8628662685013003;
+ -0.8928441936794381]
+tvec: [-2.163061261672084;
+ -0.7483095358788945;
+ 2.947686682782907]
+Image point: [20.4909, 221.287] Projected to [20.6324, 221.401]
+Image point: [58.5531, 224.36] Projected to [58.3801, 224.231]
+Image point: [58.0846, 193.602] Projected to [58.2691, 193.7]
+Image point: [20.6983, 190.274] Projected to [20.5455, 190.191]
+ > world2tag
+R: [
+	-0.5, -0.866025, 0;
+	0.866025, -0.5, 0;
+	0, 0, 1
+]
+t: 4.64134 4.49834  1.3208
+ > cam2tag
+R: [
+	0.426826, 0.904239, -0.0130951;
+	-0.0177824, -0.00608561, -0.999823;
+	-0.904159, 0.426983, 0.013482
+]
+t: -2.16306 -0.74831  2.94769
+ > tag2cam
+R: [
+	0.426826, -0.0177824, -0.904159;
+	0.904239, -0.00608561, 0.426983;
+	-0.0130951, -0.999823, 0.013482
+]
+t:   3.57512  0.692757 -0.816244
+ >>> World2cam_singletag:
+ R: [
+	-0.996507, 0.0141615, 0.082301;
+	-0.0824774, -0.0123572, -0.996516;
+	-0.0130951, -0.999823, 0.013482
+]
+t:  2.25384  7.24811 0.504556
+rvec: [0.8585414964338409;
+ 1.697728547836247;
+ -1.672281857980658]
+tvec: [1.455819082369869;
+ -0.7633915413871983;
+ 2.715237142755133]
+Image point: [782.639, 210.555] Projected to [782.536, 210.561]
+Image point: [820.06, 205.258] Projected to [820.171, 205.272]
+Image point: [819.994, 170.812] Projected to [819.868, 170.813]
+Image point: [782.07, 177.294] Projected to [782.187, 177.274]
+ > world2tag
+R: [
+	-0.5, 0.866025, -0;
+	-0.866025, -0.5, 0;
+	0, 0, 1
+]
+t: 4.64134 3.71323  1.3208
+ > cam2tag
+R: [
+	-0.611291, 0.791037, -0.0241552;
+	0.0360979, -0.00262069, -0.999345;
+	-0.790582, -0.611763, -0.0269528
+]
+t:   1.45582 -0.763392   2.71524
+ > tag2cam
+R: [
+	-0.611291, 0.0360979, -0.790582;
+	0.791037, -0.00262069, -0.611763;
+	-0.0241552, -0.999345, -0.0269528
+]
+t:    3.0641  0.507473 -0.654543
+ >>> World2cam_singletag:
+ R: [
+	0.990704, -0.0203185, -0.134511;
+	0.133875, -0.0299514, 0.990545;
+	-0.0241552, -0.999345, -0.0269528
+]
+t:  3.54877 0.805897 0.666257
+rvec: [0.4029039232867764;
+ 2.068074398374232;
+ -2.014792284923253]
+tvec: [1.188115805629517;
+ -0.7635410366217115;
+ 3.599612810715317]
+Image point: [669.315, 247.207] Projected to [669.392, 247.138]
+Image point: [686.169, 243.026] Projected to [686.094, 243.089]
+Image point: [685.537, 217.121] Projected to [685.613, 217.056]
+Image point: [668.985, 222.053] Projected to [668.907, 222.124]
+ > world2tag
+R: [
+	-0.5, 0.866025, -0;
+	-0.866025, -0.5, 0;
+	0, 0, 1
+]
+t: 4.64134 3.71323  1.3208
+ > cam2tag
+R: [
+	-0.936778, 0.348688, -0.0293944;
+	0.0384837, 0.0191675, -0.999075;
+	-0.347802, -0.937043, -0.0313745
+]
+t:   1.18812 -0.763541   3.59961
+ > tag2cam
+R: [
+	-0.936778, 0.0384837, -0.347802;
+	0.348688, 0.0191675, -0.937043;
+	-0.0293944, -0.999075, -0.0313745
+]
+t:   2.39434   2.97335 -0.614975
+ >>> World2cam_singletag:
+ R: [
+	0.770361, -0.00264231, -0.637602;
+	0.63693, -0.0429116, 0.769727;
+	-0.0293944, -0.999075, -0.0313745
+]
+t:  6.01917 0.152997 0.705825
+rvec: [0.2542283765071626;
+ -2.095047148124898;
+ 2.0930488786552]
+tvec: [2.659851684445771;
+ -0.7592993430105487;
+ 3.953851278639315]
+Image point: [878.306, 257.766] Projected to [877.994, 257.877]
+Image point: [887.284, 254.123] Projected to [887.584, 254.02]
+Image point: [887.92, 230.373] Projected to [887.621, 230.48]
+Image point: [877.718, 235.318] Projected to [878.029, 235.202]
+ > world2tag
+R: [
+	-0.5, 0.866025, -0;
+	-0.866025, -0.5, 0;
+	0, 0, 1
+]
+t: 4.64134 3.71323  1.3208
+ > cam2tag
+R: [
+	-0.971181, -0.23834, 0.00085818;
+	-0.00108562, 0.000822997, -0.999999;
+	0.238339, -0.971181, -0.00105803
+]
+t:   2.65985 -0.759299   3.95385
+ > tag2cam
+R: [
+	-0.971181, -0.00108562, 0.238339;
+	-0.23834, 0.000822997, -0.971181;
+	0.00085818, -0.999999, -0.00105803
+]
+t:   1.64002   4.47448 -0.757398
+ >>> World2cam_singletag:
+ R: [
+	0.279182, 0.00125555, -0.960237;
+	0.960238, 0.000528675, 0.279183;
+	0.00085818, -0.999999, -0.00105803
+]
+t:  7.69635  0.05569 0.563402
+rvec: [1.10296072485792;
+ 1.538057783273031;
+ -1.461516340904193]
+tvec: [1.963142039327922;
+ -0.7533099234329909;
+ 3.429564629630115]
+Image point: [807.45, 242.568] Projected to [807.578, 242.513]
+Image point: [837.986, 240.148] Projected to [837.887, 240.192]
+Image point: [837.808, 212.987] Projected to [837.917, 212.973]
+Image point: [807.631, 215.719] Projected to [807.494, 215.744]
+ > world2tag
+R: [
+	-0.5, 0.866025, -0;
+	-0.866025, -0.5, 0;
+	0, 0, 1
+]
+t: 4.64134 3.71323  1.3208
+ > cam2tag
+R: [
+	-0.363105, 0.930431, -0.0495342;
+	0.0969233, -0.0151564, -0.995176;
+	-0.926693, -0.366154, -0.084677
+]
+t:  1.96314 -0.75331  3.42956
+ > tag2cam
+R: [
+	-0.363105, 0.0969233, -0.926693;
+	0.930431, -0.0151564, -0.366154;
+	-0.0495342, -0.995176, -0.084677
+]
+t:   3.96399 -0.582235 -0.362028
+ >>> World2cam_singletag:
+ R: [
+	0.987329, -0.0615875, 0.146248;
+	-0.150757, -0.0763598, 0.985617;
+	-0.0495342, -0.995176, -0.084677
+]
+t:  2.15511 0.571423 0.958772
+rvec: [1.407190432381759;
+ 0.8933347064091076;
+ -0.8599984547131468]
+tvec: [1.2695150717775;
+ -0.7674918244682931;
+ 4.495789897980922]
+Image point: [640.617, 266.856] Projected to [640.623, 266.781]
+Image point: [656.473, 267.944] Projected to [656.468, 268.024]
+Image point: [656.769, 247.855] Projected to [656.771, 247.777]
+Image point: [640.918, 246.16] Projected to [640.915, 246.234]
+ > world2tag
+R: [
+	1, 0, 0;
+	0, 1, 0;
+	0, 0, 1
+]
+t: 5.32079 4.10515  1.3208
+ > cam2tag
+R: [
+	0.431728, 0.901976, 0.00709295;
+	0.0271984, -0.00515769, -0.999617;
+	-0.901593, 0.431756, -0.0267591
+]
+t:   1.26952 -0.767492   4.49579
+ > tag2cam
+R: [
+	0.431728, 0.0271984, -0.901593;
+	0.901976, -0.00515769, 0.431756;
+	0.00709295, -0.999617, -0.0267591
+]
+t:   3.52616  -3.09011 -0.655899
+ >>> World2cam_singletag:
+ R: [
+	0.431728, 0.0271984, -0.901593;
+	0.901976, -0.00515769, 0.431756;
+	0.00709295, -0.999617, -0.0267591
+]
+t:  8.84696  1.01503 0.664901
+rvec: [1.371602394749631;
+ 0.9407847126332725;
+ -0.9169397679133621]
+tvec: [-0.07800062776041775;
+ -0.7726450288753156;
+ 2.785000124813021]
+Image point: [446.956, 208.039] Projected to [447.019, 208.17]
+Image point: [477.923, 211.398] Projected to [477.857, 211.243]
+Image point: [478.02, 178.506] Projected to [478.107, 178.658]
+Image point: [447.332, 175.05] Projected to [447.25, 174.921]
+ > world2tag
+R: [
+	1, 0, 0;
+	0, 1, 0;
+	0, 0, 1
+]
+t: 5.32079 4.10515  1.3208
+ > cam2tag
+R: [
+	0.367207, 0.930107, 0.00773208;
+	0.0161434, 0.00193857, -0.999868;
+	-0.929999, 0.367283, -0.0143033
+]
+t: -0.0780006  -0.772645      2.785
+ > tag2cam
+R: [
+	0.367207, 0.0161434, -0.929999;
+	0.930107, 0.00193857, 0.367283;
+	0.00773208, -0.999868, -0.0143033
+]
+t:   2.63116 -0.948836 -0.732105
+ >>> World2cam_singletag:
+ R: [
+	0.367207, 0.0161434, -0.929999;
+	0.930107, 0.00193857, 0.367283;
+	0.00773208, -0.999868, -0.0143033
+]
+t:  7.95196  3.15631 0.588695
+rvec: [1.797521972176013;
+ 1.216550037781197;
+ -0.2477969225084271]
+tvec: [-1.047629067621166;
+ -0.7568428981656148;
+ 1.858039300775465]
+Image point: [113.297, 136.308] Projected to [113.683, 136.397]
+Image point: [168.796, 142.365] Projected to [168.405, 142.321]
+Image point: [169.066, 94.4295] Projected to [169.373, 94.5081]
+Image point: [112.389, 86.0641] Projected to [112.084, 85.944]
+ > world2tag
+R: [
+	1, 0, 0;
+	0, 1, 0;
+	0, 0, 1
+]
+t: 5.32079 4.10515  1.3208
+ > cam2tag
+R: [
+	0.490996, 0.814847, 0.308137;
+	0.629399, -0.0872544, -0.772168;
+	-0.602312, 0.573072, -0.555705
+]
+t:  -1.04763 -0.756843   1.85804
+ > tag2cam
+R: [
+	0.490996, 0.629399, -0.602312;
+	0.814847, -0.0872544, 0.573072;
+	0.308137, -0.772168, -0.555705
+]
+t:   2.10986 -0.277171  0.770925
+ >>> World2cam_singletag:
+ R: [
+	0.490996, 0.629399, -0.602312;
+	0.814847, -0.0872544, 0.573072;
+	0.308137, -0.772168, -0.555705
+]
+t: 7.43065 3.82798 2.09172
+===============================
+Final pose graph
+size: 233
+
+Factor 0:   keys = { l14 x0 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	245.84;
+	192.537
+]
+
+Factor 1:   keys = { l14 x0 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	283.334;
+	193.467
+]
+
+Factor 2:   keys = { l14 x0 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	283.312;
+	156.371
+]
+
+Factor 3:   keys = { l14 x0 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	245.546;
+	155.1
+]
+
+Factor 4:   keys = { l9 x0 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	101.952;
+	295.916
+]
+
+Factor 5:   keys = { l9 x0 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	115.24;
+	297.005
+]
+
+Factor 6:   keys = { l9 x0 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	115.365;
+	283.505
+]
+
+Factor 7:   keys = { l9 x0 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	102.446;
+	282.352
+]
+
+Factor 8:   keys = { l8 x0 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	436.487;
+	295.218
+]
+
+Factor 9:   keys = { l8 x0 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	448.634;
+	295.189
+]
+
+Factor 10:   keys = { l8 x0 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	449.092;
+	283.196
+]
+
+Factor 11:   keys = { l8 x0 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	436.676;
+	282.427
+]
+
+Factor 12:   keys = { l7 x0 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	478.75;
+	295.349
+]
+
+Factor 13:   keys = { l7 x0 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	491.067;
+	295.238
+]
+
+Factor 14:   keys = { l7 x0 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	490.7;
+	283.513
+]
+
+Factor 15:   keys = { l7 x0 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	478.502;
+	282.558
+]
+
+Factor 16:   keys = { l6 x0 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	741.663;
+	288.866
+]
+
+Factor 17:   keys = { l6 x0 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	750.291;
+	286.481
+]
+
+Factor 18:   keys = { l6 x0 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	749.444;
+	271.225
+]
+
+Factor 19:   keys = { l6 x0 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	741.822;
+	273.249
+]
+
+Factor 20:   keys = { l6 x1 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	866.617;
+	218.335
+]
+
+Factor 21:   keys = { l6 x1 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	889.232;
+	210.911
+]
+
+Factor 22:   keys = { l6 x1 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	889.412;
+	179.495
+]
+
+Factor 23:   keys = { l6 x1 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	867.077;
+	188.73
+]
+
+Factor 24:   keys = { l8 x1 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	320.298;
+	252.717
+]
+
+Factor 25:   keys = { l8 x1 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	341.42;
+	253.179
+]
+
+Factor 26:   keys = { l8 x1 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	340.862;
+	232.426
+]
+
+Factor 27:   keys = { l8 x1 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	320.342;
+	232.387
+]
+
+Factor 28:   keys = { l7 x1 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	390.981;
+	253.4
+]
+
+Factor 29:   keys = { l7 x1 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	410.933;
+	253.359
+]
+
+Factor 30:   keys = { l7 x1 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	410.878;
+	233.206
+]
+
+Factor 31:   keys = { l7 x1 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	390.96;
+	233.465
+]
+
+Factor 32:   keys = { l7 x2 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	904.182;
+	218.232
+]
+
+Factor 33:   keys = { l7 x2 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	937.293;
+	213.087
+]
+
+Factor 34:   keys = { l7 x2 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	937.02;
+	185.608
+]
+
+Factor 35:   keys = { l7 x2 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	903.49;
+	191.249
+]
+
+Factor 36:   keys = { l8 x2 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	805.852;
+	232.812
+]
+
+Factor 37:   keys = { l8 x2 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	832.071;
+	228.464
+]
+
+Factor 38:   keys = { l8 x2 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	832.147;
+	203.568
+]
+
+Factor 39:   keys = { l8 x2 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	805.241;
+	208.433
+]
+
+Factor 40:   keys = { l10 x2 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	294.723;
+	289.058
+]
+
+Factor 41:   keys = { l10 x2 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	310.124;
+	289.475
+]
+
+Factor 42:   keys = { l10 x2 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	309.839;
+	274.487
+]
+
+Factor 43:   keys = { l10 x2 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	294.892;
+	274.473
+]
+
+Factor 44:   keys = { l9 x2 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	410.377;
+	291.712
+]
+
+Factor 45:   keys = { l9 x2 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	424.651;
+	292.438
+]
+
+Factor 46:   keys = { l9 x2 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	425.338;
+	278.098
+]
+
+Factor 47:   keys = { l9 x2 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	411.151;
+	277.522
+]
+
+Factor 48:   keys = { l7 x3 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	640.87;
+	260.67
+]
+
+Factor 49:   keys = { l7 x3 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	660.536;
+	259.904
+]
+
+Factor 50:   keys = { l7 x3 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	660.619;
+	241.087
+]
+
+Factor 51:   keys = { l7 x3 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	640.455;
+	241.816
+]
+
+Factor 52:   keys = { l10 x3 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	60.2327;
+	279.313
+]
+
+Factor 53:   keys = { l10 x3 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	80.9291;
+	280.451
+]
+
+Factor 54:   keys = { l10 x3 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	80.2862;
+	263.915
+]
+
+Factor 55:   keys = { l10 x3 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	60.2052;
+	262.561
+]
+
+Factor 56:   keys = { l8 x3 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	577.437;
+	264.3
+]
+
+Factor 57:   keys = { l8 x3 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	595.661;
+	263.488
+]
+
+Factor 58:   keys = { l8 x3 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	595.262;
+	244.955
+]
+
+Factor 59:   keys = { l8 x3 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	577.153;
+	246.712
+]
+
+Factor 60:   keys = { l9 x3 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	201.754;
+	289.058
+]
+
+Factor 61:   keys = { l9 x3 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	217.714;
+	290.387
+]
+
+Factor 62:   keys = { l9 x3 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	217.461;
+	275.333
+]
+
+Factor 63:   keys = { l9 x3 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	201.806;
+	273.402
+]
+
+Factor 64:   keys = { l14 x4 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	177.395;
+	155.543
+]
+
+Factor 65:   keys = { l14 x4 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	225.984;
+	163.076
+]
+
+Factor 66:   keys = { l14 x4 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	226.457;
+	118.932
+]
+
+Factor 67:   keys = { l14 x4 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	177.399;
+	109.792
+]
+
+Factor 68:   keys = { l8 x4 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	219.905;
+	287.331
+]
+
+Factor 69:   keys = { l8 x4 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	234.849;
+	288.527
+]
+
+Factor 70:   keys = { l8 x4 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	234.589;
+	274.475
+]
+
+Factor 71:   keys = { l8 x4 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	219.988;
+	273.739
+]
+
+Factor 72:   keys = { l7 x4 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	268.648;
+	289.923
+]
+
+Factor 73:   keys = { l7 x4 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	282.106;
+	291.084
+]
+
+Factor 74:   keys = { l7 x4 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	282.848;
+	277.586
+]
+
+Factor 75:   keys = { l7 x4 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	269.126;
+	276.883
+]
+
+Factor 76:   keys = { l6 x4 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	531.378;
+	296.533
+]
+
+Factor 77:   keys = { l6 x4 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	539.773;
+	295.421
+]
+
+Factor 78:   keys = { l6 x4 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	539.506;
+	281.432
+]
+
+Factor 79:   keys = { l6 x4 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	531.437;
+	282.988
+]
+
+Factor 80:   keys = { l14 x5 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	403.941;
+	153.52
+]
+
+Factor 81:   keys = { l14 x5 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	447.525;
+	159.077
+]
+
+Factor 82:   keys = { l14 x5 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	447.961;
+	114.047
+]
+
+Factor 83:   keys = { l14 x5 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	403.96;
+	107.699
+]
+
+Factor 84:   keys = { l8 x5 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	379.519;
+	289.721
+]
+
+Factor 85:   keys = { l8 x5 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	392.395;
+	290.436
+]
+
+Factor 86:   keys = { l8 x5 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	393.037;
+	277.494
+]
+
+Factor 87:   keys = { l8 x5 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	379.354;
+	277.245
+]
+
+Factor 88:   keys = { l7 x5 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	423.551;
+	292.179
+]
+
+Factor 89:   keys = { l7 x5 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	436.449;
+	292.479
+]
+
+Factor 90:   keys = { l7 x5 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	435.841;
+	279.153
+]
+
+Factor 91:   keys = { l7 x5 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	423.55;
+	279.277
+]
+
+Factor 92:   keys = { l6 x5 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	693.348;
+	292.082
+]
+
+Factor 93:   keys = { l6 x5 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	703.381;
+	290.925
+]
+
+Factor 94:   keys = { l6 x5 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	703.14;
+	276.755
+]
+
+Factor 95:   keys = { l6 x5 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	693.204;
+	278.477
+]
+
+Factor 96:   keys = { l14 x6 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	277.707;
+	138.209
+]
+
+Factor 97:   keys = { l14 x6 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	328.338;
+	144.35
+]
+
+Factor 98:   keys = { l14 x6 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	328.36;
+	95.9978
+]
+
+Factor 99:   keys = { l14 x6 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	277.885;
+	89.2727
+]
+
+Factor 100:   keys = { l8 x6 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	344.495;
+	288.866
+]
+
+Factor 101:   keys = { l8 x6 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	358.588;
+	288.899
+]
+
+Factor 102:   keys = { l8 x6 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	357.952;
+	275.705
+]
+
+Factor 103:   keys = { l8 x6 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	344.756;
+	274.73
+]
+
+Factor 104:   keys = { l7 x6 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	390.882;
+	290.338
+]
+
+Factor 105:   keys = { l7 x6 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	403.123;
+	291.139
+]
+
+Factor 106:   keys = { l7 x6 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	403.074;
+	277.83
+]
+
+Factor 107:   keys = { l7 x6 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	390.956;
+	277.396
+]
+
+Factor 108:   keys = { l6 x6 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	662.467;
+	291.241
+]
+
+Factor 109:   keys = { l6 x6 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	671.713;
+	289.382
+]
+
+Factor 110:   keys = { l6 x6 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	671.512;
+	274.348
+]
+
+Factor 111:   keys = { l6 x6 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	662.769;
+	276.617
+]
+
+Factor 112:   keys = { l15 x7 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	20.4909;
+	221.287
+]
+
+Factor 113:   keys = { l15 x7 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	58.5531;
+	224.36
+]
+
+Factor 114:   keys = { l15 x7 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	58.0846;
+	193.602
+]
+
+Factor 115:   keys = { l15 x7 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	20.6983;
+	190.274
+]
+
+Factor 116:   keys = { l9 x7 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	653.718;
+	291.121
+]
+
+Factor 117:   keys = { l9 x7 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	668.113;
+	289.829
+]
+
+Factor 118:   keys = { l9 x7 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	668.422;
+	274.588
+]
+
+Factor 119:   keys = { l9 x7 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	653.11;
+	276.398
+]
+
+Factor 120:   keys = { l10 x7 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	549.781;
+	297.339
+]
+
+Factor 121:   keys = { l10 x7 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	562.085;
+	296.411
+]
+
+Factor 122:   keys = { l10 x7 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	562.195;
+	283.06
+]
+
+Factor 123:   keys = { l10 x7 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	549.926;
+	283.613
+]
+
+Factor 124:   keys = { l16 x8 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	782.639;
+	210.555
+]
+
+Factor 125:   keys = { l16 x8 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	820.06;
+	205.258
+]
+
+Factor 126:   keys = { l16 x8 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	819.994;
+	170.812
+]
+
+Factor 127:   keys = { l16 x8 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	782.07;
+	177.294
+]
+
+Factor 128:   keys = { l8 x8 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	126.423;
+	252.18
+]
+
+Factor 129:   keys = { l8 x8 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	141.247;
+	255.669
+]
+
+Factor 130:   keys = { l8 x8 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	140.874;
+	235.496
+]
+
+Factor 131:   keys = { l8 x8 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	126.529;
+	232.068
+]
+
+Factor 132:   keys = { l7 x8 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	172.444;
+	263.54
+]
+
+Factor 133:   keys = { l7 x8 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	184.287;
+	266.436
+]
+
+Factor 134:   keys = { l7 x8 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	184.881;
+	248.2
+]
+
+Factor 135:   keys = { l7 x8 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	172.787;
+	245.307
+]
+
+Factor 136:   keys = { l6 x8 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	437.924;
+	300.254
+]
+
+Factor 137:   keys = { l6 x8 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	449.747;
+	299.849
+]
+
+Factor 138:   keys = { l6 x8 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	449.608;
+	287.169
+]
+
+Factor 139:   keys = { l6 x8 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	437.402;
+	287.503
+]
+
+Factor 140:   keys = { l16 x9 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	669.315;
+	247.207
+]
+
+Factor 141:   keys = { l16 x9 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	686.169;
+	243.026
+]
+
+Factor 142:   keys = { l16 x9 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	685.537;
+	217.121
+]
+
+Factor 143:   keys = { l16 x9 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	668.985;
+	222.053
+]
+
+Factor 144:   keys = { l14 x9 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	805.793;
+	239.235
+]
+
+Factor 145:   keys = { l14 x9 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	812.025;
+	243.104
+]
+
+Factor 146:   keys = { l14 x9 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	811.535;
+	216.738
+]
+
+Factor 147:   keys = { l14 x9 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	805.953;
+	212.151
+]
+
+Factor 148:   keys = { l8 x9 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	362.102;
+	292.508
+]
+
+Factor 149:   keys = { l8 x9 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	371.902;
+	293.534
+]
+
+Factor 150:   keys = { l8 x9 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	372.14;
+	281.147
+]
+
+Factor 151:   keys = { l8 x9 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	361.728;
+	280.165
+]
+
+Factor 152:   keys = { l6 x9 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	609.183;
+	308.929
+]
+
+Factor 153:   keys = { l6 x9 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	619.037;
+	307.956
+]
+
+Factor 154:   keys = { l6 x9 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	618.871;
+	297.693
+]
+
+Factor 155:   keys = { l6 x9 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	609.174;
+	298.1
+]
+
+Factor 156:   keys = { l7 x9 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	395.047;
+	296.363
+]
+
+Factor 157:   keys = { l7 x9 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	403.564;
+	297.51
+]
+
+Factor 158:   keys = { l7 x9 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	403.371;
+	285.13
+]
+
+Factor 159:   keys = { l7 x9 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	394.862;
+	284.587
+]
+
+Factor 160:   keys = { l16 x10 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	878.306;
+	257.766
+]
+
+Factor 161:   keys = { l16 x10 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	887.284;
+	254.123
+]
+
+Factor 162:   keys = { l16 x10 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	887.92;
+	230.373
+]
+
+Factor 163:   keys = { l16 x10 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	877.718;
+	235.318
+]
+
+Factor 164:   keys = { l6 x10 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	936.915;
+	304.037
+]
+
+Factor 165:   keys = { l6 x10 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	949.862;
+	302.285
+]
+
+Factor 166:   keys = { l6 x10 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	949.783;
+	290.244
+]
+
+Factor 167:   keys = { l6 x10 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	937.364;
+	291.795
+]
+
+Factor 168:   keys = { l10 x10 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	347.737;
+	285.295
+]
+
+Factor 169:   keys = { l10 x10 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	354.418;
+	287.493
+]
+
+Factor 170:   keys = { l10 x10 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	354.016;
+	271.315
+]
+
+Factor 171:   keys = { l10 x10 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	347.321;
+	269.872
+]
+
+Factor 172:   keys = { l8 x10 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	655.321;
+	302.46
+]
+
+Factor 173:   keys = { l8 x10 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	664.639;
+	302.494
+]
+
+Factor 174:   keys = { l8 x10 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	664.923;
+	292.148
+]
+
+Factor 175:   keys = { l8 x10 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	655.085;
+	291.332
+]
+
+Factor 176:   keys = { l16 x11 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	807.45;
+	242.568
+]
+
+Factor 177:   keys = { l16 x11 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	837.986;
+	240.148
+]
+
+Factor 178:   keys = { l16 x11 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	837.808;
+	212.987
+]
+
+Factor 179:   keys = { l16 x11 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	807.631;
+	215.719
+]
+
+Factor 180:   keys = { l8 x11 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	122.842;
+	242.371
+]
+
+Factor 181:   keys = { l8 x11 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	133.556;
+	246.164
+]
+
+Factor 182:   keys = { l8 x11 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	132.903;
+	224.267
+]
+
+Factor 183:   keys = { l8 x11 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	123.067;
+	219.745
+]
+
+Factor 184:   keys = { l7 x11 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	155.629;
+	255.425
+]
+
+Factor 185:   keys = { l7 x11 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	163.717;
+	258.356
+]
+
+Factor 186:   keys = { l7 x11 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	163.8;
+	239.347
+]
+
+Factor 187:   keys = { l7 x11 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	155.331;
+	235.755
+]
+
+Factor 188:   keys = { l6 x11 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	388.843;
+	300.834
+]
+
+Factor 189:   keys = { l6 x11 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	401.618;
+	301.157
+]
+
+Factor 190:   keys = { l6 x11 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	401.151;
+	288.8
+]
+
+Factor 191:   keys = { l6 x11 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	388.239;
+	288.543
+]
+
+Factor 192:   keys = { l14 x12 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	640.617;
+	266.856
+]
+
+Factor 193:   keys = { l14 x12 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	656.473;
+	267.944
+]
+
+Factor 194:   keys = { l14 x12 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	656.769;
+	247.855
+]
+
+Factor 195:   keys = { l14 x12 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	640.918;
+	246.16
+]
+
+Factor 196:   keys = { l10 x12 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	132.55;
+	288.901
+]
+
+Factor 197:   keys = { l10 x12 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	142.553;
+	290.529
+]
+
+Factor 198:   keys = { l10 x12 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	142.687;
+	275.264
+]
+
+Factor 199:   keys = { l10 x12 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	133.134;
+	273.992
+]
+
+Factor 200:   keys = { l14 x13 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	446.956;
+	208.039
+]
+
+Factor 201:   keys = { l14 x13 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	477.923;
+	211.398
+]
+
+Factor 202:   keys = { l14 x13 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	478.02;
+	178.506
+]
+
+Factor 203:   keys = { l14 x13 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	447.332;
+	175.05
+]
+
+Factor 204:   keys = { l8 x13 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	370.44;
+	295.608
+]
+
+Factor 205:   keys = { l8 x13 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	382.48;
+	296.566
+]
+
+Factor 206:   keys = { l8 x13 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	382.174;
+	284.282
+]
+
+Factor 207:   keys = { l8 x13 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	370.141;
+	283.999
+]
+
+Factor 208:   keys = { l7 x13 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	410.257;
+	297.878
+]
+
+Factor 209:   keys = { l7 x13 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	421.569;
+	298.529
+]
+
+Factor 210:   keys = { l7 x13 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	421.243;
+	286.473
+]
+
+Factor 211:   keys = { l7 x13 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	410.561;
+	285.997
+]
+
+Factor 212:   keys = { l6 x13 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	651.732;
+	300.414
+]
+
+Factor 213:   keys = { l6 x13 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	659.955;
+	299.107
+]
+
+Factor 214:   keys = { l6 x13 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	659.866;
+	286.849
+]
+
+Factor 215:   keys = { l6 x13 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	651.29;
+	287.673
+]
+
+Factor 216:   keys = { l14 x14 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	113.297;
+	136.308
+]
+
+Factor 217:   keys = { l14 x14 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	168.796;
+	142.365
+]
+
+Factor 218:   keys = { l14 x14 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	169.066;
+	94.4295
+]
+
+Factor 219:   keys = { l14 x14 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	112.389;
+	86.0641
+]
+
+Factor 220:   keys = { l8 x14 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	282.234;
+	288.343
+]
+
+Factor 221:   keys = { l8 x14 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	295.787;
+	288.538
+]
+
+Factor 222:   keys = { l8 x14 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	295.961;
+	275.513
+]
+
+Factor 223:   keys = { l8 x14 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	282.008;
+	274.759
+]
+
+Factor 224:   keys = { l7 x14 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	329.855;
+	290.421
+]
+
+Factor 225:   keys = { l7 x14 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	343.078;
+	290.791
+]
+
+Factor 226:   keys = { l7 x14 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	343.255;
+	277.29
+]
+
+Factor 227:   keys = { l7 x14 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	329.679;
+	277.039
+]
+
+Factor 228:   keys = { l6 x14 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	596.979;
+	291.449
+]
+
+Factor 229:   keys = { l6 x14 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	605.271;
+	290.13
+]
+
+Factor 230:   keys = { l6 x14 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	605.567;
+	275.412
+]
+
+Factor 231:   keys = { l6 x14 }
+  noise model: unit (2) 
+ExpressionFactor with measurement: [
+	597.251;
+	277.185
+]
+
+Factor 232: PriorFactor on l7
+  prior mean:  R: [
+	1, 0, 0;
+	0, 1, 0;
+	0, 0, 1
+]
+t: -0.0381 5.54787  1.4511
   noise model: diagonal sigmas [0.1; 0.1; 0.1; 0.3; 0.3; 0.3];
 
-initial error = 86224.1937
+==========================
+initial error = 966272.797
+==========================
 Initial state:
 
-Values with 2 values:
+Values with 23 values:
+Value l6: (gtsam::Pose3)
+R: [
+	-2.22044605e-16, 1, -0;
+	-1, -2.22044605e-16, 0;
+	0, 0, 1
+]
+t:   1.8415   8.2042 1.355852
+
+Value l7: (gtsam::Pose3)
+R: [
+	1, 0, 0;
+	0, 1, 0;
+	0, 0, 1
+]
+t:  -0.0381 5.547868 1.451102
+
+Value l8: (gtsam::Pose3)
+R: [
+	1, 0, 0;
+	0, 1, 0;
+	0, 0, 1
+]
+t:  -0.0381 4.982718 1.451102
+
+Value l9: (gtsam::Pose3)
+R: [
+	0.5, -0.866025404, 0;
+	0.866025404, 0.5, 0;
+	0, 0, 1
+]
+t: 0.356108 0.883666 1.355852
+
 Value l10: (gtsam::Pose3)
 R: [
 	0.5, -0.866025404, 0;
@@ -64,31 +2251,337 @@ R: [
 ]
 t: 1.461516 0.245872 1.355852
 
-Value x0: (gtsam::Pose3)
+Value l14: (gtsam::Pose3)
 R: [
 	1, 0, 0;
 	0, 1, 0;
 	0, 0, 1
 ]
-t: -1.73911107e-321  -4.7430302e-322 -4.66109541e-310
+t: 5.320792 4.105148   1.3208
 
-final error = 0.216008333
-Final state:
-
-Values with 2 values:
-Value l10: (gtsam::Pose3)
+Value l15: (gtsam::Pose3)
 R: [
-	0.5, -0.866025404, -1.48095827e-16;
-	0.866025404, 0.5, -2.10629242e-16;
-	2.57265048e-16, -2.33336397e-17, 1
+	-0.5, -0.866025404, 0;
+	0.866025404, -0.5, 0;
+	0, 0, 1
 ]
-t: 1.461516 0.245872 1.355852
+t: 4.641342  4.49834   1.3208
+
+Value l16: (gtsam::Pose3)
+R: [
+	-0.5, 0.866025404, -0;
+	-0.866025404, -0.5, 0;
+	0, 0, 1
+]
+t: 4.641342 3.713226   1.3208
 
 Value x0: (gtsam::Pose3)
 R: [
-	-0.887142472, -0.0659270331, -0.456762368;
-	0.460325304, -0.0559688663, -0.885984255;
-	0.0328458414, -0.996253538, 0.0800002399
+	0.0693277215, 0.0463662653, -0.996515849;
+	0.997523967, 0.00860903408, 0.0697984208;
+	0.011815331, -0.998887408, -0.0456546162
 ]
-t: 1.90226277 0.88052862  3.7101985
+t:  7.89160491  4.82646403 0.678660402
+
+Value x1: (gtsam::Pose3)
+R: [
+	0.0719268646, -0.00608858851, -0.997391325;
+	0.99729494, 0.0156216832, 0.071824551;
+	0.0151436211, -0.999859436, 0.0071957372
+]
+t:  4.67404647   6.0218352 0.506339536
+
+Value x2: (gtsam::Pose3)
+R: [
+	-0.411071604, 0.378389731, -0.829362013;
+	0.87944809, -0.0748930971, -0.470066039;
+	-0.239981652, -0.922611639, -0.301987701
+]
+t: 4.09799003 4.88800465 2.24475274
+
+Value x3: (gtsam::Pose3)
+R: [
+	-0.31659497, 0.418486841, -0.851255772;
+	0.940586387, 0.0223799444, -0.338816154;
+	-0.122739045, -0.907947081, -0.400708404
+]
+t: 4.80103894 5.90183834 2.74107571
+
+Value x4: (gtsam::Pose3)
+R: [
+	0.499348706, 0.0382895322, -0.865554609;
+	0.866158377, 0.00158410404, 0.499767103;
+	0.0205069772, -0.999265431, -0.0323737788
+]
+t:  7.60270623  3.90270226 0.644256316
+
+Value x5: (gtsam::Pose3)
+R: [
+	0.345358572, 0.0167966306, -0.938320483;
+	0.938446112, 0.00107229702, 0.345424006;
+	0.00680811771, -0.999858352, -0.0153924058
+]
+t:  7.29304779  3.57647587 0.591048934
+
+Value x6: (gtsam::Pose3)
+R: [
+	0.319837976, 0.00529591107, -0.947457452;
+	0.947463941, 0.0024007825, 0.319853586;
+	0.00396855541, -0.999983095, -0.00424982336
+]
+t:  7.28428217  4.02892069 0.569513287
+
+Value x7: (gtsam::Pose3)
+R: [
+	-0.996506894, 0.0141614925, 0.0823010456;
+	-0.0824774337, -0.0123571953, -0.996516318;
+	-0.0130951482, -0.99982336, 0.0134820338
+]
+t:  2.25383602  7.24810713 0.504556226
+
+Value x8: (gtsam::Pose3)
+R: [
+	0.990703759, -0.0203185339, -0.134511039;
+	0.13387527, -0.0299513578, 0.99054547;
+	-0.02415522, -0.999344822, -0.0269527736
+]
+t:  3.54877494 0.805897363 0.666257418
+
+Value x9: (gtsam::Pose3)
+R: [
+	0.770361279, -0.00264231127, -0.637602163;
+	0.636929721, -0.0429116035, 0.769726656;
+	-0.0293943886, -0.999075379, -0.0313744712
+]
+t:  6.01916699 0.152997031 0.705824836
+
+Value x10: (gtsam::Pose3)
+R: [
+	0.279181976, 0.00125554504, -0.960237391;
+	0.960237829, 0.000528674509, 0.279182795;
+	0.000858179606, -0.999999072, -0.00105802545
+]
+t:   7.69634852 0.0556899662  0.563402006
+
+Value x11: (gtsam::Pose3)
+R: [
+	0.98732903, -0.0615874695, 0.146247633;
+	-0.150757243, -0.0763598184, 0.985617285;
+	-0.0495342318, -0.995176448, -0.0846770226
+]
+t:  2.15511471 0.571423096 0.958771761
+
+Value x12: (gtsam::Pose3)
+R: [
+	0.431728433, 0.0271984418, -0.901593481;
+	0.901975748, -0.00515768531, 0.431755889;
+	0.00709295196, -0.999616748, -0.0267590543
+]
+t:  8.84695569  1.01503395 0.664900795
+
+Value x13: (gtsam::Pose3)
+R: [
+	0.367206699, 0.0161434369, -0.929999263;
+	0.930107228, 0.00193857425, 0.367282979;
+	0.00773208224, -0.999867807, -0.0143032699
+]
+t:  7.95195556  3.15631164 0.588694825
+
+Value x14: (gtsam::Pose3)
+R: [
+	0.490995646, 0.629398985, -0.602312372;
+	0.814846708, -0.0872544031, 0.573071995;
+	0.308136525, -0.772168108, -0.555705223
+]
+t: 7.43064952 3.82797693 2.09172498
+
+======================
+final error = 10.2069292
+======================
+Final state:
+
+Values with 23 values:
+Value l6: (gtsam::Pose3)
+R: [
+	-0.0073495975, 0.999765682, -0.0203608389;
+	-0.999879807, -0.00706942406, 0.0137983785;
+	0.0136512059, 0.0204598042, 0.999697475
+]
+t: 1.86579664 8.18887618 1.36645599
+
+Value l7: (gtsam::Pose3)
+R: [
+	1, -4.29146716e-15, 1.41043189e-15;
+	4.29146683e-15, 1, 1.39288386e-15;
+	-1.41043188e-15, -1.39288361e-15, 1
+]
+t:  -0.0381 5.547868 1.451102
+
+Value l8: (gtsam::Pose3)
+R: [
+	0.999917064, 0.0023354652, -0.0126653125;
+	-0.00235763992, 0.999995714, -0.00173617501;
+	0.0126612035, 0.00176589127, 0.999918284
+]
+t: -0.0395159609    4.98098727    1.45479476
+
+Value l9: (gtsam::Pose3)
+R: [
+	0.492031844, -0.870573113, 0.0026682261;
+	0.869854006, 0.491745701, 0.0392450464;
+	-0.0354777709, -0.0169888454, 0.999226054
+]
+t: 0.328917642 0.877162401  1.38333829
+
+Value l10: (gtsam::Pose3)
+R: [
+	0.505316366, -0.862916171, -0.00557245872;
+	0.862930483, 0.505322534, 0.00034265251;
+	0.00252020857, -0.00498179241, 0.999984415
+]
+t:  1.43481572 0.243248582  1.40537063
+
+Value l14: (gtsam::Pose3)
+R: [
+	0.999950311, 0.00960773948, -0.00265839962;
+	-0.00959617535, 0.999944585, 0.00432912198;
+	0.00269984538, -0.0043033964, 0.999987096
+]
+t: 5.30060869  4.0641266 1.39730376
+
+Value l15: (gtsam::Pose3)
+R: [
+	-0.475227608, -0.879799743, 0.0105419427;
+	0.879831259, -0.475074802, 0.0141734789;
+	-0.00746161176, 0.0160107592, 0.999843978
+]
+t: 4.48344901  4.5356522 1.26312832
+
+Value l16: (gtsam::Pose3)
+R: [
+	-0.509976502, 0.860008675, -0.0175796948;
+	-0.860084558, -0.510125922, -0.00510842281;
+	-0.0133611459, 0.0125148484, 0.999832415
+]
+t: 4.61594368  3.6800842 1.39230408
+
+Value x0: (gtsam::Pose3)
+R: [
+	0.0840074075, 0.011952455, -0.996393444;
+	0.996458868, -0.00455258505, 0.0839583121;
+	-0.00353265795, -0.999918203, -0.0122925806
+]
+t:  8.05620596  4.79162463 0.600441846
+
+Value x1: (gtsam::Pose3)
+R: [
+	0.0777943711, 0.0183125512, -0.996801227;
+	0.996928552, -0.0104824259, 0.077611732;
+	-0.00902762616, -0.99977736, -0.0190717788
+]
+t:  4.92350399  5.79785371 0.587697579
+
+Value x2: (gtsam::Pose3)
+R: [
+	-0.746985405, 0.0152365172, -0.664665821;
+	0.664671153, -0.00544435607, -0.747116201;
+	-0.0150021262, -0.999869095, -0.00606041891
+]
+t:  4.38543137  6.48103872 0.558822959
+
+Value x3: (gtsam::Pose3)
+R: [
+	-0.364369548, 0.0184118487, -0.931072412;
+	0.931185378, -0.00497268832, -0.364512091;
+	-0.0113412744, -0.999818122, -0.0153329481
+]
+t:  5.42491319  6.06235607 0.595082697
+
+Value x4: (gtsam::Pose3)
+R: [
+	0.524668593, 0.0118528979, -0.851224046;
+	0.851305764, -0.00593370247, 0.524636338;
+	0.00116755073, -0.999912146, -0.0132036676
+]
+t:  7.73775607  3.76877903 0.603577985
+
+Value x5: (gtsam::Pose3)
+R: [
+	0.344103961, 0.0116705913, -0.938859021;
+	0.938931526, -0.00452387635, 0.3440743;
+	-0.000231731587, -0.999921663, -0.0125145699
+]
+t:  7.43740532    3.488918 0.597671803
+
+Value x6: (gtsam::Pose3)
+R: [
+	0.34363882, 0.0120419452, -0.939024682;
+	0.939101861, -0.00415459406, 0.343613786;
+	0.000236512005, -0.999918862, -0.0127362929
+]
+t:  7.43611182  3.92228264 0.596389189
+
+Value x7: (gtsam::Pose3)
+R: [
+	-0.998526745, 0.00326447834, 0.0541634861;
+	-0.0542319054, -0.0269250849, -0.998165287;
+	-0.0018001325, -0.999632124, 0.0270624563
+]
+t:  1.97326972  7.57421065 0.362120358
+
+Value x8: (gtsam::Pose3)
+R: [
+	0.988387501, 0.0118507055, -0.15149161;
+	0.151569859, -0.00600458855, 0.988428309;
+	0.010803928, -0.999911749, -0.00773107004
+]
+t:  3.51861781 0.545799509 0.575517418
+
+Value x9: (gtsam::Pose3)
+R: [
+	0.769407617, 0.0126644176, -0.638632548;
+	0.638728017, -0.00554983308, 0.769412581;
+	0.00619985816, -0.999904401, -0.0123592022
+]
+t:   6.11623876 -0.120987305  0.610870699
+
+Value x10: (gtsam::Pose3)
+R: [
+	0.295177735, 0.0123545766, -0.955362481;
+	0.955439387, -0.00631156147, 0.295119876;
+	-0.0023837479, -0.99990376, -0.0136670815
+]
+t:   7.85739561 -0.329531681  0.637569859
+
+Value x11: (gtsam::Pose3)
+R: [
+	0.9931679, 0.0120534146, 0.116069971;
+	-0.116013145, -0.00531365844, 0.993233465;
+	0.012588611, -0.999913236, -0.00387900045
+]
+t:  2.06539993 0.209114314   0.5582276
+
+Value x12: (gtsam::Pose3)
+R: [
+	0.442188537, 0.0111828646, -0.896852408;
+	0.896921951, -0.00613496646, 0.442146328;
+	-0.000557696932, -0.99991865, -0.0127429686
+]
+t:  9.04355333  0.69566939 0.634118644
+
+Value x13: (gtsam::Pose3)
+R: [
+	0.40636602, 0.011842985, -0.913633626;
+	0.913710376, -0.00535935853, 0.406330686;
+	-8.43219566e-05, -0.999915507, -0.0129989194
+]
+t:  8.06443389  2.92604228 0.610068017
+
+Value x14: (gtsam::Pose3)
+R: [
+	0.38023851, 0.0116380243, -0.924815242;
+	0.924887541, -0.00619928377, 0.380190223;
+	-0.00130852907, -0.999913059, -0.0131210701
+]
+t:  7.60466065  4.34430858 0.600068718
 
