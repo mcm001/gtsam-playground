@@ -141,12 +141,12 @@ int main() {
       initial.insert(L(tag.ID), Pose3dToGtsamPose3(tag.pose));
   }
 
-  graph.print("===============================\nFinal pose graph\n");
+  // graph.print("===============================\nFinal pose graph\n");
 
   /* Optimize the graph and print results */
   cout << "==========================\ninitial error = " << graph.error(initial)
        << endl;
-  initial.print("==========================\nInitial state:\n");
+  // initial.print("==========================\nInitial state:\n");
   auto start = std::chrono::steady_clock::now();
   Values result = DoglegOptimizer(graph, initial).optimize();
   auto end = std::chrono::steady_clock::now();
@@ -158,12 +158,27 @@ int main() {
   for (auto [key, value] : result) {
     // Covariance is the variance of x_i with x_i - stddev is sqrt(var)
     std::cout << "Marginals for key " << gtsam::Symbol(key) << "\n"
-              << marginals.marginalCovariance(key).diagonal().cwiseSqrt() << std::endl;
+              << marginals.marginalCovariance(key).diagonal().cwiseSqrt()
+              << std::endl;
   }
 
   cout << "======================\nSolved in " << microseconds
        << " uS! final error = " << graph.error(result) << endl;
   result.print("======================\nFinal state:\n");
+
+  cout << "============= result =============" << endl;
+  for (const frc::AprilTag &tag : tagLayoutGuess.GetTags()) {
+    if (tagWasUsed(points, tag.ID)) {
+      Key key = L(tag.ID);
+      // Order(per translationInterval/rotationInterval) is 0-2 rotation, 3-5 translation
+      auto std = marginals.marginalCovariance(key).diagonal();//.cwiseSqrt();
+      auto est = GtsamToFrcPose3d(result.at<gtsam::Pose3>(key));
+
+      cout << "Tag " << gtsam::Symbol(key) << ": pose\n"
+           << result.at<gtsam::Pose3>(key) << "\n\nstd\n"
+           << std << endl;
+    }
+  }
 
   return 0;
 }
