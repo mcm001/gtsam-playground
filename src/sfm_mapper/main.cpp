@@ -62,6 +62,7 @@ using namespace gtsam;
 using namespace noiseModel;
 using symbol_shorthand::L;
 using symbol_shorthand::X;
+using namespace std::chrono_literals;
 
 static frc::AprilTagFieldLayout tagLayoutGuess =
     frc::LoadAprilTagLayoutField(frc::AprilTagField::k2024Crescendo);
@@ -86,21 +87,44 @@ int main() {
   // constant Expression for the calibration we can reuse
   Cal3_S2_ cameraCal(K);
 
+  // Create a factor graph to save -all- factors. Never cleared. Fast enough i dont need isam here
+  ExpressionFactorGraph graph;
+
+  // Add pose prior on our fixed tag. Right now, foce it to be a tag in our
+  // dataset
+  int FIXED_TAG = 7;
+  auto worldTtag1 = TagModel::worldToTag(FIXED_TAG);
+  if (!worldTtag1) {
+    fmt::println("Couldnt find tag {} in map!", FIXED_TAG);
+  }
+  graph.addPrior(L(FIXED_TAG), *worldTtag1, posePriorNoise);
+
+  // Cache our initial guess
+  Values initial;
+
   while (true) {
+    // rate limit loop
+    std::this_thread::sleep_for(2000ms);
 
     // Map of [observation state ID] to [tags seen]
     // map<Key, vector<TagDetection>> points = ParseFile();
     auto points = ntIface.NewKeyframes();
 
-    if (!points.size()) {
-      cout << "no new keyframes - waiting";
-
-      using namespace std::chrono_literals;
-      std::this_thread::sleep_for(1000ms);
+    cout << "Got " << points.size() << " things:" << endl;
+    for (const auto [key, tagDets] : points) {
+      cout << gtsam::Symbol(key) << "(tags ";
+      for (const auto tag : tagDets) {
+        cout<< tag.id << " ";
+      }
+      cout << ")" << endl;
     }
 
-    // Create a factor graph
-    ExpressionFactorGraph graph;
+    if (!points.size()) {
+      cout << "no new keyframes - waiting\n";
+
+      std::this_thread::sleep_for(1000ms);
+      continue;
+    }
 
     // Add all our tag observations
     for (const auto &[stateKey, tags] : points) {
@@ -122,15 +146,6 @@ int main() {
         }
       }
     }
-
-    // Add pose prior on our fixed tag. Right now, foce it to be a tag in our
-    // dataset
-    int FIXED_TAG = 7;
-    auto worldTtag1 = TagModel::worldToTag(FIXED_TAG);
-    if (!worldTtag1) {
-      fmt::println("Couldnt find tag {} in map!", FIXED_TAG);
-    }
-    graph.addPrior(L(FIXED_TAG), *worldTtag1, posePriorNoise);
 
     // Initial guess for our optimizer. Needs to be in the right ballpark, but
     // accuracy doesn't super matter
@@ -217,7 +232,7 @@ int main() {
         }
       }
 
-      frc::AprilTagFieldLayout layout {tags, 16.541,8.211};
+      frc::AprilTagFieldLayout layout {tags, 16.541_m,8.211_m};
       ntIface.PublishLayout(layout);
     }
 

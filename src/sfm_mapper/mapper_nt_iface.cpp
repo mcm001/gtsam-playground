@@ -28,16 +28,14 @@
 
 using namespace frc;
 
-const std::string rootTable = "/gtsam_mapper";
-
 MapperNtIface::MapperNtIface()
     : tagMapPublisher(
           nt::NetworkTableInstance::GetDefault()
-              .GetStructArrayTopic<Pose3d>(rootTable + "/output/tags")
+              .GetStructArrayTopic<Pose3d>("/out/tag_ests")
               .Publish()),
       keyframeListener(
           nt::NetworkTableInstance::GetDefault()
-              .GetStructArrayTopic<TagDetection>(rootTable + "/input/keyframe")
+              .GetStructArrayTopic<TagDetection>("/cam/tags")
               .Subscribe({}, nt::PubSubOptions{
                                  .pollStorage = 100,
                                  .sendAll = true,
@@ -56,6 +54,9 @@ std::map<gtsam::Key, std::vector<TagDetection>> MapperNtIface::NewKeyframes() {
   for (const auto snapshot : keyframeListener.ReadQueue()) {
     ret[keyframe] = snapshot.value;
     keyframe++;
+
+    // HACK - only add one snapshot per loop. need to rate limit this robot code side
+    break;
   }
 
   return ret;
