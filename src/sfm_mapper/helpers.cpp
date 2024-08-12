@@ -45,7 +45,10 @@
 #include "TagModel.h"
 #include "gtsam_utils.h"
 
-using namespace std;
+using std::cout;
+using std::endl;
+using std::map;
+using std::vector;
 using namespace gtsam;
 using symbol_shorthand::L;
 using symbol_shorthand::X;

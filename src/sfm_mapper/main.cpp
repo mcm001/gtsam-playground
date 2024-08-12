@@ -52,7 +52,10 @@
 #include "gtsam_utils.h"
 #include "helpers.h"
 
-using namespace std;
+using std::cout;
+using std::endl;
+using std::map;
+using std::vector;
 using namespace gtsam;
 using namespace noiseModel;
 using symbol_shorthand::L;
@@ -78,8 +81,6 @@ int main() {
 
   // constant Expression for the calibration we can reuse
   Cal3_S2_ cameraCal(K);
-
-  // ======================
 
   // Map of [observation state ID] to [tags seen]
   map<Key, vector<TagDetection>> points = ParseFile();
@@ -144,41 +145,49 @@ int main() {
     }
   }
 
-  // graph.print("===============================\nFinal pose graph\n");
-
   /* Optimize the graph and print results */
   cout << "==========================\ninitial error = " << graph.error(initial)
        << endl;
-  // initial.print("==========================\nInitial state:\n");
   auto start = std::chrono::steady_clock::now();
-  Values result = DoglegOptimizer(graph, initial).optimize();
+
+  DoglegParams params;
+  params.verbosity = NonlinearOptimizerParams::ERROR;
+  // params.relativeErrorTol = 1e-3;
+  // params.absoluteErrorTol = 1e-3;
+
+  // Create initial optimizer
+  DoglegOptimizer optimizer{graph, initial, params};
+
+  // Run full optimization until convergence.
+  Values result = optimizer.optimize();
+
   auto end = std::chrono::steady_clock::now();
   auto dt = end - start;
   long long microseconds =
       std::chrono::duration_cast<std::chrono::microseconds>(dt).count();
 
-  cout << "======================\nSolved in " << microseconds
-       << " uS! final error = " << graph.error(result) << endl;
+  // The new optimizer has results and statistics
+  cout << "\n===== Converged in " << optimizer.iterations() << " iterations ("
+       << microseconds << " uS) with final error " << optimizer.error()
+       << " ======" << endl;
 
-  // result.print("======================\nFinal state:\n");
-
-  cout << "============= result =============" << endl;
+  cout << "Results:" << endl;
 
   {
     gtsam::Marginals marginals(graph, result);
-    cout << " =============== Solution marginals ============" << endl;
     for (auto [key, value] : result) {
       std::cout << "\n========= Key " << gtsam::Symbol(key) << " ==========\n";
 
       // Assume all our keys are pose3 factors. lol.
       auto est = GtsamToFrcPose3d(result.at<gtsam::Pose3>(key));
-      fmt::println(
-          "Est \n-x {:.2f} \n-y {:.2f} \n-z {:.2f} \n -rw {:.3f} \n -rx "
-          "{:.3f} \n -ry {:.3f} \n -rz {:.3f}",
-          est.X(), est.Y(), est.Z(), est.Rotation().GetQuaternion().W(),
-          est.Rotation().GetQuaternion().X(),
-          est.Rotation().GetQuaternion().Y(),
-          est.Rotation().GetQuaternion().Z());
+      fmt::println("Estimated pose:");
+      fmt::println("Translation: x={:.2f} y={:.2f} z={:.2f}", est.X(), est.Y(),
+                   est.Z());
+      fmt::println("Rotation: W={:.3f} X={:.3f} Y={:.3f} Z={:.3f}",
+                   est.Rotation().GetQuaternion().W(),
+                   est.Rotation().GetQuaternion().X(),
+                   est.Rotation().GetQuaternion().Y(),
+                   est.Rotation().GetQuaternion().Z());
 
       // Covariance is the variance of x_i with x_i - stddev is sqrt(var)
       std::cout << "Marginal covariance (r t):" << endl
