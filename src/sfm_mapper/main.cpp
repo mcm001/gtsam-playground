@@ -68,9 +68,9 @@ int main() {
       Isotropic::Sigma(2, 1.0); // one pixel in u and v
 
   // Noise on our pose prior. order is rx, ry, rz, tx, ty, tz, and units are
-  // [rad] and [m]
+  // [rad] and [m]. Guess ~1 degree and 5 mm for fun.
   Vector6 sigmas;
-  sigmas << Vector3::Constant(0.1), Vector3::Constant(0.3);
+  sigmas << Vector3::Constant(0.015), Vector3::Constant(0.005);
   auto posePriorNoise = noiseModel::Diagonal::Sigmas(sigmas);
 
   // Our platform and camera are coincident
@@ -137,8 +137,11 @@ int main() {
 
   // Guess for tag locations
   for (const frc::AprilTag &tag : tagLayoutGuess.GetTags()) {
-    if (tagWasUsed(points, tag.ID))
-      initial.insert(L(tag.ID), Pose3dToGtsamPose3(tag.pose));
+    if (tagWasUsed(points, tag.ID)) {
+      // quick offset hack to disturb the pose by
+      Pose3 offset{Rot3::RzRyRx(0.12, -0.15, 0.02), Point3{0.5, -0.5, 1.1}};
+      initial.insert(L(tag.ID), Pose3dToGtsamPose3(tag.pose) * offset);
+    }
   }
 
   // graph.print("===============================\nFinal pose graph\n");
@@ -154,29 +157,33 @@ int main() {
   long long microseconds =
       std::chrono::duration_cast<std::chrono::microseconds>(dt).count();
 
-  gtsam::Marginals marginals(graph, result);
-  for (auto [key, value] : result) {
-    // Covariance is the variance of x_i with x_i - stddev is sqrt(var)
-    std::cout << "Marginals for key " << gtsam::Symbol(key) << "\n"
-              << marginals.marginalCovariance(key).diagonal().cwiseSqrt()
-              << std::endl;
-  }
-
   cout << "======================\nSolved in " << microseconds
        << " uS! final error = " << graph.error(result) << endl;
-  result.print("======================\nFinal state:\n");
+
+  // result.print("======================\nFinal state:\n");
 
   cout << "============= result =============" << endl;
-  for (const frc::AprilTag &tag : tagLayoutGuess.GetTags()) {
-    if (tagWasUsed(points, tag.ID)) {
-      Key key = L(tag.ID);
-      // Order(per translationInterval/rotationInterval) is 0-2 rotation, 3-5 translation
-      auto std = marginals.marginalCovariance(key).diagonal();//.cwiseSqrt();
-      auto est = GtsamToFrcPose3d(result.at<gtsam::Pose3>(key));
 
-      cout << "Tag " << gtsam::Symbol(key) << ": pose\n"
-           << result.at<gtsam::Pose3>(key) << "\n\nstd\n"
-           << std << endl;
+  {
+    gtsam::Marginals marginals(graph, result);
+    cout << " =============== Solution marginals ============" << endl;
+    for (auto [key, value] : result) {
+      std::cout << "\n========= Key " << gtsam::Symbol(key) << " ==========\n";
+
+      // Assume all our keys are pose3 factors. lol.
+      auto est = GtsamToFrcPose3d(result.at<gtsam::Pose3>(key));
+      fmt::println(
+          "Est \n-x {:.2f} \n-y {:.2f} \n-z {:.2f} \n -rw {:.3f} \n -rx "
+          "{:.3f} \n -ry {:.3f} \n -rz {:.3f}",
+          est.X(), est.Y(), est.Z(), est.Rotation().GetQuaternion().W(),
+          est.Rotation().GetQuaternion().X(),
+          est.Rotation().GetQuaternion().Y(),
+          est.Rotation().GetQuaternion().Z());
+
+      // Covariance is the variance of x_i with x_i - stddev is sqrt(var)
+      std::cout << "Marginal covariance (r t):" << endl
+                << marginals.marginalCovariance(key).diagonal().cwiseSqrt()
+                << std::endl;
     }
   }
 

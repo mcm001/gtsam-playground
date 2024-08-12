@@ -213,24 +213,23 @@ EstimateWorldTCam_SingleTag(std::vector<TagDetection> result,
   cv::solvePnP(objectPoints, imagePoints, cameraMatCV, distCoeffsMatCV, rvec,
                tvec);
 
-  std::cout << "rvec: " << rvec << std::endl;
-  std::cout << "tvec: " << tvec << std::endl;
-
   std::vector<cv::Point2f> projectedPoints;
   cv::projectPoints(objectPoints, rvec, tvec, cameraMatCV, distCoeffsMatCV,
                     projectedPoints);
 
-  for (unsigned int i = 0; i < projectedPoints.size(); ++i) {
-    std::cout << "Image point: " << imagePoints[i] << " Projected to "
-              << projectedPoints[i] << std::endl;
-  }
+  // std::cout << "rvec: " << rvec << std::endl;
+  // std::cout << "tvec: " << tvec << std::endl;
+  // for (unsigned int i = 0; i < projectedPoints.size(); ++i) {
+  //   std::cout << "Image point: " << imagePoints[i] << " Projected to "
+  //             << projectedPoints[i] << std::endl;
+  // }
 
   if (const auto w2tag = TagModel::worldToTag(tagToUse.id)) {
     auto camToTag = Pose3dToGtsamPose3(detail::ToPose3d(tvec, rvec));
-    std::cout << " > world2tag\n" << *w2tag << std::endl;
-    std::cout << " > cam2tag\n" << camToTag << std::endl;
     auto tag2cam = camToTag.inverse();
-    std::cout << " > tag2cam\n" << tag2cam << std::endl;
+    // std::cout << " > world2tag\n" << *w2tag << std::endl;
+    // std::cout << " > cam2tag\n" << camToTag << std::endl;
+    // std::cout << " > tag2cam\n" << tag2cam << std::endl;
 
     return (*w2tag).transformPoseFrom(tag2cam);
   } else {

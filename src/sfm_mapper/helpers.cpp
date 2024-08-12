@@ -89,7 +89,7 @@ estimateObservationPose(std::vector<TagDetection> tags,
 
   if (const auto worldTcam =
           photon::EstimateWorldTCam_SingleTag(tags, layout, calCore, calDist)) {
-    worldTcam->print(" >>> World2cam_singletag:\n");
+    // worldTcam->print(" >>> World2cam_singletag:\n");
     return worldTcam;
   } else {
     return std::nullopt;
