@@ -89,7 +89,8 @@
         "*.traits": "cpp",
         "alignedvector3": "cpp",
         "fft": "cpp",
-        "*.evaluator": "cpp"
+        "*.evaluator": "cpp",
+        "version": "cpp"
     },
     "python.autoComplete.extraPaths": [
         "/opt/ros/noetic/lib/python3/dist-packages"
