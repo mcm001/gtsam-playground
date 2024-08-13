@@ -26,13 +26,12 @@
 
 #include <string>
 
+#include <frc/smartdashboard/SmartDashboard.h>
+
 using namespace frc;
 
 MapperNtIface::MapperNtIface()
-    : tagMapPublisher(nt::NetworkTableInstance::GetDefault()
-                          .GetStructArrayTopic<Pose3d>("/out/tag_ests")
-                          .Publish()),
-      keyframeListener(nt::NetworkTableInstance::GetDefault()
+    : keyframeListener(nt::NetworkTableInstance::GetDefault()
                            .GetStructArrayTopic<TagDetection>("/cam/tags")
                            .Subscribe({}, nt::PubSubOptions{
                                               .pollStorage = 100,
@@ -42,8 +41,10 @@ MapperNtIface::MapperNtIface()
   nt::NetworkTableInstance inst = nt::NetworkTableInstance::GetDefault();
 
   inst.StopServer();
-  inst.SetServer("localhost");
+  inst.SetServer("10.0.0.183");
   inst.StartClient4("gtsam-mapper-meme");
+
+  frc::SmartDashboard::PutData("GtsamMeme", &field);
 }
 
 std::map<gtsam::Key, std::vector<TagDetection>> MapperNtIface::NewKeyframes() {
@@ -63,11 +64,11 @@ std::map<gtsam::Key, std::vector<TagDetection>> MapperNtIface::NewKeyframes() {
 
 void MapperNtIface::PublishLayout(AprilTagFieldLayout layout) {
   // todo - this destroys the relationship between ID and pose
-  std::vector<Pose3d> out;
+  std::vector<Pose2d> out;
 
   for (const auto tag : layout.GetTags()) {
-    out.push_back(tag.pose);
+    out.push_back(tag.pose.ToPose2d());
   }
 
-  tagMapPublisher.Set(out);
+  field.GetObject("EstimatedField")->SetPoses(out);
 }

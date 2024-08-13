@@ -88,7 +88,7 @@ add_executable(tag-mapper
   src/sfm_mapper/mapper_nt_iface.cpp
 )
 target_compile_options(tag-mapper PRIVATE -Wno-deprecated-enum-enum-conversion)
-target_link_libraries(tag-mapper gtsam-localizer ${OPENCV_LIB_PATH})
+target_link_libraries(tag-mapper gtsam-localizer wpilibc ${OPENCV_LIB_PATH})
 target_include_directories(tag-mapper PRIVATE src ${OPENCV_INCLUDE_PATH})
 
 install(TARGETS tag-mapper)

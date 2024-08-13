@@ -31,6 +31,7 @@
 
 #include <frc/apriltag/AprilTagFieldLayout.h>
 #include <frc/geometry/Pose3d.h>
+#include <frc/smartdashboard/Field2d.h>
 #include <networktables/StructArrayTopic.h>
 #include <networktables/StructTopic.h>
 
@@ -46,8 +47,9 @@ public:
   void PublishLayout(frc::AprilTagFieldLayout layout);
 
 private:
-  nt::StructArrayPublisher<frc::Pose3d> tagMapPublisher;
   nt::StructArraySubscriber<TagDetection> keyframeListener;
+
+  frc::Field2d field{};
 
   gtsam::Key keyframe = gtsam::symbol_shorthand::X(0);
 };

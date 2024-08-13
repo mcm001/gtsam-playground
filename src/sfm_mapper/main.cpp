@@ -74,28 +74,18 @@ private:
   MapperNtIface ntIface;
 
   // Camera calibration parameters. Order is [fx fy skew cx cy] in pixels
-  Cal3_S2 K(cam_fx, cam_fy, 0.0, cam_cx, cam_cy);
+  Cal3_S2 K{cam_fx, cam_fy, 0.0, cam_cx, cam_cy};
   // constant Expression for the calibration we can reuse
-  Cal3_S2_ cameraCal(K);
+  Cal3_S2_ cameraCal{K};
 
-  Isotropic::shared_ptr cameraNoise =
-      Isotropic::Sigma(2, 1.0); // one pixel in u and v
+  Isotropic::shared_ptr cameraNoise{
+      Isotropic::Sigma(2, 1.0)}; // one pixel in u and v
 
   noiseModel::Diagonal::shared_ptr posePriorNoise;
 
   // Our platform and camera are coincident
   gtsam::Pose3 robotTcamera{};
 
-  TagMapper() {
-    // Noise on our pose prior. order is rx, ry, rz, tx, ty, tz, and units are
-    // [rad] and [m].
-    // Guess ~1 degree and 5 mm for fun.
-    Vector6 sigmas;
-    sigmas << Vector3::Constant(0.015), Vector3::Constant(0.005);
-    posePriorNoise = noiseModel::Diagonal::Sigmas(sigmas);
-  }
-
-public:
   void AddPosePrior(ExpressionFactorGraph &graph,
                     const KeyframeMap &keyframes) {
     const int FIXED_TAG = 7;
@@ -106,7 +96,19 @@ public:
     graph.addPrior(L(FIXED_TAG), *worldTtag1, posePriorNoise);
   }
 
-  gtsam::Values OptimizeLayout(const KeyframeMap &keyframes) {
+public:
+  TagMapper() {
+    // Noise on our pose prior. order is rx, ry, rz, tx, ty, tz, and units are
+    // [rad] and [m].
+    // Guess ~1 degree and 5 mm for fun.
+    Vector6 sigmas;
+    sigmas << Vector3::Constant(0.015), Vector3::Constant(0.005);
+    posePriorNoise = noiseModel::Diagonal::Sigmas(sigmas);
+  }
+
+  inline MapperNtIface &NtIface() { return ntIface; }
+
+  void OptimizeLayout(const KeyframeMap &keyframes) {
     // Create a factor graph to save -all- factors. Never cleared. Fast enough i
     // dont need isam here
     ExpressionFactorGraph graph;
@@ -115,7 +117,7 @@ public:
     AddPosePrior(graph, keyframes);
 
     // Add all our tag observation factors
-    for (const auto &[stateKey, tags] : points) {
+    for (const auto &[stateKey, tags] : keyframes) {
       for (const TagDetection &tag : tags) {
         auto worldPcorners = TagModel::WorldToCornersFactor(L(tag.id));
 
@@ -140,7 +142,7 @@ public:
     Values initial;
 
     // Guess for all camera poses
-    for (const auto &[stateKey, tags] : points) {
+    for (const auto &[stateKey, tags] : keyframes) {
       auto worldTcam_guess = estimateWorldTcam(tags, tagLayoutGuess);
       if (!worldTcam_guess) {
         std::cerr << "Can't guess pose of camera for observation " << stateKey
@@ -174,7 +176,13 @@ public:
     DoglegOptimizer optimizer{graph, initial, params};
 
     // Run full optimization until convergence.
-    Values result = optimizer.optimize();
+    Values result;
+    try {
+      result = optimizer.optimize();
+    } catch (std::exception *e) {
+      std::cerr << e->what();
+      return;
+    }
 
     auto end = std::chrono::steady_clock::now();
     auto dt = end - start;
@@ -233,11 +241,10 @@ int main() {
     std::this_thread::sleep_for(1000ms);
 
     // Map of [observation state ID] to [tags seen]
-    // map<Key, vector<TagDetection>> points = ParseFile();
-    KeyframeMap newObservations = ntIface.NewKeyframes();
+    KeyframeMap newObservations = mapper.NtIface().NewKeyframes();
 
-    cout << "Got " << points.size() << " things:" << endl;
-    for (const auto [key, tagDets] : points) {
+    cout << "Got " << newObservations.size() << " things:" << endl;
+    for (const auto [key, tagDets] : newObservations) {
       cout << gtsam::Symbol(key) << "(tags ";
       for (const auto tag : tagDets) {
         cout << tag.id << " ";
@@ -245,15 +252,13 @@ int main() {
       cout << ")" << endl;
     }
 
-    if (!points.size()) {
+    if (!newObservations.size()) {
       cout << "no new keyframes - waiting\n";
       continue;
     }
 
-    // Merge attempts to extract ("splice") each element in newObservations and
-    // insert it into keyframes. If there is an element in keyframes with key
-    // equivalent to the key of an element from newObservations, then that
-    // element is not extracted from newObservations.
+    // Add keys not yet in keyframes from newObservations. We should never have
+    // snapshot index colissions anyways.
     keyframes.merge(newObservations);
 
     mapper.OptimizeLayout(keyframes);
