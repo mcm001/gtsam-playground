@@ -46,6 +46,13 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(opencv_header)
 
+
+# This probably doesn't work great with shared libraries, but I don't care about those right now
+file(GLOB_RECURSE OPENCV_LIB_PATH 
+  "${opencv_lib_SOURCE_DIR}/**/*"
+)
+SET(OPENCV_INCLUDE_PATH ${opencv_header_SOURCE_DIR})
+
 # Generate gtsam-localizer resources
 generate_resources(src/resources/ generated/main/cpp GTSAMLOCALIZER meme localizer_resources_src)
 
@@ -81,8 +88,8 @@ add_executable(tag-mapper
   src/sfm_mapper/mapper_nt_iface.cpp
 )
 target_compile_options(tag-mapper PRIVATE -Wno-deprecated-enum-enum-conversion)
-target_link_libraries(tag-mapper gtsam-localizer /home/mmorley/gtsam-playground/build/_deps/opencv_lib-src/linux/x86-64/static/libopencv460.a)
-target_include_directories(tag-mapper PRIVATE src /home/mmorley/gtsam-playground/build/_deps/opencv_header-src)
+target_link_libraries(tag-mapper gtsam-localizer ${OPENCV_LIB_PATH})
+target_include_directories(tag-mapper PRIVATE src ${OPENCV_INCLUDE_PATH})
 
 install(TARGETS tag-mapper)
 install(TARGETS gtsam-node)

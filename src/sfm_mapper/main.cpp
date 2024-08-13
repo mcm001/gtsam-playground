@@ -67,66 +67,54 @@ using namespace std::chrono_literals;
 static frc::AprilTagFieldLayout tagLayoutGuess =
     frc::LoadAprilTagLayoutField(frc::AprilTagField::k2024Crescendo);
 
-int main() {
+using KeyframeMap = std::map<gtsam::Key, std::vector<TagDetection>>;
+
+class TagMapper {
+private:
   MapperNtIface ntIface;
 
   // Camera calibration parameters. Order is [fx fy skew cx cy] in pixels
   Cal3_S2 K(cam_fx, cam_fy, 0.0, cam_cx, cam_cy);
+  // constant Expression for the calibration we can reuse
+  Cal3_S2_ cameraCal(K);
+
   Isotropic::shared_ptr cameraNoise =
       Isotropic::Sigma(2, 1.0); // one pixel in u and v
 
-  // Noise on our pose prior. order is rx, ry, rz, tx, ty, tz, and units are
-  // [rad] and [m]. Guess ~1 degree and 5 mm for fun.
-  Vector6 sigmas;
-  sigmas << Vector3::Constant(0.015), Vector3::Constant(0.005);
-  auto posePriorNoise = noiseModel::Diagonal::Sigmas(sigmas);
+  noiseModel::Diagonal::shared_ptr posePriorNoise;
 
   // Our platform and camera are coincident
   gtsam::Pose3 robotTcamera{};
 
-  // constant Expression for the calibration we can reuse
-  Cal3_S2_ cameraCal(K);
-
-  // Create a factor graph to save -all- factors. Never cleared. Fast enough i dont need isam here
-  ExpressionFactorGraph graph;
-
-  // Add pose prior on our fixed tag. Right now, foce it to be a tag in our
-  // dataset
-  int FIXED_TAG = 7;
-  auto worldTtag1 = TagModel::worldToTag(FIXED_TAG);
-  if (!worldTtag1) {
-    fmt::println("Couldnt find tag {} in map!", FIXED_TAG);
+  TagMapper() {
+    // Noise on our pose prior. order is rx, ry, rz, tx, ty, tz, and units are
+    // [rad] and [m].
+    // Guess ~1 degree and 5 mm for fun.
+    Vector6 sigmas;
+    sigmas << Vector3::Constant(0.015), Vector3::Constant(0.005);
+    posePriorNoise = noiseModel::Diagonal::Sigmas(sigmas);
   }
-  graph.addPrior(L(FIXED_TAG), *worldTtag1, posePriorNoise);
 
-  // Cache our initial guess
-  Values initial;
-
-  while (true) {
-    // rate limit loop
-    std::this_thread::sleep_for(2000ms);
-
-    // Map of [observation state ID] to [tags seen]
-    // map<Key, vector<TagDetection>> points = ParseFile();
-    auto points = ntIface.NewKeyframes();
-
-    cout << "Got " << points.size() << " things:" << endl;
-    for (const auto [key, tagDets] : points) {
-      cout << gtsam::Symbol(key) << "(tags ";
-      for (const auto tag : tagDets) {
-        cout<< tag.id << " ";
-      }
-      cout << ")" << endl;
+public:
+  void AddPosePrior(ExpressionFactorGraph &graph,
+                    const KeyframeMap &keyframes) {
+    const int FIXED_TAG = 7;
+    auto worldTtag1 = TagModel::worldToTag(FIXED_TAG);
+    if (!worldTtag1) {
+      fmt::println("Couldnt find fixed tag {} in map!", FIXED_TAG);
     }
+    graph.addPrior(L(FIXED_TAG), *worldTtag1, posePriorNoise);
+  }
 
-    if (!points.size()) {
-      cout << "no new keyframes - waiting\n";
+  gtsam::Values OptimizeLayout(const KeyframeMap &keyframes) {
+    // Create a factor graph to save -all- factors. Never cleared. Fast enough i
+    // dont need isam here
+    ExpressionFactorGraph graph;
 
-      std::this_thread::sleep_for(1000ms);
-      continue;
-    }
+    // constrain root tag
+    AddPosePrior(graph, keyframes);
 
-    // Add all our tag observations
+    // Add all our tag observation factors
     for (const auto &[stateKey, tags] : points) {
       for (const TagDetection &tag : tags) {
         auto worldPcorners = TagModel::WorldToCornersFactor(L(tag.id));
@@ -153,13 +141,10 @@ int main() {
 
     // Guess for all camera poses
     for (const auto &[stateKey, tags] : points) {
-      // Initial guess at camera pose based on regular old multi tag pose
-      // esitmation
-      auto worldTcam_guess = estimateObservationPose(tags, tagLayoutGuess);
+      auto worldTcam_guess = estimateWorldTcam(tags, tagLayoutGuess);
       if (!worldTcam_guess) {
         std::cerr << "Can't guess pose of camera for observation " << stateKey
                   << std::endl;
-        ;
       } else {
         initial.insert<Pose3>(stateKey, *worldTcam_guess);
       }
@@ -167,8 +152,9 @@ int main() {
 
     // Guess for tag locations
     for (const frc::AprilTag &tag : tagLayoutGuess.GetTags()) {
-      if (tagWasUsed(points, tag.ID)) {
-        // quick offset hack to disturb the pose by
+      if (tagWasUsed(keyframes, tag.ID)) {
+        // quick offset hack to disturb the pose by to prove that we converge to
+        // the ground truth
         Pose3 offset{Rot3::RzRyRx(0.12, -0.15, 0.02), Point3{0.5, -0.5, 1.1}};
         initial.insert(L(tag.ID), Pose3dToGtsamPose3(tag.pose) * offset);
       }
@@ -195,7 +181,6 @@ int main() {
     long long microseconds =
         std::chrono::duration_cast<std::chrono::microseconds>(dt).count();
 
-    // The new optimizer has results and statistics
     cout << "\n===== Converged in " << optimizer.iterations() << " iterations ("
          << microseconds << " uS) with final error " << optimizer.error()
          << " ======" << endl;
@@ -232,10 +217,46 @@ int main() {
         }
       }
 
-      frc::AprilTagFieldLayout layout {tags, 16.541_m,8.211_m};
+      frc::AprilTagFieldLayout layout{tags, 16.541_m, 8.211_m};
       ntIface.PublishLayout(layout);
     }
+  }
+};
 
+int main() {
+
+  TagMapper mapper{};
+  KeyframeMap keyframes{};
+
+  while (true) {
+    // rate limit loop
+    std::this_thread::sleep_for(1000ms);
+
+    // Map of [observation state ID] to [tags seen]
+    // map<Key, vector<TagDetection>> points = ParseFile();
+    KeyframeMap newObservations = ntIface.NewKeyframes();
+
+    cout << "Got " << points.size() << " things:" << endl;
+    for (const auto [key, tagDets] : points) {
+      cout << gtsam::Symbol(key) << "(tags ";
+      for (const auto tag : tagDets) {
+        cout << tag.id << " ";
+      }
+      cout << ")" << endl;
+    }
+
+    if (!points.size()) {
+      cout << "no new keyframes - waiting\n";
+      continue;
+    }
+
+    // Merge attempts to extract ("splice") each element in newObservations and
+    // insert it into keyframes. If there is an element in keyframes with key
+    // equivalent to the key of an element from newObservations, then that
+    // element is not extracted from newObservations.
+    keyframes.merge(newObservations);
+
+    mapper.OptimizeLayout(keyframes);
   }
 
   return 0;

@@ -29,18 +29,16 @@
 using namespace frc;
 
 MapperNtIface::MapperNtIface()
-    : tagMapPublisher(
-          nt::NetworkTableInstance::GetDefault()
-              .GetStructArrayTopic<Pose3d>("/out/tag_ests")
-              .Publish()),
-      keyframeListener(
-          nt::NetworkTableInstance::GetDefault()
-              .GetStructArrayTopic<TagDetection>("/cam/tags")
-              .Subscribe({}, nt::PubSubOptions{
-                                 .pollStorage = 100,
-                                 .sendAll = true,
-                                 .keepDuplicates = true,
-                             })) {
+    : tagMapPublisher(nt::NetworkTableInstance::GetDefault()
+                          .GetStructArrayTopic<Pose3d>("/out/tag_ests")
+                          .Publish()),
+      keyframeListener(nt::NetworkTableInstance::GetDefault()
+                           .GetStructArrayTopic<TagDetection>("/cam/tags")
+                           .Subscribe({}, nt::PubSubOptions{
+                                              .pollStorage = 100,
+                                              .sendAll = true,
+                                              .keepDuplicates = true,
+                                          })) {
   nt::NetworkTableInstance inst = nt::NetworkTableInstance::GetDefault();
 
   inst.StopServer();
@@ -55,7 +53,8 @@ std::map<gtsam::Key, std::vector<TagDetection>> MapperNtIface::NewKeyframes() {
     ret[keyframe] = snapshot.value;
     keyframe++;
 
-    // HACK - only add one snapshot per loop. need to rate limit this robot code side
+    // HACK - only add one snapshot per loop. need to rate limit this robot code
+    // side
     break;
   }
 

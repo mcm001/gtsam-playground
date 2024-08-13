@@ -83,9 +83,8 @@ map<Key, vector<TagDetection>> ParseFile() {
 /**
  * Estimate where our camera was at using the seed map
  */
-std::optional<gtsam::Pose3>
-estimateObservationPose(std::vector<TagDetection> tags,
-                        frc::AprilTagFieldLayout layout) {
+std::optional<gtsam::Pose3> estimateWorldTcam(std::vector<TagDetection> tags,
+                                              frc::AprilTagFieldLayout layout) {
   static CameraMatrix calCore;
   calCore << cam_fx, 0, cam_cx, 0, cam_fy, cam_cy, 0, 0, 1;
   static DistortionMatrix calDist = DistortionMatrix::Zero();

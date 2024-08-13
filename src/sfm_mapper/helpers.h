@@ -43,7 +43,6 @@ const double cam_cy = 3.5950E+02;
 void from_json(const wpi::json &json, TargetCorner &corner);
 void from_json(const wpi::json &json, TagDetection &tag);
 std::map<gtsam::Key, std::vector<TagDetection>> ParseFile();
-std::optional<gtsam::Pose3>
-estimateObservationPose(std::vector<TagDetection> tags,
-                        frc::AprilTagFieldLayout layout);
+std::optional<gtsam::Pose3> estimateWorldTcam(std::vector<TagDetection> tags,
+                                              frc::AprilTagFieldLayout layout);
 bool tagWasUsed(std::map<gtsam::Key, std::vector<TagDetection>> tags, int id);
