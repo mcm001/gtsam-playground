@@ -50,9 +50,27 @@ std::optional<gtsam::Pose3> estimateWorldTcam(std::vector<TagDetection> tags,
                                               frc::AprilTagFieldLayout layout);
 bool tagWasUsed(std::map<gtsam::Key, std::vector<TagDetection>> tags, int id);
 
+namespace helpers {
+
+std::optional<frc::AprilTag> GetTagPose(frc::AprilTagFieldLayout layoutGuess,
+                                        int id) {
+  for (const auto &tag : layoutGuess.GetTags()) {
+    if (tag.ID == id) {
+      return tag;
+    }
+  }
+
+  return std::nullopt;
+}
+
+inline gtsam::Key CameraIdxToKey(int camIdx) {
+  return gtsam::symbol_shorthand::C(camIdx);
+}
+inline gtsam::Key StateNumToKey(int i) { return gtsam::symbol_shorthand::X(i); }
 inline gtsam::Key TagIdToKey(int tagId) {
   return gtsam::symbol_shorthand::L(tagId);
 }
 inline int KeyToTagId(gtsam::Key tagId) {
   return static_cast<int>(tagId - TagIdToKey(0));
 }
+} // namespace helpers
