@@ -29,15 +29,26 @@
 #include <frc/smartdashboard/SmartDashboard.h>
 
 using namespace frc;
+using namespace gtsam;
 
 MapperNtIface::MapperNtIface()
-    : keyframeListener(nt::NetworkTableInstance::GetDefault()
-                           .GetStructArrayTopic<TagDetection>("/cam/tags")
-                           .Subscribe({}, nt::PubSubOptions{
-                                              .pollStorage = 100,
-                                              .sendAll = true,
-                                              .keepDuplicates = true,
-                                          })) {
+    : keyframeListener(
+          nt::NetworkTableInstance::GetDefault()
+              .GetStructArrayTopic<TagDetection>("/gtsam_meme/cam1/tags")
+              .Subscribe({},
+                         nt::PubSubOptions{
+                             .pollStorage = 100,
+                             .sendAll = true,
+                             .keepDuplicates = true,
+                         })),
+
+      odomSub(nt::NetworkTableInstance::GetDefault()
+                  .GetStructTopic<frc::Twist3d>("/gtsam_meme/robot_odom")
+                  .Subscribe({}, {
+                                     .pollStorage = 100,
+                                     .sendAll = true,
+                                     .keepDuplicates = true,
+                                 })) {
   nt::NetworkTableInstance inst = nt::NetworkTableInstance::GetDefault();
 
   inst.StopServer();
@@ -57,6 +68,27 @@ std::map<gtsam::Key, std::vector<TagDetection>> MapperNtIface::NewKeyframes() {
     // HACK - only add one snapshot per loop. need to rate limit this robot code
     // side
     break;
+  }
+
+  return ret;
+}
+
+std::map<gtsam::Key, Pose3> MapperNtIface::NewOdometryFactors() {
+  const auto odom = odomSub.ReadQueue();
+
+  std::map<gtsam::Key, Pose3> ret{};
+
+  for (const auto &o : odom) {
+    auto &twist = o.value;
+
+    Vector6 eigenTwist;
+    eigenTwist << twist.rx.to<double>(), twist.ry.to<double>(),
+        twist.rz.to<double>(), twist.dx.to<double>(), twist.dy.to<double>(),
+        twist.dz.to<double>();
+    const Pose3 odomPoseDelta = Pose3::Expmap(eigenTwist);
+
+    ret[robotStateKey] = odomPoseDelta;
+    robotStateKey++;
   }
 
   return ret;

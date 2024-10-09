@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include <gtsam/geometry/Pose3.h>
 #include <gtsam/inference/Symbol.h>
 
 #include <map>
@@ -38,18 +39,29 @@
 #include "TagDetection.h"
 #include "TagDetectionStruct.h"
 
+/**
+ * Listen for new keyframes coming from NT. New camera pictures start at X(0).
+ */
 class MapperNtIface {
 
 public:
   MapperNtIface();
 
   std::map<gtsam::Key, std::vector<TagDetection>> NewKeyframes();
+  std::map<gtsam::Key, gtsam::Pose3> NewOdometryFactors();
+
   void PublishLayout(frc::AprilTagFieldLayout layout);
+
+  inline gtsam::Key LatestRobotState() const { return robotStateKey; }
 
 private:
   nt::StructArraySubscriber<TagDetection> keyframeListener;
+  nt::StructSubscriber<frc::Twist3d> odomSub;
 
   frc::Field2d field{};
 
-  gtsam::Key keyframe = gtsam::symbol_shorthand::X(0);
+  // The state key for odom twists
+  gtsam::Key robotStateKey = gtsam::symbol_shorthand::X(1);
+  // The state key for keyframes
+  gtsam::Key keyframe = gtsam::symbol_shorthand::O(0);
 };

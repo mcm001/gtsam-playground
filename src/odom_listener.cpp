@@ -38,9 +38,9 @@ static Vector6 makeOdomNoise(const LocalizerConfig &config) {
                  config.transNoise[1], config.transNoise[2]};
 }
 
-OdomListener::OdomListener(LocalizerConfig config,
+OdomListener::OdomListener(LocalizerConfig config_,
                            std::shared_ptr<Localizer> localizer_)
-    : config(config), localizer(localizer_),
+    : config(config_), localizer(localizer_),
       odomSub(nt::NetworkTableInstance::GetDefault()
                   .GetStructTopic<frc::Twist3d>(config.rootTableName +
                                                 "/input/odom_twist")

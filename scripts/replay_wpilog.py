@@ -75,7 +75,7 @@ ignoredTopics = ["NT:/cam/tags/.*", "NT:/photonvision/YOUR CAMERA NAME/rawBytes/
 sysToNtOffset = None
 
 for msg in wpilog:
-    
+
     if msg.isStart():
         start: StartRecordData = msg.getStartData()
 

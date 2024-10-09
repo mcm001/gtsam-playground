@@ -61,7 +61,7 @@ gtsam::Point2_ PredictLandmarkImageLocation(gtsam::Pose3_ worldTbody_fac,
 }
 
 gtsam::Point2_ PredictLandmarkImageLocationFactor(gtsam::Pose3_ worldTbody_fac,
-                                                  gtsam::Pose3 bodyPcamera,
+                                                  gtsam::Pose3_ bodyPcamera,
                                                   gtsam::Cal3_S2_ cameraCal,
                                                   gtsam::Point3_ worldPcorner) {
   using namespace gtsam;
@@ -69,7 +69,7 @@ gtsam::Point2_ PredictLandmarkImageLocationFactor(gtsam::Pose3_ worldTbody_fac,
   // world->camera pose as a composition of world->body factory and
   // body->camera factor
   const Pose3_ worldTcamera_fac =
-      Pose3_(worldTbody_fac, &Pose3::transformPoseFrom, Pose3_(bodyPcamera));
+      Pose3_(worldTbody_fac, &Pose3::transformPoseFrom, bodyPcamera);
   // Camera->tag corner vector
   const Point3_ camPcorner = transformTo(worldTcamera_fac, worldPcorner);
   // project from vector down to pinhole location, then uncalibrate to pixel

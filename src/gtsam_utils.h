@@ -38,7 +38,17 @@ gtsam::Point2_ PredictLandmarkImageLocation(gtsam::Pose3_ worldTbody_fac,
                                             gtsam::Cal3_S2_ cameraCal,
                                             gtsam::Point3 worldPcorner);
 
+/**
+ * Get an Expression representing the corner location in the image, given a body
+ * location and camera cal
+ *
+ * @param worldTbody_fac the Expression for the world->body transform
+ * @param bodyTcamera_fac the Expression for the body->camera transform
+ * @param cameraCal the Expression for the current camera calibration
+ * @param worldPcorner the Expression for the tag corner location (as a Point3)
+ * in the world frame
+ */
 gtsam::Point2_ PredictLandmarkImageLocationFactor(gtsam::Pose3_ worldTbody_fac,
-                                                  gtsam::Pose3 bodyPcamera,
+                                                  gtsam::Pose3_ bodyTcamera_fac,
                                                   gtsam::Cal3_S2_ cameraCal,
                                                   gtsam::Point3_ worldPcorner);

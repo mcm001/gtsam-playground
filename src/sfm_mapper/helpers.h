@@ -35,6 +35,8 @@
 
 #include "TagDetection.h"
 
+// Global camera calibration for both estimateWorldTcam and the actual
+// sfm_mapper code
 const double cam_fx = 5.9938E+02;
 const double cam_fy = 5.9917E+02;
 const double cam_cx = 4.7950E+02;

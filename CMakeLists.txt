@@ -48,7 +48,7 @@ FetchContent_MakeAvailable(opencv_header)
 
 
 # This probably doesn't work great with shared libraries, but I don't care about those right now
-file(GLOB_RECURSE OPENCV_LIB_PATH 
+file(GLOB_RECURSE OPENCV_LIB_PATH
   "${opencv_lib_SOURCE_DIR}/**/*"
 )
 SET(OPENCV_INCLUDE_PATH ${opencv_header_SOURCE_DIR})
@@ -56,8 +56,8 @@ SET(OPENCV_INCLUDE_PATH ${opencv_header_SOURCE_DIR})
 # Generate gtsam-localizer resources
 generate_resources(src/resources/ generated/main/cpp GTSAMLOCALIZER meme localizer_resources_src)
 
-add_library(gtsam-localizer 
-  src/localizer.cpp 
+add_library(gtsam-localizer
+  src/localizer.cpp
   src/TagModel.cpp
   src/gtsam_utils.cpp
   src/config.cpp
@@ -75,13 +75,13 @@ target_link_libraries(gtsam-localizer PUBLIC
 )
 target_compile_options(gtsam-localizer PRIVATE -Wno-deprecated-enum-enum-conversion)
 
-add_executable(gtsam-node 
+add_executable(gtsam-node
   src/gtsam_tags_node.cpp
 )
 target_compile_options(gtsam-localizer PRIVATE -Wno-deprecated-enum-enum-conversion)
 target_link_libraries(gtsam-node gtsam-localizer)
 
-add_executable(tag-mapper 
+add_executable(tag-mapper
   src/sfm_mapper/main.cpp
   src/sfm_mapper/PhotonPoseEstimator.cpp
   src/sfm_mapper/helpers.cpp
