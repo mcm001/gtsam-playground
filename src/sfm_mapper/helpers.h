@@ -26,6 +26,7 @@
 
 #include <gtsam/base/types.h> // Basic types, constants, and compatibility functions
 #include <gtsam/geometry/Pose3.h>
+#include <gtsam/inference/Symbol.h>
 
 #include <optional>
 #include <vector>
@@ -48,3 +49,10 @@ std::map<gtsam::Key, std::vector<TagDetection>> ParseFile();
 std::optional<gtsam::Pose3> estimateWorldTcam(std::vector<TagDetection> tags,
                                               frc::AprilTagFieldLayout layout);
 bool tagWasUsed(std::map<gtsam::Key, std::vector<TagDetection>> tags, int id);
+
+inline gtsam::Key TagIdToKey(int tagId) {
+  return gtsam::symbol_shorthand::L(tagId);
+}
+inline int KeyToTagId(gtsam::Key tagId) {
+  return static_cast<int>(tagId - TagIdToKey(0));
+}

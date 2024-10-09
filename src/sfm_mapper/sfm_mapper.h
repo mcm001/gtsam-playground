@@ -22,46 +22,56 @@
  * SOFTWARE.
  */
 
-#pragma once
-
 #include <gtsam/geometry/Pose3.h>
-#include <gtsam/inference/Symbol.h>
 
-#include <map>
 #include <vector>
 
-#include <frc/apriltag/AprilTagFieldLayout.h>
-#include <frc/geometry/Pose3d.h>
-#include <frc/smartdashboard/Field2d.h>
-#include <networktables/StructArrayTopic.h>
-#include <networktables/StructTopic.h>
-
 #include "TagDetection.h"
-#include "TagDetectionStruct.h"
-#include "sfm_mapper.h"
+#include "ntcore_cpp_types.h"
 
-/**
- * Listen for new keyframes coming from NT. New camera pictures start at X(0).
- */
-class MapperNtIface {
+namespace sfm_mapper {
+using Pose3 = gtsam::Pose3;
 
-public:
-  MapperNtIface();
+using OdometryList = std::vector<OdomPoseDeltaWithGuess>;
+using KeyframeList = std::vector<KeyframeWithGuess>;
 
-  OptimizerInputs::KeyframeList NewKeyframes();
-  OptimizerInputs::OdometryList NewOdometryFactors();
+struct OdomPoseDeltaWithGuess {
+  // Tags in view
+  gtsam::Pose3 poseDelta;
 
-  void PublishLayout(frc::AprilTagFieldLayout layout);
+  // Robot state keys for the start and end of this twist
+  gtsam::Key stateFrom;
+  gtsam::Key stateTo;
 
-  // huge footgun
-  inline gtsam::Key LatestRobotState() const { return robotStateKey; }
-
-private:
-  nt::StructArraySubscriber<TagDetection> keyframeListener;
-  nt::StructSubscriber<frc::Twist3d> odomSub;
-
-  frc::Field2d field{};
-
-  // The state key for odom twists
-  gtsam::Key robotStateKey = gtsam::symbol_shorthand::X(1);
+  // Best guess at robot pose
+  gtsam::Pose3 poseGuess;
 };
+
+struct KeyframeWithGuess {
+  // Tags in view
+  std::vector<TagDetection> observation;
+
+  // Robot state key at snapshot time
+  gtsam::Key robotState;
+
+  // Best guess at robot pose
+  gtsam::Pose3 poseGuess;
+};
+
+struct OptimizerInputs {
+
+  // Pose-deltas from odometry
+  OdometryList odometryMeasurements;
+  // Keyframes from our camera
+  KeyframeList keyframes;
+
+  // initial tag layout guess. In the future, refactor to support totally
+  // unstructured setups
+  frc::AprilTagFieldLayout layoutGuess;
+};
+
+struct OptimizerOutput {
+  frc::AprilTagFieldLayout optimizedLayout;
+};
+
+} // namespace sfm_mapper

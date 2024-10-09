@@ -22,46 +22,4 @@
  * SOFTWARE.
  */
 
-#pragma once
-
-#include <gtsam/geometry/Pose3.h>
-#include <gtsam/inference/Symbol.h>
-
-#include <map>
-#include <vector>
-
-#include <frc/apriltag/AprilTagFieldLayout.h>
-#include <frc/geometry/Pose3d.h>
-#include <frc/smartdashboard/Field2d.h>
-#include <networktables/StructArrayTopic.h>
-#include <networktables/StructTopic.h>
-
-#include "TagDetection.h"
-#include "TagDetectionStruct.h"
 #include "sfm_mapper.h"
-
-/**
- * Listen for new keyframes coming from NT. New camera pictures start at X(0).
- */
-class MapperNtIface {
-
-public:
-  MapperNtIface();
-
-  OptimizerInputs::KeyframeList NewKeyframes();
-  OptimizerInputs::OdometryList NewOdometryFactors();
-
-  void PublishLayout(frc::AprilTagFieldLayout layout);
-
-  // huge footgun
-  inline gtsam::Key LatestRobotState() const { return robotStateKey; }
-
-private:
-  nt::StructArraySubscriber<TagDetection> keyframeListener;
-  nt::StructSubscriber<frc::Twist3d> odomSub;
-
-  frc::Field2d field{};
-
-  // The state key for odom twists
-  gtsam::Key robotStateKey = gtsam::symbol_shorthand::X(1);
-};

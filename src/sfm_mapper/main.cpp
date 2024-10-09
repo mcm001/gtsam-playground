@@ -28,6 +28,7 @@
 #include <gtsam/nonlinear/DoglegOptimizer.h>
 #include <gtsam/nonlinear/ExpressionFactorGraph.h>
 #include <gtsam/nonlinear/Marginals.h>
+#include <gtsam/nonlinear/NonlinearEquality.h>
 #include <gtsam/nonlinear/Values.h>
 #include <gtsam/slam/BetweenFactor.h>
 #include <gtsam/slam/expressions.h>
@@ -70,7 +71,7 @@ static frc::AprilTagFieldLayout tagLayoutGuess =
     frc::LoadAprilTagLayoutField(frc::AprilTagField::k2024Crescendo);
 
 using OdometryMap = std::map<gtsam::Key, Pose3>;
-using KeyframeMap = std::map<gtsam::Key, std::vector<TagDetection>>;
+using KeyframeMap = std::vector<std::vector<TagDetection>>;
 
 // ==== Constants ====
 
@@ -108,7 +109,9 @@ private:
     if (!worldTtag1) {
       fmt::println("Couldnt find fixed tag {} in map!", FIXED_TAG);
     }
-    graph.addPrior(L(FIXED_TAG), *worldTtag1, posePriorNoise);
+
+    // graph.addPrior(L(FIXED_TAG), *worldTtag1, posePriorNoise);
+    graph.emplace_shared<NonlinearEquality<Pose3>>(L(FIXED_TAG), *worldTtag1);
   }
 
 public:
@@ -133,21 +136,21 @@ public:
 
     // Add all new odometry factors
     for (const auto &[newStateKey, poseDelta] : odometryFactors) {
-      graph.emplace_shared<BetweenFactor<Pose3>>(ntIface.LatestRobotState() - 1,
-                                                 ntIface.LatestRobotState(),
+      graph.emplace_shared<BetweenFactor<Pose3>>(newStateKey - 1, newStateKey,
                                                  poseDelta, odomNoise);
     }
 
     // Add all our tag observation factors
-    for (const auto &[stateKey, tags] : keyframes) {
+    for (const auto &tags : keyframes) {
       for (const TagDetection &tag : tags) {
         auto worldPcorners = TagModel::WorldToCornersFactor(L(tag.id));
 
         // add each tag corner
         constexpr int NUM_CORNERS = 4;
         for (size_t i = 0; i < NUM_CORNERS; i++) {
+          // HACK: world->body is just attached to the newest robot state key
+          const Pose3_ worldTbody_fac(ntIface.LatestRobotState());
           // Decision variable - where our camera is in the world
-          const Pose3_ worldTbody_fac(stateKey);
           const Pose3_ robotTcamera_fac(cameraKey);
           // Where we'd predict the i'th corner of the tag to be
           const auto prediction = PredictLandmarkImageLocationFactor(
@@ -191,9 +194,16 @@ public:
       initial.insert(cameraKey, worldTbody_nominal);
     }
 
-    /* Optimize the graph and print results */
-    cout << "==========================\ninitial error = "
-         << graph.error(initial) << endl;
+    graph.print();
+
+    try {
+      /* Optimize the graph and print results */
+      cout << "==========================\ninitial error = "
+           << graph.error(initial) << endl;
+    } catch (std::exception *e) {
+      std::cerr << e->what();
+      return;
+    }
     auto start = std::chrono::steady_clock::now();
 
     DoglegParams params;
@@ -250,7 +260,7 @@ public:
 
         // todo - track all tag keys instead of this hack
         if (key >= L(0) && key <= L(2000)) {
-          tags.push_back(frc::AprilTag{key - L(0), est});
+          tags.push_back(frc::AprilTag{KeyToTagId(key), est});
         }
       }
 
@@ -274,28 +284,32 @@ int main() {
     KeyframeMap newObservations = mapper.NtIface().NewKeyframes();
     OdometryMap newOdoms = mapper.NtIface().NewOdometryFactors();
 
-    cout << "Got " << newObservations.size() << " things:" << endl;
+    cout << "Got " << newObservations.size() << " new Keyframes:" << endl;
     for (const auto [key, tagDets] : newObservations) {
-      cout << gtsam::Symbol(key) << "(tags ";
+      cout << gtsam::Symbol(key) << " (tags ";
       for (const auto tag : tagDets) {
-        cout << tag.id << " ";
+        cout << tag.id << ",";
       }
       cout << ")" << endl;
     }
 
-    if (!newObservations.size()) {
-      cout << "no new keyframes - waiting\n";
-      continue;
-    }
+    cout << "Got " << newOdoms.size() << " new odometry inputs:" << endl;
+
+    bool gotNewObservations{newObservations.size() > 0};
 
     // Add keys not yet in keyframes from newObservations. We should never have
     // snapshot index colissions anyways.
     keyframes.merge(newObservations);
-    
-    // and new odom things
-    odomFactors.merge(newObservations);
 
-    mapper.OptimizeLayout(keyframes);
+    // and new odom things
+    odomFactors.merge(newOdoms);
+
+    if (!gotNewObservations) {
+      cout << "no new keyframes - waiting\n";
+      continue;
+    }
+
+    mapper.OptimizeLayout(keyframes, odomFactors);
   }
 
   return 0;

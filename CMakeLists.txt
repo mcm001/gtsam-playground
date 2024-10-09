@@ -83,6 +83,7 @@ target_link_libraries(gtsam-node gtsam-localizer)
 
 add_executable(tag-mapper
   src/sfm_mapper/main.cpp
+  src/sfm_mapper/sfm_mapper.cpp
   src/sfm_mapper/PhotonPoseEstimator.cpp
   src/sfm_mapper/helpers.cpp
   src/sfm_mapper/mapper_nt_iface.cpp

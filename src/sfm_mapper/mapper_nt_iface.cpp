@@ -45,29 +45,24 @@ MapperNtIface::MapperNtIface()
       odomSub(nt::NetworkTableInstance::GetDefault()
                   .GetStructTopic<frc::Twist3d>("/gtsam_meme/robot_odom")
                   .Subscribe({}, {
-                                     .pollStorage = 100,
+                                     .pollStorage = 1000,
                                      .sendAll = true,
                                      .keepDuplicates = true,
                                  })) {
   nt::NetworkTableInstance inst = nt::NetworkTableInstance::GetDefault();
 
   inst.StopServer();
-  inst.SetServer("10.0.0.183");
+  inst.SetServer("10.0.0.118");
   inst.StartClient4("gtsam-mapper-meme");
 
   frc::SmartDashboard::PutData("GtsamMeme", &field);
 }
 
-std::map<gtsam::Key, std::vector<TagDetection>> MapperNtIface::NewKeyframes() {
-  std::map<gtsam::Key, std::vector<TagDetection>> ret;
+std::vector<std::vector<TagDetection>> MapperNtIface::NewKeyframes() {
+  std::vector<std::vector<TagDetection>> ret;
 
   for (const auto snapshot : keyframeListener.ReadQueue()) {
-    ret[keyframe] = snapshot.value;
-    keyframe++;
-
-    // HACK - only add one snapshot per loop. need to rate limit this robot code
-    // side
-    break;
+    ret.push_back(snapshot.value);
   }
 
   return ret;
