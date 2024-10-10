@@ -29,6 +29,7 @@
 #include <gtsam/linear/NoiseModel.h>
 #include <gtsam/nonlinear/ExpressionFactorGraph.h>
 #include <gtsam/nonlinear/ISAM2.h>
+#include <gtsam/slam/expressions.h>
 
 #include <vector>
 
@@ -48,8 +49,8 @@ struct OdomPoseDeltaWithGuess {
   gtsam::Key stateFrom;
   gtsam::Key stateTo;
 
-  // Best guess at robot pose
-  gtsam::Pose3 poseGuess;
+  // // Best guess at robot pose
+  // gtsam::Pose3 poseGuess;
 };
 
 struct KeyframeWithGuess {
@@ -59,11 +60,10 @@ struct KeyframeWithGuess {
   // Tags in view
   std::vector<TagDetection> observation;
 
-  // Robot state key at snapshot time
-  gtsam::Key robotState;
-
-  // Best guess at robot pose
-  gtsam::Pose3 poseGuess;
+  // // Robot state key at snapshot time
+  // gtsam::Key robotState;
+  // // Best guess at robot pose
+  // gtsam::Pose3 poseGuess;
 };
 
 using OdometryList = std::vector<OdomPoseDeltaWithGuess>;
@@ -78,9 +78,6 @@ struct OptimizerState {
   OdometryList odometryMeasurements;
   // Keyframes from our camera
   KeyframeList keyframes;
-
-  // Fixed tags -- we'll use the input tag layout to grab these poses
-  std::vector<int> fixedTags;
 };
 
 class SfmMapper {
@@ -88,7 +85,8 @@ public:
   SfmMapper(frc::AprilTagFieldLayout layoutGuess_,
             ::gtsam::SharedNoiseModel odomNoise_,
             ::gtsam::SharedNoiseModel cameraNoise_,
-            std::map<gtsam::Key, gtsam::Cal3_S2> cameraCal_);
+            std::map<gtsam::Key, gtsam::Cal3_S2> cameraCal_,
+            std::vector<int> fixedTags_);
 
   /**
    * Optimize from a given [input] starting state
@@ -121,6 +119,8 @@ private:
   gtsam::SharedNoiseModel cameraNoise;
 
   std::map<gtsam::Key, gtsam::Cal3_S2> cameraCalMap;
+
+  std::vector<int> fixedTags;
 
   // If we've seen at -least- one keyframe
   bool gotAkeyframe = false;

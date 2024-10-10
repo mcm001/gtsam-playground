@@ -37,14 +37,36 @@ using namespace sfm_mapper;
 SfmMapper::SfmMapper(frc::AprilTagFieldLayout layoutGuess_,
                      ::gtsam::SharedNoiseModel odomNoise_,
                      ::gtsam::SharedNoiseModel cameraNoise_,
-                     std::map<gtsam::Key, gtsam::Cal3_S2> cameraCal_)
+                     std::map<gtsam::Key, gtsam::Cal3_S2> cameraCal_,
+                     std::vector<int> fixedTags_)
     : layoutGuess{layoutGuess_}, odomNoise{odomNoise_},
-      cameraNoise{cameraNoise_}, cameraCalMap(cameraCal_) {
+      cameraNoise{cameraNoise_}, cameraCalMap(cameraCal_),
+      fixedTags{fixedTags_} {
 
   for (const auto &[key, cal] : cameraCalMap) {
     // todo - guess null
     currentEstimate.insert(helpers::CameraIdxToKey(key), Pose3{});
   }
+
+  ExpressionFactorGraph graph;
+  for (int tagId : fixedTags) {
+    
+    auto worldTtag1 = TagModel::worldToTag(tagId);
+    if (!worldTtag1) {
+      throw std::runtime_error("Couldnt find fixed tag in map!");
+    }
+
+    graph.emplace_shared<NonlinearEquality<Pose3>>(helpers::TagIdToKey(tagId), *worldTtag1);
+  }
+
+  for (const frc::AprilTag &tag : layoutGuess.GetTags()) {
+    currentEstimate.insert(helpers::TagIdToKey(tag.ID), Pose3dToGtsamPose3(tag.pose));
+  }
+  
+  graph.print("Initial factor list: ");
+  currentEstimate.print("Initial guesses: ");
+  isam.update(graph, currentEstimate);
+  currentEstimate.clear();
 }
 
 void SfmMapper::AddOdometryFactors(ExpressionFactorGraph &graph,
@@ -72,8 +94,11 @@ void SfmMapper::AddKeyframes(ExpressionFactorGraph &graph, Values &initial,
     if (input.keyframes.size()) {
       gotAkeyframe = true;
 
-      auto tags = input.keyframes[0].observation;
-      auto est = estimateWorldTcam(tags, layoutGuess);
+      auto keyframe = input.keyframes[0];
+      auto tags = keyframe.observation;
+      gtsam::Cal3_S2 cal = cameraCalMap[keyframe.cameraIdx];
+      auto est = estimateWorldTcam(tags, layoutGuess, cal.fx(), cal.fy(),
+                                   cal.px(), cal.py());
 
       if (!est) {
         throw std::runtime_error("Couldn't find tag in map?");
@@ -90,22 +115,28 @@ void SfmMapper::AddKeyframes(ExpressionFactorGraph &graph, Values &initial,
 
   for (const auto &keyframe : input.keyframes) {
     for (const TagDetection &tag : keyframe.observation) {
+      if (std::find(fixedTags.begin(), fixedTags.end(), tag.id) !=
+          fixedTags.end()) {
+        // tag is fixed -- todo figure out
+      }
+
       auto tagKey{helpers::TagIdToKey(tag.id)};
       auto worldPcorners{TagModel::WorldToCornersFactor(tagKey)};
 
-      // If ISAM doesn't yet know about this tag, we'll need to add an initial
-      // guess
-      if (!isam.valueExists(tagKey)) {
-        auto tagOpt = helpers::GetTagPose(layoutGuess, tag.id);
-        if (tagOpt) {
-          // I'm too lazy to deal with seeing the same tag in two keyframes we
-          // add at the same time, but GetTagPose will yield the same thing --
-          // insert_or_assign is appropriate here
-          initial.insert_or_assign(tagKey, Pose3dToGtsamPose3(tagOpt->pose));
-        } else {
-          throw std::runtime_error("Couldn't find tag guess?");
-        }
-      }
+
+      // // If ISAM doesn't yet know about this tag, we'll need to add an initial
+      // // guess
+      // if (!isam.valueExists(tagKey)) {
+      //   auto tagOpt = helpers::GetTagPose(layoutGuess, tag.id);
+      //   if (tagOpt) {
+      //     // I'm too lazy to deal with seeing the same tag in two keyframes we
+      //     // add at the same time, but GetTagPose will yield the same thing --
+      //     // insert_or_assign is appropriate here
+      //     initial.insert_or_assign(tagKey, Pose3dToGtsamPose3(tagOpt->pose));
+      //   } else {
+      //     throw std::runtime_error("Couldn't find tag guess?");
+      //   }
+      // }
 
       constexpr int NUM_CORNERS = 4;
       for (size_t i = 0; i < NUM_CORNERS; i++) {
@@ -135,6 +166,9 @@ OptimizerState SfmMapper::Optimize(const OptimizerState &input) {
 
   AddOdometryFactors(graph, currentEstimate, input);
   AddKeyframes(graph, currentEstimate, input);
+
+  graph.print("Adding factors: ");
+  currentEstimate.print("with initial guess: ");
 
   isam.update(graph, currentEstimate);
   currentEstimate.clear();

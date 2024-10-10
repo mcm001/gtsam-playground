@@ -48,8 +48,8 @@ class MapperNtIface {
 public:
   MapperNtIface();
 
-  OptimizerInputs::KeyframeList NewKeyframes();
-  OptimizerInputs::OdometryList NewOdometryFactors();
+  sfm_mapper::KeyframeList NewKeyframes();
+  sfm_mapper::OdometryList NewOdometryFactors();
 
   void PublishLayout(frc::AprilTagFieldLayout layout);
 

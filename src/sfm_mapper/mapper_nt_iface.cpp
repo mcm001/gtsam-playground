@@ -28,8 +28,11 @@
 
 #include <frc/smartdashboard/SmartDashboard.h>
 
+#include "helpers.h"
+
 using namespace frc;
 using namespace gtsam;
+using namespace sfm_mapper;
 
 MapperNtIface::MapperNtIface()
     : keyframeListener(
@@ -58,20 +61,24 @@ MapperNtIface::MapperNtIface()
   frc::SmartDashboard::PutData("GtsamMeme", &field);
 }
 
-std::vector<std::vector<TagDetection>> MapperNtIface::NewKeyframes() {
-  std::vector<std::vector<TagDetection>> ret;
+sfm_mapper::KeyframeList MapperNtIface::NewKeyframes() {
+  sfm_mapper::KeyframeList ret;
 
   for (const auto snapshot : keyframeListener.ReadQueue()) {
-    ret.push_back(snapshot.value);
+    ret.push_back(
+        sfm_mapper::KeyframeWithGuess{// TODO hard-coded camera idx
+                                      helpers::CameraIdxToKey(1), snapshot.value
+
+        });
   }
 
   return ret;
 }
 
-std::map<gtsam::Key, Pose3> MapperNtIface::NewOdometryFactors() {
+sfm_mapper::OdometryList MapperNtIface::NewOdometryFactors() {
   const auto odom = odomSub.ReadQueue();
 
-  std::map<gtsam::Key, Pose3> ret{};
+  sfm_mapper::OdometryList ret{};
 
   for (const auto &o : odom) {
     auto &twist = o.value;
@@ -82,7 +89,8 @@ std::map<gtsam::Key, Pose3> MapperNtIface::NewOdometryFactors() {
         twist.dz.to<double>();
     const Pose3 odomPoseDelta = Pose3::Expmap(eigenTwist);
 
-    ret[robotStateKey] = odomPoseDelta;
+    ret.push_back(sfm_mapper::OdomPoseDeltaWithGuess{
+        odomPoseDelta, robotStateKey, robotStateKey + 1});
     robotStateKey++;
   }
 

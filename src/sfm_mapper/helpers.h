@@ -36,32 +36,19 @@
 
 #include "TagDetection.h"
 
-// Global camera calibration for both estimateWorldTcam and the actual
-// sfm_mapper code
-const double cam_fx = 5.9938E+02;
-const double cam_fy = 5.9917E+02;
-const double cam_cx = 4.7950E+02;
-const double cam_cy = 3.5950E+02;
-
 void from_json(const wpi::json &json, TargetCorner &corner);
 void from_json(const wpi::json &json, TagDetection &tag);
 std::map<gtsam::Key, std::vector<TagDetection>> ParseFile();
 std::optional<gtsam::Pose3> estimateWorldTcam(std::vector<TagDetection> tags,
-                                              frc::AprilTagFieldLayout layout);
+                                              frc::AprilTagFieldLayout layout,
+                                              double fx, double fy, double cx,
+                                              double cy);
 bool tagWasUsed(std::map<gtsam::Key, std::vector<TagDetection>> tags, int id);
 
 namespace helpers {
 
 std::optional<frc::AprilTag> GetTagPose(frc::AprilTagFieldLayout layoutGuess,
-                                        int id) {
-  for (const auto &tag : layoutGuess.GetTags()) {
-    if (tag.ID == id) {
-      return tag;
-    }
-  }
-
-  return std::nullopt;
-}
+                                        int id);
 
 inline gtsam::Key CameraIdxToKey(int camIdx) {
   return gtsam::symbol_shorthand::C(camIdx);
