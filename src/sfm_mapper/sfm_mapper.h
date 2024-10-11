@@ -99,8 +99,6 @@ public:
    */
   OptimizerState Optimize(const OptimizerState &newThings);
 
-  inline const gtsam::Key LatestRobotState() const { return latestRobotState; }
-
 private:
   gtsam::Key GetNearestStateToKeyframe(int64_t time);
 

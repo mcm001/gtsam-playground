@@ -53,9 +53,6 @@ public:
 
   void PublishLayout(frc::AprilTagFieldLayout layout);
 
-  // huge footgun
-  inline gtsam::Key LatestRobotState() const { return robotStateKey; }
-
 private:
   nt::StructArraySubscriber<TagDetection> keyframeListener;
   nt::StructSubscriber<frc::Twist3d> odomSub;

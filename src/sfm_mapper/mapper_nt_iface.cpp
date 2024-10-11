@@ -66,9 +66,9 @@ sfm_mapper::KeyframeList MapperNtIface::NewKeyframes() {
 
   for (const auto snapshot : keyframeListener.ReadQueue()) {
     ret.push_back(sfm_mapper::KeyframeData{snapshot.time,
-                                          // TODO hard-coded camera idx
-                                          helpers::CameraIdxToKey(1),
-                                          snapshot.value});
+                                           // TODO hard-coded camera idx
+                                           helpers::CameraIdxToKey(1),
+                                           snapshot.value});
   }
 
   return ret;
@@ -89,7 +89,6 @@ sfm_mapper::OdometryList MapperNtIface::NewOdometryFactors() {
     const Pose3 odomPoseDelta = Pose3::Expmap(eigenTwist);
 
     ret.push_back(sfm_mapper::OdomPoseDelta{o.time, odomPoseDelta});
-    robotStateKey++;
   }
 
   return ret;

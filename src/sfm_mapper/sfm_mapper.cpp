@@ -122,11 +122,11 @@ void SfmMapper::AddOdometryFactors(ExpressionFactorGraph &graph,
     //   throw std::runtime_error("Why is to-from != 1?");
     // }
 
-    graph.emplace_shared<BetweenFactor<Pose3>>(latestRobotState, latestRobotState + 1,
-                                               odom.poseDelta, odomNoise);
+    graph.emplace_shared<BetweenFactor<Pose3>>(
+        latestRobotState, latestRobotState + 1, odom.poseDelta, odomNoise);
 
     wTb_latest = wTb_latest.transformPoseFrom(odom.poseDelta);
-    initial.insert(odom.stateTo, wTb_latest);
+    initial.insert(latestRobotState + 1, wTb_latest);
 
     timeToKeyMap[odom.time] = latestRobotState + 1;
     latestRobotState++;
@@ -153,8 +153,10 @@ void SfmMapper::AddKeyframes(ExpressionFactorGraph &graph, Values &initial,
       }
 
       wTb_latest = *est;
+
+      latestRobotState = helpers::StateNumToKey(1);
       initial.insert(latestRobotState, wTb_latest);
-      timeToKeyMap[keyframe.time] = helpers::StateNumToKey(1);
+      timeToKeyMap[keyframe.time] = latestRobotState;
     } else {
       // give up, can't start
       return;
@@ -197,12 +199,13 @@ void SfmMapper::AddKeyframes(ExpressionFactorGraph &graph, Values &initial,
 OptimizerState SfmMapper::Optimize(const OptimizerState &input) {
   ExpressionFactorGraph graph;
 
-  // Add odom and shove into our graph so I don't have to deal with this weird partial thing
+  // Add odom and shove into our graph so I don't have to deal with this weird
+  // partial thing
   AddOdometryFactors(graph, currentEstimate, input);
   graph.print("==================\nAdding odom factors: ");
   currentEstimate.print("with initial odom guess: ");
   isam.update(graph, currentEstimate);
-  graph.clear();
+  graph.resize(0);
   currentEstimate.clear();
 
   AddKeyframes(graph, currentEstimate, input);
@@ -210,7 +213,7 @@ OptimizerState SfmMapper::Optimize(const OptimizerState &input) {
   graph.print("Adding keyframe factors: ");
   currentEstimate.print("with initial keyframe guess: ");
   isam.update(graph, currentEstimate);
-  graph.clear();
+  graph.resize(0);
   currentEstimate.clear();
 
   wTb_latest = isam.calculateEstimate<Pose3>(latestRobotState);

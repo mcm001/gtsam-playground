@@ -121,8 +121,9 @@ int main() {
     auto newObservations = ntIface.NewKeyframes();
 
     cout << "Got " << newObservations.size() << " new Keyframes:" << endl;
-    for (const auto& o : newObservations) {
-      cout << "time " << o.time << ", camera " << gtsam::Symbol(o.cameraIdx) << ": tags ";
+    for (const auto &o : newObservations) {
+      cout << "time " << o.time << ", camera " << gtsam::Symbol(o.cameraIdx)
+           << ": tags ";
       for (const auto tag : o.observation) {
         cout << tag.id << ",";
       }
