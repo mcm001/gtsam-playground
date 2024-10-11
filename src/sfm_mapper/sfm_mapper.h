@@ -41,19 +41,23 @@
 namespace sfm_mapper {
 using Pose3 = gtsam::Pose3;
 
-struct OdomPoseDeltaWithGuess {
+struct OdomPoseDelta {
+  int64_t time;
+
   // Tags in view
   gtsam::Pose3 poseDelta;
 
   // Robot state keys for the start and end of this twist
-  gtsam::Key stateFrom;
-  gtsam::Key stateTo;
+  // gtsam::Key stateFrom;
+  // gtsam::Key stateTo;
 
   // // Best guess at robot pose
   // gtsam::Pose3 poseGuess;
 };
 
-struct KeyframeWithGuess {
+struct KeyframeData {
+  int64_t time;
+
   // Camera that saw this
   gtsam::Key cameraIdx;
 
@@ -66,8 +70,8 @@ struct KeyframeWithGuess {
   // gtsam::Pose3 poseGuess;
 };
 
-using OdometryList = std::vector<OdomPoseDeltaWithGuess>;
-using KeyframeList = std::vector<KeyframeWithGuess>;
+using OdometryList = std::vector<OdomPoseDelta>;
+using KeyframeList = std::vector<KeyframeData>;
 
 /**
  * Stores both input info to the optimizer and outputs from the optimizer
@@ -82,6 +86,8 @@ struct OptimizerState {
 
 class SfmMapper {
 public:
+  using TimeKeyMap = std::map<int64_t, gtsam::Key>;
+
   SfmMapper(frc::AprilTagFieldLayout layoutGuess_,
             ::gtsam::SharedNoiseModel odomNoise_,
             ::gtsam::SharedNoiseModel cameraNoise_,
@@ -96,6 +102,8 @@ public:
   inline const gtsam::Key LatestRobotState() const { return latestRobotState; }
 
 private:
+  gtsam::Key GetNearestStateToKeyframe(int64_t time);
+
   void AddOdometryFactors(gtsam::ExpressionFactorGraph &graph,
                           gtsam::Values &initial,
                           const OptimizerState &newThings);
@@ -121,6 +129,9 @@ private:
   std::map<gtsam::Key, gtsam::Cal3_S2> cameraCalMap;
 
   std::vector<int> fixedTags;
+
+  // Keep track of timestamps/states from odometry
+  TimeKeyMap timeToKeyMap;
 
   // If we've seen at -least- one keyframe
   bool gotAkeyframe = false;

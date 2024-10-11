@@ -61,7 +61,4 @@ private:
   nt::StructSubscriber<frc::Twist3d> odomSub;
 
   frc::Field2d field{};
-
-  // The state key for odom twists
-  gtsam::Key robotStateKey = gtsam::symbol_shorthand::X(1);
 };

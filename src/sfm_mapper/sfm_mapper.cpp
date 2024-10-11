@@ -50,23 +50,61 @@ SfmMapper::SfmMapper(frc::AprilTagFieldLayout layoutGuess_,
 
   ExpressionFactorGraph graph;
   for (int tagId : fixedTags) {
-    
+
     auto worldTtag1 = TagModel::worldToTag(tagId);
     if (!worldTtag1) {
       throw std::runtime_error("Couldnt find fixed tag in map!");
     }
 
-    graph.emplace_shared<NonlinearEquality<Pose3>>(helpers::TagIdToKey(tagId), *worldTtag1);
+    graph.emplace_shared<NonlinearEquality<Pose3>>(helpers::TagIdToKey(tagId),
+                                                   *worldTtag1);
   }
 
   for (const frc::AprilTag &tag : layoutGuess.GetTags()) {
-    currentEstimate.insert(helpers::TagIdToKey(tag.ID), Pose3dToGtsamPose3(tag.pose));
+    currentEstimate.insert(helpers::TagIdToKey(tag.ID),
+                           Pose3dToGtsamPose3(tag.pose));
   }
-  
+
   graph.print("Initial factor list: ");
   currentEstimate.print("Initial guesses: ");
   isam.update(graph, currentEstimate);
   currentEstimate.clear();
+}
+
+using TimeKeyMap = SfmMapper::TimeKeyMap;
+static TimeKeyMap::const_iterator FindCloser(TimeKeyMap::const_iterator left,
+                                             TimeKeyMap::const_iterator right,
+                                             int64_t time) {
+  auto deltaLeft = time - left->first;
+  auto deltaRight = right->first - time;
+  if (deltaLeft < deltaRight) {
+    return left;
+  } else {
+    return right;
+  }
+}
+
+Key SfmMapper::GetNearestStateToKeyframe(int64_t time) {
+  const auto &isamEntryAfter = timeToKeyMap.upper_bound(time);
+
+  // Case 1: time might be before our map
+  if (isamEntryAfter == timeToKeyMap.begin()) {
+    if (time != timeToKeyMap.begin()->first) {
+      throw std::runtime_error("Timestamp is before even isam history");
+    } else {
+      return timeToKeyMap.begin()->second;
+    }
+  }
+
+  // case 2, time might be after
+  if (isamEntryAfter == timeToKeyMap.end()) {
+    throw std::runtime_error("Timestamp is after all keys in map?");
+  }
+
+  // safe to do this, we checked we aren't at the start
+  const auto &isamEntryBefore = std::prev(isamEntryAfter);
+
+  return FindCloser(isamEntryBefore, isamEntryAfter, time)->second;
 }
 
 void SfmMapper::AddOdometryFactors(ExpressionFactorGraph &graph,
@@ -77,12 +115,21 @@ void SfmMapper::AddOdometryFactors(ExpressionFactorGraph &graph,
   }
 
   for (const auto &odom : input.odometryMeasurements) {
-    graph.emplace_shared<BetweenFactor<Pose3>>(odom.stateFrom, odom.stateTo,
+    // if (odom.stateFrom != latestRobotState) {
+    //   throw std::runtime_error("Is stuff out of order?");
+    // }
+    // if (odom.stateFrom - odom.stateTo != 1) {
+    //   throw std::runtime_error("Why is to-from != 1?");
+    // }
+
+    graph.emplace_shared<BetweenFactor<Pose3>>(latestRobotState, latestRobotState + 1,
                                                odom.poseDelta, odomNoise);
 
     wTb_latest = wTb_latest.transformPoseFrom(odom.poseDelta);
     initial.insert(odom.stateTo, wTb_latest);
-    latestRobotState = odom.stateTo;
+
+    timeToKeyMap[odom.time] = latestRobotState + 1;
+    latestRobotState++;
   }
 }
 
@@ -107,6 +154,7 @@ void SfmMapper::AddKeyframes(ExpressionFactorGraph &graph, Values &initial,
 
       wTb_latest = *est;
       initial.insert(latestRobotState, wTb_latest);
+      timeToKeyMap[keyframe.time] = helpers::StateNumToKey(1);
     } else {
       // give up, can't start
       return;
@@ -122,21 +170,6 @@ void SfmMapper::AddKeyframes(ExpressionFactorGraph &graph, Values &initial,
 
       auto tagKey{helpers::TagIdToKey(tag.id)};
       auto worldPcorners{TagModel::WorldToCornersFactor(tagKey)};
-
-
-      // // If ISAM doesn't yet know about this tag, we'll need to add an initial
-      // // guess
-      // if (!isam.valueExists(tagKey)) {
-      //   auto tagOpt = helpers::GetTagPose(layoutGuess, tag.id);
-      //   if (tagOpt) {
-      //     // I'm too lazy to deal with seeing the same tag in two keyframes we
-      //     // add at the same time, but GetTagPose will yield the same thing --
-      //     // insert_or_assign is appropriate here
-      //     initial.insert_or_assign(tagKey, Pose3dToGtsamPose3(tagOpt->pose));
-      //   } else {
-      //     throw std::runtime_error("Couldn't find tag guess?");
-      //   }
-      // }
 
       constexpr int NUM_CORNERS = 4;
       for (size_t i = 0; i < NUM_CORNERS; i++) {
@@ -164,13 +197,20 @@ void SfmMapper::AddKeyframes(ExpressionFactorGraph &graph, Values &initial,
 OptimizerState SfmMapper::Optimize(const OptimizerState &input) {
   ExpressionFactorGraph graph;
 
+  // Add odom and shove into our graph so I don't have to deal with this weird partial thing
   AddOdometryFactors(graph, currentEstimate, input);
+  graph.print("==================\nAdding odom factors: ");
+  currentEstimate.print("with initial odom guess: ");
+  isam.update(graph, currentEstimate);
+  graph.clear();
+  currentEstimate.clear();
+
   AddKeyframes(graph, currentEstimate, input);
 
-  graph.print("Adding factors: ");
-  currentEstimate.print("with initial guess: ");
-
+  graph.print("Adding keyframe factors: ");
+  currentEstimate.print("with initial keyframe guess: ");
   isam.update(graph, currentEstimate);
+  graph.clear();
   currentEstimate.clear();
 
   wTb_latest = isam.calculateEstimate<Pose3>(latestRobotState);
