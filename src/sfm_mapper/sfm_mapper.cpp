@@ -25,7 +25,12 @@
 #include "sfm_mapper.h"
 
 #include <gtsam/linear/NoiseModel.h>
+#include <gtsam/nonlinear/NonlinearEquality.h>
 #include <gtsam/nonlinear/PriorFactor.h>
+#include <gtsam/slam/BetweenFactor.h>
+#include <gtsam_unstable/slam/PartialPriorFactor.h>
+
+#include <fstream>
 
 #include "TagModel.h"
 #include "gtsam_utils.h"
@@ -33,10 +38,6 @@
 
 using namespace gtsam;
 using namespace sfm_mapper;
-
-#include <gtsam/nonlinear/NonlinearEquality.h>
-#include <gtsam/slam/BetweenFactor.h>
-#include <gtsam_unstable/slam/PartialPriorFactor.h>
 
 // Pose3 tangent representation is [ Rx Ry Rz Tx Ty Tz ].
 static const int kIndexRx = 0;
@@ -59,13 +60,19 @@ SfmMapper::SfmMapper(frc::AprilTagFieldLayout layoutGuess_,
       cameraNoise{cameraNoise_}, cameraCalMap(cameraCal_),
       fixedTags{fixedTags_} {
 
+  ExpressionFactorGraph graph;
+
   for (const auto &[key, cal] : cameraCalMap) {
     // todo - guess null
     currentEstimate.insert(helpers::CameraIdxToKey(key),
                            Pose3{Rot3::Ry(-.3), Point3{}});
+
+    // // hack - constrain robot->cam
+    // graph.emplace_shared<PriorFactor<Pose3>>(helpers::CameraIdxToKey(key),
+    //                                          Pose3{Rot3::Ry(-.3), Point3{}},
+    //                                          posePriorNoise);
   }
 
-  ExpressionFactorGraph graph;
   for (int tagId : fixedTags) {
 
     auto worldTtag = TagModel::worldToTag(tagId);
@@ -73,10 +80,10 @@ SfmMapper::SfmMapper(frc::AprilTagFieldLayout layoutGuess_,
       throw std::runtime_error("Couldnt find fixed tag in map!");
     }
 
-    // graph.emplace_shared<NonlinearEquality<Pose3>>(helpers::TagIdToKey(tagId),
-    //                                                *worldTtag1);
-    graph.emplace_shared<PriorFactor<Pose3>>(helpers::TagIdToKey(tagId),
-                                             *worldTtag, posePriorNoise);
+    graph.emplace_shared<NonlinearEquality<Pose3>>(helpers::TagIdToKey(tagId),
+                                                   *worldTtag);
+    // graph.emplace_shared<PriorFactor<Pose3>>(helpers::TagIdToKey(tagId),
+    //                                          *worldTtag, posePriorNoise);
   }
 
   for (const frc::AprilTag &tag : layoutGuess.GetTags()) {
@@ -88,6 +95,25 @@ SfmMapper::SfmMapper(frc::AprilTagFieldLayout layoutGuess_,
   currentEstimate.print("Initial guesses: ");
   isam.update(graph, currentEstimate);
   currentEstimate.clear();
+
+  graph.saveGraph("graph_ctor.dot", currentEstimate);
+}
+
+static void ConstrainToFloor(ExpressionFactorGraph &graph, gtsam::Key key) {
+  auto logmap = Rot3::Logmap(Rot3::Identity());
+  auto vec = gtsam::Vector(4);
+  vec[0] = 0;
+  vec.block(1, 0, 3, 1) = logmap;
+  std::cout << "logmap: " << logmap << std::endl;
+  std::cout << "Constraining to: " << vec << std::endl;
+  std::vector<size_t> indices{
+      kIndexTz,
+      kIndexRx,
+      kIndexRy,
+      kIndexRz,
+  };
+  graph.emplace_shared<PartialPriorFactor<Pose3>>(
+      key, indices, vec, noiseModel::Isotropic::Sigma(4, 0.01));
 }
 
 using TimeKeyMap = SfmMapper::TimeKeyMap;
@@ -142,6 +168,8 @@ void SfmMapper::AddOdometryFactors(ExpressionFactorGraph &graph,
 
     timeToKeyMap[odom.time] = latestRobotState + 1;
     latestRobotState++;
+
+    ConstrainToFloor(graph, latestRobotState);
   }
 }
 
@@ -171,21 +199,7 @@ void SfmMapper::AddKeyframes(ExpressionFactorGraph &graph, Values &initial,
       initial.insert(latestRobotState, wTb_latest);
       timeToKeyMap[keyframe.time] = latestRobotState;
 
-      auto logmap = Rot3::Logmap(Rot3::Identity());
-      auto vec = gtsam::Vector(4);
-      vec[0] = 0;
-      vec.block(1, 0, 3, 1) = logmap;
-      std::cout << "logmap: " << logmap << std::endl;
-      std::cout << "Constraining to: " << vec << std::endl;
-      std::vector<size_t> indices{
-          kIndexTz,
-          kIndexRx,
-          kIndexRy,
-          kIndexRz,
-      };
-      graph.emplace_shared<PartialPriorFactor<Pose3>>(
-          latestRobotState, indices, vec,
-          noiseModel::Isotropic::Sigma(4, 0.01));
+      ConstrainToFloor(graph, latestRobotState);
     } else {
       // give up, can't start
       return;
@@ -241,6 +255,7 @@ OptimizerState SfmMapper::Optimize(const OptimizerState &input) {
 
   graph.print("Adding keyframe factors: ");
   currentEstimate.print("with initial keyframe guess: ");
+  graph.saveGraph("graph_keyframes.dot", currentEstimate);
   isam.update(graph, currentEstimate);
   graph.resize(0);
   currentEstimate.clear();
