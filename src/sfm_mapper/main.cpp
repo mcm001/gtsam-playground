@@ -95,10 +95,6 @@ gtsam::Key cameraKey{C(1)};
 ::gtsam::SharedNoiseModel odomNoise = noiseModel::Diagonal::Sigmas(
     (Vector(6, 1) << 0.008, 0.008, 0.008, 0.004, 0.004, 0.004).finished());
 
-// How sure we are about "fixed" tags, order is [rad rad rad m m m]
-noiseModel::Diagonal::shared_ptr posePriorNoise = noiseModel::Diagonal::Sigmas(
-    (Vector(6, 1) << 0.015, 0.015, 0.015, 0.005, 0.005, 0.005).finished());
-
 // how sure we are about camera observations
 Isotropic::shared_ptr cameraNoise{
     Isotropic::Sigma(2, 1.0)}; // one pixel in u and v
