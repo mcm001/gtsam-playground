@@ -103,43 +103,20 @@ int main() {
   using sfm_mapper::KeyframeList;
   using sfm_mapper::OdometryList;
 
+  auto ret{wpilog_reader::LoadDataFile("../logs/FRC_20241012_053443.wpilog",
+                                       "NT:/gtsam_meme/robot_odom",
+                                       "NT:/gtsam_meme/cam1/tags")};
+
   sfm_mapper::SfmMapper mapper{tagLayoutGuess, odomNoise, cameraNoise,
                                cameraCal, FIXED_TAGS};
 
   MapperNtIface ntIface;
 
-  while (true) {
-    // rate limit loop
-    std::this_thread::sleep_for(1000ms);
 
-    // Map of [observation state ID] to [tags seen]
-    auto newOdoms = ntIface.NewOdometryFactors();
-    auto newObservations = ntIface.NewKeyframes();
-
-    cout << "Got " << newObservations.size() << " new Keyframes:" << endl;
-    for (const auto &o : newObservations) {
-      cout << "time " << o.time << ", camera " << gtsam::Symbol(o.cameraIdx)
-           << ": tags ";
-      for (const auto tag : o.observation) {
-        cout << tag.id << ",";
-      }
-      cout << endl;
-    }
-
-    cout << "Got " << newOdoms.size() << " new odometry inputs!" << endl;
-
-    bool gotNewObservations{newObservations.size() > 0};
-
-    if (!gotNewObservations) {
-      cout << "no new keyframes - waiting\n";
-      continue;
-    }
-
-    try {
-      mapper.Optimize(sfm_mapper::OptimizerState{newOdoms, newObservations});
-    } catch (std::exception *e) {
-      std::cerr << e->what() << std::endl;
-    }
+  try {
+    mapper.Optimize(sfm_mapper::OptimizerState{ret.odom, newObservations});
+  } catch (std::exception *e) {
+    std::cerr << e->what() << std::endl;
   }
 
   return 0;

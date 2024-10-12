@@ -63,13 +63,11 @@ wpilog_reader::LoadDataFile(std::string_view path, std::string_view odomTopic,
   for (auto recordIt = reader.begin(), recordEnd = reader.end();
        recordIt != recordEnd; ++recordIt) {
 
-    auto &record = *recordIt;
+    const DataLogRecord &record = *recordIt;
     if (record.IsStart()) {
       // Check if is start data
       StartRecordData data;
       if (record.GetStartData(&data)) {
-        // fmt::println("Start({})", data.name);
-
         // Check if this matches either of our topics
         if (data.name == odomTopic) {
           fmt::println("Start(odom)");
@@ -88,12 +86,6 @@ wpilog_reader::LoadDataFile(std::string_view path, std::string_view odomTopic,
       int entry;
       if (record.GetFinishEntry(&entry)) {
         fmt::print("Finish(TODO)\n");
-        // auto it = entriesById.find(entry);
-        // if (it == entriesById.end()) {
-        //   fmt::print("...ID not found\n");
-        // } else {
-        //   entriesById.erase(it);
-        // }
       } else {
         fmt::print("Finish(INVALID)\n");
       }
@@ -111,12 +103,23 @@ wpilog_reader::LoadDataFile(std::string_view path, std::string_view odomTopic,
       // Check we know about this record
       int id = record.GetEntry();
       if (odomStartData && odomStartData->entry == id) {
-        fmt::print("Data(ODOM)\n");
-        wpi::UnpackStruct<Twist3d>(record.GetRaw());
+        // fmt::print("Data(ODOM)\n");
+        ret.odom.push_back({record.GetTimestamp(), record.GetTimestamp(),
+                            wpi::UnpackStruct<Twist3d>(record.GetRaw())});
       }
-      if (cam1StartData && cam1StartData->entry == id) {
-        fmt::print("Data(CAM1)\n");
-        wpi::UnpackStruct<TagDetection>(record.GetRaw());
+      else if (cam1StartData && cam1StartData->entry == id) {
+        size_t len{record.GetSize() / wpi::Struct<TagDetection>::GetSize()};
+
+        // fmt::print("Data(CAM1)\n");
+        std::vector<TagDetection> innerList;
+        innerList.reserve(len);
+        auto raw = record.GetRaw();
+        for (auto in = raw.begin(), end = raw.end(); in != end;
+             in += record.GetSize()) {
+          innerList.push_back(wpi::UnpackStruct<TagDetection>(record.GetRaw()));
+        }
+        ret.cam1_data.push_back(
+            {record.GetTimestamp(), record.GetTimestamp(), innerList});
       }
     }
   }

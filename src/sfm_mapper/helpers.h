@@ -61,3 +61,40 @@ inline int KeyToTagId(gtsam::Key tagId) {
   return static_cast<int>(tagId - TagIdToKey(0));
 }
 } // namespace helpers
+
+
+namespace sfm_mapper {
+using Pose3 = gtsam::Pose3;
+
+struct OdomPoseDelta {
+  int64_t time;
+
+  // Tags in view
+  gtsam::Pose3 poseDelta;
+
+  // Robot state keys for the start and end of this twist
+  // gtsam::Key stateFrom;
+  // gtsam::Key stateTo;
+
+  // // Best guess at robot pose
+  // gtsam::Pose3 poseGuess;
+};
+
+struct KeyframeData {
+  int64_t time;
+
+  // Camera that saw this
+  gtsam::Key cameraIdx;
+
+  // Tags in view
+  std::vector<TagDetection> observation;
+
+  // // Robot state key at snapshot time
+  // gtsam::Key robotState;
+  // // Best guess at robot pose
+  // gtsam::Pose3 poseGuess;
+};
+
+using OdometryList = std::vector<OdomPoseDelta>;
+using KeyframeList = std::vector<KeyframeData>;
+}
