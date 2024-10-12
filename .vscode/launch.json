@@ -5,10 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(gdb) Launch tag-mapper",
+            "name": "(gdb) Launch tag-mapper-replay",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/bin/tag-mapper",
+            "program": "${workspaceFolder}/build/bin/tag-mapper-replay",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

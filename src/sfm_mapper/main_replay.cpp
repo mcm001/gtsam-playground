@@ -104,20 +104,33 @@ int main() {
   using sfm_mapper::KeyframeList;
   using sfm_mapper::OdometryList;
 
-  auto ret{wpilog_reader::LoadDataFile("../logs/FRC_20241012_053443.wpilog",
+  MapperNtIface ntIface;
+
+  auto ret{wpilog_reader::LoadDataFile("/home/matt/github/gtsam-playground/logs/FRC_20241012_053443.wpilog",
                                        "NT:/gtsam_meme/robot_odom",
                                        "NT:/gtsam_meme/cam1/tags")};
 
   sfm_mapper::SfmMapper mapper{tagLayoutGuess, odomNoise, cameraNoise,
                                cameraCal, FIXED_TAGS};
 
-  MapperNtIface ntIface;
+  mapper.Optimize(
+      sfm_mapper::OptimizerState{ret.odometryMeasurements, ret.keyframes});
 
-  try {
-    mapper.Optimize(
-        sfm_mapper::OptimizerState{ret.odometryMeasurements, ret.keyframes});
-  } catch (std::exception *e) {
-    std::cerr << e->what() << std::endl;
+  if (false) {
+    Values est{mapper.CurrentEstimate()};
+    for (const auto &[key, value] : est) {
+      auto sym = Symbol(key);
+      if (sym.chr() == 'l') {
+        // apriltag
+        fmt::println("Apriltag {} pose:", sym.index());
+        value.print();
+      } else if (sym.chr() == 'c') {
+        fmt::println("camera {} offset:", sym.index());
+        value.print();
+      } else if (sym.chr() == 'x') {
+        // robot state
+      }
+    }
   }
 
   return 0;

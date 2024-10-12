@@ -56,6 +56,10 @@ public:
    */
   void Optimize(const OptimizerState &newThings);
 
+  inline const gtsam::Values &CurrentEstimate() const {
+    return currentEstimate;
+  }
+
 private:
   gtsam::Key GetNearestStateToKeyframe(int64_t time);
 
