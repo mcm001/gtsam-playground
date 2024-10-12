@@ -25,6 +25,7 @@
 #include "sfm_mapper.h"
 
 #include <gtsam/linear/NoiseModel.h>
+#include <gtsam/nonlinear/DoglegOptimizer.h>
 #include <gtsam/nonlinear/NonlinearEquality.h>
 #include <gtsam/nonlinear/PriorFactor.h>
 #include <gtsam/slam/BetweenFactor.h>
@@ -60,8 +61,6 @@ SfmMapper::SfmMapper(frc::AprilTagFieldLayout layoutGuess_,
       cameraNoise{cameraNoise_}, cameraCalMap(cameraCal_),
       fixedTags{fixedTags_} {
 
-  ExpressionFactorGraph graph;
-
   for (const auto &[key, cal] : cameraCalMap) {
     // todo - guess null
     currentEstimate.insert(helpers::CameraIdxToKey(key),
@@ -93,9 +92,6 @@ SfmMapper::SfmMapper(frc::AprilTagFieldLayout layoutGuess_,
 
   graph.print("Initial factor list: ");
   currentEstimate.print("Initial guesses: ");
-  isam.update(graph, currentEstimate);
-  currentEstimate.clear();
-
   graph.saveGraph("graph_ctor.dot", currentEstimate);
 }
 
@@ -135,7 +131,7 @@ Key SfmMapper::GetNearestStateToKeyframe(int64_t time) {
   // Case 1: time might be before our map
   if (isamEntryAfter == timeToKeyMap.begin()) {
     if (time != timeToKeyMap.begin()->first) {
-      throw std::runtime_error("Timestamp is before even isam history");
+      throw std::runtime_error("Timestamp is before our history");
     } else {
       return timeToKeyMap.begin()->second;
     }
@@ -152,9 +148,7 @@ Key SfmMapper::GetNearestStateToKeyframe(int64_t time) {
   return FindCloser(isamEntryBefore, isamEntryAfter, time)->second;
 }
 
-void SfmMapper::AddOdometryFactors(ExpressionFactorGraph &graph,
-                                   Values &initial,
-                                   const OptimizerState &input) {
+void SfmMapper::AddOdometryFactors(const OptimizerState &input) {
   if (!gotAkeyframe) {
     return;
   }
@@ -164,7 +158,7 @@ void SfmMapper::AddOdometryFactors(ExpressionFactorGraph &graph,
         latestRobotState, latestRobotState + 1, odom.poseDelta, odomNoise);
 
     wTb_latest = wTb_latest.transformPoseFrom(odom.poseDelta);
-    initial.insert(latestRobotState + 1, wTb_latest);
+    currentEstimate.insert(latestRobotState + 1, wTb_latest);
 
     timeToKeyMap[odom.time] = latestRobotState + 1;
     latestRobotState++;
@@ -173,8 +167,7 @@ void SfmMapper::AddOdometryFactors(ExpressionFactorGraph &graph,
   }
 }
 
-void SfmMapper::AddKeyframes(ExpressionFactorGraph &graph, Values &initial,
-                             const OptimizerState &input) {
+void SfmMapper::AddKeyframes(const OptimizerState &input) {
   // This is the first time, so we need to add an initial guess for the start of
   // the pose backbone
   if (!gotAkeyframe) {
@@ -196,7 +189,7 @@ void SfmMapper::AddKeyframes(ExpressionFactorGraph &graph, Values &initial,
 
       latestRobotState = helpers::StateNumToKey(1);
 
-      initial.insert(latestRobotState, wTb_latest);
+      currentEstimate.insert(latestRobotState, wTb_latest);
       timeToKeyMap[keyframe.time] = latestRobotState;
 
       ConstrainToFloor(graph, latestRobotState);
@@ -239,29 +232,29 @@ void SfmMapper::AddKeyframes(ExpressionFactorGraph &graph, Values &initial,
   }
 }
 
-OptimizerState SfmMapper::Optimize(const OptimizerState &input) {
-  ExpressionFactorGraph graph;
-
-  // Add odom and shove into our graph so I don't have to deal with this weird
-  // partial thing
-  AddOdometryFactors(graph, currentEstimate, input);
+void SfmMapper::Optimize(const OptimizerState &input) {
+  AddOdometryFactors(input);
   graph.print("==================\nAdding odom factors: ");
   currentEstimate.print("with initial odom guess: ");
-  isam.update(graph, currentEstimate);
-  graph.resize(0);
-  currentEstimate.clear();
 
-  AddKeyframes(graph, currentEstimate, input);
-
+  AddKeyframes(input);
   graph.print("Adding keyframe factors: ");
   currentEstimate.print("with initial keyframe guess: ");
+
   graph.saveGraph("graph_keyframes.dot", currentEstimate);
-  isam.update(graph, currentEstimate);
-  graph.resize(0);
-  currentEstimate.clear();
 
-  wTb_latest = isam.calculateEstimate<Pose3>(latestRobotState);
+  // Do the thing
 
-  OptimizerState ret;
-  return ret;
+  DoglegParams params;
+  params.verbosity = NonlinearOptimizerParams::ERROR;
+  DoglegOptimizer optimizer{graph, currentEstimate, params};
+  try {
+    currentEstimate = optimizer.optimize();
+    wTb_latest = currentEstimate.at<Pose3>(latestRobotState);
+  } catch (std::exception *e) {
+    std::cerr << e->what();
+    return;
+  }
+
+  // end doing the thing
 }

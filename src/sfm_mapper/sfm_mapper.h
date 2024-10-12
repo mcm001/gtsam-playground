@@ -54,26 +54,21 @@ public:
   /**
    * Optimize from a given [input] starting state
    */
-  OptimizerState Optimize(const OptimizerState &newThings);
+  void Optimize(const OptimizerState &newThings);
 
 private:
   gtsam::Key GetNearestStateToKeyframe(int64_t time);
 
-  void AddOdometryFactors(gtsam::ExpressionFactorGraph &graph,
-                          gtsam::Values &initial,
-                          const OptimizerState &newThings);
+  void AddOdometryFactors(const OptimizerState &newThings);
 
-  void AddKeyframes(gtsam::ExpressionFactorGraph &graph, gtsam::Values &initial,
-                    const OptimizerState &newThings);
+  void AddKeyframes(const OptimizerState &newThings);
 
+  gtsam::ExpressionFactorGraph graph;
   gtsam::Values currentEstimate{};
 
   // initial tag layout guess. In the future, refactor to support totally
   // unstructured setups
   frc::AprilTagFieldLayout layoutGuess;
-
-  // default for now
-  gtsam::ISAM2 isam;
 
   gtsam::Pose3 wTb_latest;
   gtsam::Key latestRobotState;
