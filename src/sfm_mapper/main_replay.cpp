@@ -55,6 +55,7 @@
 #include "gtsam_utils.h"
 #include "helpers.h"
 #include "mapper_nt_iface.h"
+#include "wpilog_reader.h"
 
 using std::cout;
 using std::endl;
@@ -113,7 +114,8 @@ int main() {
   MapperNtIface ntIface;
 
   try {
-    mapper.Optimize(sfm_mapper::OptimizerState{ret.odom, newObservations});
+    mapper.Optimize(
+        sfm_mapper::OptimizerState{ret.odometryMeasurements, ret.keyframes});
   } catch (std::exception *e) {
     std::cerr << e->what() << std::endl;
   }
