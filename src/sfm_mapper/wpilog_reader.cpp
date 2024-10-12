@@ -114,14 +114,13 @@ wpilog_reader::LoadDataFile(std::string_view path, std::string_view odomTopic,
         std::vector<TagDetection> innerList;
         innerList.reserve(len);
         auto raw = record.GetRaw();
-        for (auto in = raw.begin(), end = raw.end(); in != end;
-             in += innerLen) {
-          innerList.push_back(wpi::UnpackStruct<TagDetection>(
-              std::span{std::to_address(in), innerLen}));
+        for (size_t offset = 0; offset < raw.size(); offset += innerLen) {
+          innerList.push_back(
+              wpi::UnpackStruct<TagDetection>(raw.subspan(offset, innerLen)));
         }
-        ret.keyframes.push_back({record.GetTimestamp(),
+        ret.keyframes.emplace_back(record.GetTimestamp(),
                                  /* TODO! */ helpers::CameraIdxToKey(1),
-                                 innerList});
+                                 innerList);
       }
     }
   }
