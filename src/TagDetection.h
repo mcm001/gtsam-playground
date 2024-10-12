@@ -29,6 +29,8 @@
 #include <utility>
 #include <vector>
 
+#include <frc/geometry/Pose2d.h>
+
 struct TargetCorner {
   double x;
   double y;
@@ -37,6 +39,7 @@ struct TargetCorner {
 struct TagDetection {
   int32_t id;
   std::vector<TargetCorner> corners;
+  frc::Pose2d poseGuess;
 
   inline const int GetFiducialId() { return id; }
 };

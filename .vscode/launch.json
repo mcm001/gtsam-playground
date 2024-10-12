@@ -27,7 +27,7 @@
                     "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "build tag-mapper"
+            "preLaunchTask": "build tag-mapper-replay"
         },
         {
             "name": "(gdb) Launch test",

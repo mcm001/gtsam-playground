@@ -33,7 +33,7 @@ template <> struct WPILIB_DLLEXPORT wpi::Struct<TagDetection> {
   static constexpr std::string_view GetTypeString() {
     return "struct:TagDetection";
   }
-  static constexpr size_t GetSize() { return ((8 * 2) * 4 + 4); }
+  static constexpr size_t GetSize() { return ((8 * 2) * 4 + 4 + wpi::Struct<frc::Pose2d>::GetSize()); }
   static constexpr std::string_view GetSchema() {
     return "uint32 id;double cx1;double cy1;double cx2;double cy2;double "
            "cx3;double cy3;double cx4;double cy4";
@@ -58,7 +58,8 @@ template <> struct WPILIB_DLLEXPORT wpi::Struct<TagDetection> {
                                 wpi::UnpackStruct<double, 4 + 8 * 6>(data),
                                 wpi::UnpackStruct<double, 4 + 8 * 7>(data),
                             },
-                        }};
+                        },
+                        wpi::UnpackStruct<frc::Pose2d, 4 + 8 * 8>(data)};
   }
 
   static void Pack(std::span<uint8_t> data, const TagDetection &value) {
@@ -71,6 +72,7 @@ template <> struct WPILIB_DLLEXPORT wpi::Struct<TagDetection> {
     wpi::PackStruct<4 + 8 * 5>(data, value.corners[2].y);
     wpi::PackStruct<4 + 8 * 6>(data, value.corners[3].x);
     wpi::PackStruct<4 + 8 * 7>(data, value.corners[3].y);
+    wpi::PackStruct<4 + 8 * 8>(data, value.poseGuess);
   }
 };
 

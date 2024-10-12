@@ -1,9 +1,9 @@
 {
     "tasks": [
         {
-            "label": "build tag-mapper",
+            "label": "build tag-mapper-replay",
             "type": "shell",
-            "command": "cmake --build ${workspaceFolder}/build --target tag-mapper",
+            "command": "cmake --build ${workspaceFolder}/build --target tag-mapper-replay",
             "options": {
                 "cwd": "${workspaceFolder}"
             },

@@ -107,7 +107,7 @@ int main() {
   MapperNtIface ntIface;
 
   auto ret{wpilog_reader::LoadDataFile(
-      "/home/matt/github/gtsam-playground/logs/FRC_20241012_171633.wpilog",
+      "/home/matt/github/gtsam-playground/logs/FRC_20241012_184342.wpilog",
       "NT:/gtsam_meme/robot_odom", "NT:/gtsam_meme/cam1/tags")};
 
   sfm_mapper::SfmMapper mapper{tagLayoutGuess, odomNoise, cameraNoise,

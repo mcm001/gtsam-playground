@@ -97,7 +97,6 @@ wpilog_reader::LoadDataFile(std::string_view path, std::string_view odomTopic,
     } else if (record.IsControl()) {
       fmt::print("Unrecognized control record\n");
     } else {
-
       // Check we know about this record
       int id = record.GetEntry();
       if (odomStartData && odomStartData->entry == id) {
@@ -108,6 +107,11 @@ wpilog_reader::LoadDataFile(std::string_view path, std::string_view odomTopic,
                  wpi::UnpackStruct<Twist3d>(record.GetRaw()))});
       } else if (cam1StartData && cam1StartData->entry == id) {
         size_t innerLen{wpi::Struct<TagDetection>::GetSize()};
+        if (record.GetSize() % innerLen) {
+          fmt::println("Record {} does not divide into {} (rem {})",
+                       record.GetSize(), innerLen, record.GetSize() % innerLen);
+          throw std::runtime_error("rcord inner len mismatch");
+        }
         size_t len{record.GetSize() / innerLen};
 
         // fmt::print("Data(CAM1)\n");
@@ -119,8 +123,8 @@ wpilog_reader::LoadDataFile(std::string_view path, std::string_view odomTopic,
               wpi::UnpackStruct<TagDetection>(raw.subspan(offset, innerLen)));
         }
         ret.keyframes.emplace_back(record.GetTimestamp(),
-                                 /* TODO! */ helpers::CameraIdxToKey(1),
-                                 innerList);
+                                   /* TODO! */ helpers::CameraIdxToKey(1),
+                                   innerList);
       }
     }
   }
