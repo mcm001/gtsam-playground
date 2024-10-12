@@ -75,16 +75,16 @@ for file in os.listdir("logs"):
                     inner_len = struct.calcsize(schema.unpack)
                     for i in range(0, entry.getSize(), inner_len):
                         decoded = schema.tuple._make(struct.unpack(schema.unpack, data[i:i+inner_len]))
-                        inner.append((entry.getTimestamp(), decoded))
-                    messagesByTopic[entry.getEntry()].append(inner)
-                    print(inner)
+                        inner.append(decoded)
+                    messagesByTopic[entry.getEntry()].append((entry.getTimestamp(), inner))
+                    print(f"{entry.getTimestamp()}, {inner}")
                 else:
                     schema = schemasByTypename[topic_typestring[len("struct:"):]]
 
                     decoded = schema.tuple._make(struct.unpack(schema.unpack, entry.getRaw()))
                     messagesByTopic[entry.getEntry()].append((entry.getTimestamp(), decoded))
 
-                    print(decoded)
+                    print(f"{entry.getTimestamp()}, {decoded}")
 
 
     print("")

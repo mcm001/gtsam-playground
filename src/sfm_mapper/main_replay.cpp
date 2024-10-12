@@ -106,9 +106,9 @@ int main() {
 
   MapperNtIface ntIface;
 
-  auto ret{wpilog_reader::LoadDataFile("/home/matt/github/gtsam-playground/logs/FRC_20241012_053443.wpilog",
-                                       "NT:/gtsam_meme/robot_odom",
-                                       "NT:/gtsam_meme/cam1/tags")};
+  auto ret{wpilog_reader::LoadDataFile(
+      "/home/matt/github/gtsam-playground/logs/FRC_20241012_171633.wpilog",
+      "NT:/gtsam_meme/robot_odom", "NT:/gtsam_meme/cam1/tags")};
 
   sfm_mapper::SfmMapper mapper{tagLayoutGuess, odomNoise, cameraNoise,
                                cameraCal, FIXED_TAGS};
@@ -116,8 +116,11 @@ int main() {
   mapper.Optimize(
       sfm_mapper::OptimizerState{ret.odometryMeasurements, ret.keyframes});
 
-  if (false) {
-    Values est{mapper.CurrentEstimate()};
+  // std::vector<frc::AprilTag> tags;
+  // frc::AprilTagFieldLayout layout{tags, 16.541_m, 8.211_m};
+
+  if (true) {
+    gtsam::Values est{mapper.CurrentEstimate()};
     for (const auto &[key, value] : est) {
       auto sym = Symbol(key);
       if (sym.chr() == 'l') {

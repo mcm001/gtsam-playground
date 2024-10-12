@@ -1,0 +1,8 @@
+graph {
+  size="5,5";
+
+  var7782220156096217095[label="l7", pos="0,0!"];
+
+  factor0[label="", shape=point];
+  var7782220156096217095--factor0;
+}

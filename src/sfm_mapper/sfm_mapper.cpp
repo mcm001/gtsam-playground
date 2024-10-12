@@ -64,13 +64,14 @@ SfmMapper::SfmMapper(frc::AprilTagFieldLayout layoutGuess_,
 
   for (const auto &[key, cal] : cameraCalMap) {
     // todo - guess null
-    currentEstimate.insert(helpers::CameraIdxToKey(key),
-                           Pose3{Rot3::Ry(-.1), Point3{}});
+    Pose3 camGuess{Rot3::Ry(-.2), Point3{.0, 0, .0}};
+
+    currentEstimate.insert(helpers::CameraIdxToKey(key), camGuess);
 
     // // hack - constrain robot->cam
-    // graph.emplace_shared<PriorFactor<Pose3>>(helpers::CameraIdxToKey(key),
-    //                                          Pose3{Rot3::Ry(-.3), Point3{}},
-    //                                          posePriorNoise);
+    // graph.emplace_shared<PriorFactor<Pose3>>(
+    //     helpers::CameraIdxToKey(key), camGuess,
+    //     posePriorNoise);
   }
 
   for (int tagId : fixedTags) {
@@ -87,7 +88,7 @@ SfmMapper::SfmMapper(frc::AprilTagFieldLayout layoutGuess_,
   }
 
   for (const frc::AprilTag &tag : layoutGuess.GetTags()) {
-    if (tag.ID == 7 || tag.ID == 8 || tag.ID == 6)
+    if (tag.ID == 7 || tag.ID == 8)
       currentEstimate.insert(helpers::TagIdToKey(tag.ID),
                              Pose3dToGtsamPose3(tag.pose));
   }
@@ -167,15 +168,15 @@ void SfmMapper::AddOdometryFactors(const OptimizerState &input) {
 
 void SfmMapper::AddKeyframes(const OptimizerState &input) {
   for (const auto &keyframe : input.keyframes) {
-    for (const TagDetection &tag : keyframe.observation) {
+    fmt::println("Adding keyframe at time {}", keyframe.time);
 
+    for (const TagDetection &tag : keyframe.observation) {
       auto tagKey{helpers::TagIdToKey(tag.id)};
       auto worldPcorners{TagModel::WorldToCornersFactor(tagKey)};
+      const Pose3_ worldTbody_fac{GetNearestStateToKeyframe(keyframe.time)};
 
       constexpr int NUM_CORNERS = 4;
       for (size_t i = 0; i < NUM_CORNERS; i++) {
-        // HACK: world->body is just attached to the newest robot state key
-        const Pose3_ worldTbody_fac(latestRobotState);
 
         // Decision variable - where our camera is in the world
         const Pose3_ robotTcamera_fac(keyframe.cameraIdx);
@@ -227,24 +228,43 @@ void SfmMapper::Optimize(const OptimizerState &input) {
   graph.print("==================\nAdding odom factors: ");
   currentEstimate.print("with initial odom guess: ");
 
+  fmt::println("And times:");
+  for (const auto &[time, key] : timeToKeyMap) {
+    std::cout << time << " -> " << Symbol(key) << std::endl;
+    ;
+  }
+
   AddKeyframes(input);
   graph.print("Adding keyframe factors: ");
   currentEstimate.print("with initial keyframe guess: ");
 
   graph.saveGraph("graph_keyframes.dot", currentEstimate);
 
-  fmt::println("Initial error: {}", graph.error(currentEstimate));
+  auto initialErr = graph.error(currentEstimate);
+  fmt::println("Initial error: {}", initialErr);
 
   // Do the thing
 
-  DoglegParams params;
-  params.verbosity = NonlinearOptimizerParams::ERROR;
-  DoglegOptimizer optimizer{graph, currentEstimate, params};
+  // DoglegParams params;
+  // params.verbosity = NonlinearOptimizerParams::ERROR;
+  // DoglegOptimizer optimizer{graph, currentEstimate, params};
+  // currentEstimate = optimizer.optimize();
 
-  currentEstimate = optimizer.optimize();
+  ISAM2Params parameters;
+  // parameters.relinearizeThreshold = 0.01;
+  // parameters.relinearizeSkip = 1;
+  parameters.cacheLinearizedFactors = false;
+  parameters.enableDetailedResults = true;
+  parameters.print();
+  ISAM2 isam(parameters);
+  isam.update(graph, currentEstimate);
+  currentEstimate = isam.calculateEstimate();
+
   wTb_latest = currentEstimate.at<Pose3>(latestRobotState);
 
-  fmt::println("Final error: {}", graph.error(currentEstimate));
+  auto finalErr = graph.error(currentEstimate);
+  fmt::println("Final error: {} (a reduction of {}x)", finalErr,
+               initialErr / finalErr);
 
   // end doing the thing
 }

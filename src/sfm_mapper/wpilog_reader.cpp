@@ -107,7 +107,7 @@ wpilog_reader::LoadDataFile(std::string_view path, std::string_view odomTopic,
              helpers::TwistToPoseDelta(
                  wpi::UnpackStruct<Twist3d>(record.GetRaw()))});
       } else if (cam1StartData && cam1StartData->entry == id) {
-        size_t innerLen { wpi::Struct<TagDetection>::GetSize() };
+        size_t innerLen{wpi::Struct<TagDetection>::GetSize()};
         size_t len{record.GetSize() / innerLen};
 
         // fmt::print("Data(CAM1)\n");
@@ -116,7 +116,8 @@ wpilog_reader::LoadDataFile(std::string_view path, std::string_view odomTopic,
         auto raw = record.GetRaw();
         for (auto in = raw.begin(), end = raw.end(); in != end;
              in += innerLen) {
-          innerList.push_back(wpi::UnpackStruct<TagDetection>(record.GetRaw()));
+          innerList.push_back(wpi::UnpackStruct<TagDetection>(
+              std::span{std::to_address(in), innerLen}));
         }
         ret.keyframes.push_back({record.GetTimestamp(),
                                  /* TODO! */ helpers::CameraIdxToKey(1),
