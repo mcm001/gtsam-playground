@@ -149,10 +149,6 @@ Key SfmMapper::GetNearestStateToKeyframe(int64_t time) {
 }
 
 void SfmMapper::AddOdometryFactors(const OptimizerState &input) {
-  if (!gotAkeyframe) {
-    return;
-  }
-
   for (const auto &odom : input.odometryMeasurements) {
     graph.emplace_shared<BetweenFactor<Pose3>>(
         latestRobotState, latestRobotState + 1, odom.poseDelta, odomNoise);
@@ -168,37 +164,6 @@ void SfmMapper::AddOdometryFactors(const OptimizerState &input) {
 }
 
 void SfmMapper::AddKeyframes(const OptimizerState &input) {
-  // This is the first time, so we need to add an initial guess for the start of
-  // the pose backbone
-  if (!gotAkeyframe) {
-    if (input.keyframes.size()) {
-      gotAkeyframe = true;
-
-      auto keyframe = input.keyframes[0];
-      auto tags = keyframe.observation;
-      gtsam::Cal3_S2 cal = cameraCalMap[keyframe.cameraIdx];
-      auto est = estimateWorldTcam(tags, layoutGuess, cal.fx(), cal.fy(),
-                                   cal.px(), cal.py());
-
-      if (!est) {
-        throw std::runtime_error("Couldn't find tag in map?");
-        return;
-      }
-
-      wTb_latest = *est;
-
-      latestRobotState = helpers::StateNumToKey(1);
-
-      currentEstimate.insert(latestRobotState, wTb_latest);
-      timeToKeyMap[keyframe.time] = latestRobotState;
-
-      ConstrainToFloor(graph, latestRobotState);
-    } else {
-      // give up, can't start
-      return;
-    }
-  }
-
   for (const auto &keyframe : input.keyframes) {
     for (const TagDetection &tag : keyframe.observation) {
       if (std::find(fixedTags.begin(), fixedTags.end(), tag.id) !=
@@ -233,6 +198,33 @@ void SfmMapper::AddKeyframes(const OptimizerState &input) {
 }
 
 void SfmMapper::Optimize(const OptimizerState &input) {
+  // need initial guess for odom FK bullshit. This guess does need to be
+  // reasonably good
+  // TODO: telemeter this from the robot maybe?
+  if (!gotAkeyframe) {
+    gotAkeyframe = true;
+
+    auto keyframe = input.keyframes[0];
+    auto tags = keyframe.observation;
+    gtsam::Cal3_S2 cal = cameraCalMap[keyframe.cameraIdx];
+    auto est = estimateWorldTcam(tags, layoutGuess, cal.fx(), cal.fy(),
+                                 cal.px(), cal.py());
+
+    if (!est) {
+      throw std::runtime_error("Couldn't find tag in map?");
+      return;
+    }
+
+    wTb_latest = *est;
+
+    latestRobotState = helpers::StateNumToKey(1);
+
+    currentEstimate.insert(latestRobotState, wTb_latest);
+    timeToKeyMap[keyframe.time] = latestRobotState;
+
+    ConstrainToFloor(graph, latestRobotState);
+  }
+
   AddOdometryFactors(input);
   graph.print("==================\nAdding odom factors: ");
   currentEstimate.print("with initial odom guess: ");
