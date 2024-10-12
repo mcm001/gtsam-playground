@@ -26,6 +26,7 @@
 
 #include <string>
 
+#include <frc/geometry/Twist3d.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 
 #include "helpers.h"

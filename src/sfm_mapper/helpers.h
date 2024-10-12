@@ -60,8 +60,10 @@ inline gtsam::Key TagIdToKey(int tagId) {
 inline int KeyToTagId(gtsam::Key tagId) {
   return static_cast<int>(tagId - TagIdToKey(0));
 }
-} // namespace helpers
 
+gtsam::Pose3 TwistToPoseDelta(frc::Twist3d twist);
+
+} // namespace helpers
 
 namespace sfm_mapper {
 using Pose3 = gtsam::Pose3;
@@ -97,4 +99,15 @@ struct KeyframeData {
 
 using OdometryList = std::vector<OdomPoseDelta>;
 using KeyframeList = std::vector<KeyframeData>;
-}
+
+/**
+ * Stores both input info to the optimizer and outputs from the optimizer
+ */
+struct OptimizerState {
+
+  // Pose-deltas from odometry
+  OdometryList odometryMeasurements;
+  // Keyframes from our camera
+  KeyframeList keyframes;
+};
+} // namespace sfm_mapper

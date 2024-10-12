@@ -112,7 +112,6 @@ int main() {
 
   MapperNtIface ntIface;
 
-
   try {
     mapper.Optimize(sfm_mapper::OptimizerState{ret.odom, newObservations});
   } catch (std::exception *e) {

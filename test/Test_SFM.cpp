@@ -22,19 +22,20 @@
  * SOFTWARE.
  */
 
+#include <fmt/core.h>
 #include <gtest/gtest.h>
 
 #include "sfm_mapper/wpilog_reader.h"
-#include <fmt/core.h>
 
 TEST(SfmTest, Load) {
   auto ret{wpilog_reader::LoadDataFile("../logs/FRC_20241012_053443.wpilog",
                                        "NT:/gtsam_meme/robot_odom",
                                        "NT:/gtsam_meme/cam1/tags")};
 
-  fmt::println("Got {} odom and {} cams", ret.odom.size(), ret.cam1_data.size()); 
+  fmt::println("Got {} odom and {} cams", ret.odometryMeasurements.size(),
+               ret.keyframes.size());
 
-//   for (const auto& odom : ret.odom) {
-//     fmt::println("{}", odom.time / 1e6);
-//   }
+  //   for (const auto& odom : ret.odom) {
+  //     fmt::println("{}", odom.time / 1e6);
+  //   }
 }

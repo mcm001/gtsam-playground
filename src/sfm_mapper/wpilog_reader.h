@@ -25,23 +25,17 @@
 #pragma once
 #include <ntcore_cpp_types.h>
 
-#include <variant>
 #include <vector>
 
 #include <frc/geometry/Twist3d.h>
 
 #include "TagDetection.h"
+#include "helpers.h"
 
 namespace wpilog_reader {
 
-using ReplayInfoVariant = std::variant<TagDetection, frc::Twist3d>;
-
-struct LogData {
-  std::vector<nt::Timestamped<frc::Twist3d>> odom;
-  std::vector<nt::Timestamped<std::vector<TagDetection>>> cam1_data;
-};
-
-LogData LoadDataFile(std::string_view path, std::string_view odomTopic,
-                     std::string_view cam1_topic);
+sfm_mapper::OptimizerState LoadDataFile(std::string_view path,
+                                        std::string_view odomTopic,
+                                        std::string_view cam1_topic);
 
 } // namespace wpilog_reader

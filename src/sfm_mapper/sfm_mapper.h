@@ -30,27 +30,16 @@
 #include <gtsam/nonlinear/ExpressionFactorGraph.h>
 #include <gtsam/nonlinear/ISAM2.h>
 #include <gtsam/slam/expressions.h>
-#include "helpers.h"
 
 #include <vector>
 
 #include <frc/apriltag/AprilTagFieldLayout.h>
 
 #include "TagDetection.h"
+#include "helpers.h"
 #include "ntcore_cpp_types.h"
 
 namespace sfm_mapper {
-
-/**
- * Stores both input info to the optimizer and outputs from the optimizer
- */
-struct OptimizerState {
-
-  // Pose-deltas from odometry
-  OdometryList odometryMeasurements;
-  // Keyframes from our camera
-  KeyframeList keyframes;
-};
 
 class SfmMapper {
 public:

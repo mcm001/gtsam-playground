@@ -27,7 +27,6 @@
 #include <fmt/core.h>
 
 #include <optional>
-#include <variant>
 #include <vector>
 
 #include <frc/geometry/struct/Twist3dStruct.h>
@@ -40,9 +39,7 @@
 using namespace frc;
 using namespace wpi::log;
 
-using ReplayInfoVariant = std::variant<TagDetection, Twist3d>;
-
-wpilog_reader::LogData
+sfm_mapper::OptimizerState
 wpilog_reader::LoadDataFile(std::string_view path, std::string_view odomTopic,
                             std::string_view cam1_topic) {
 
@@ -56,7 +53,8 @@ wpilog_reader::LoadDataFile(std::string_view path, std::string_view odomTopic,
 
   std::optional<StartRecordData> odomStartData;
   std::optional<StartRecordData> cam1StartData;
-  LogData ret;
+
+  sfm_mapper::OptimizerState ret;
 
   // from
   // https://github.com/wpilibsuite/allwpilib/blob/8c420fa4c1ddd88f8237c5464223a56685ae6dcf/glass/src/lib/native/cpp/support/DataLogReaderThread.cpp
@@ -104,10 +102,11 @@ wpilog_reader::LoadDataFile(std::string_view path, std::string_view odomTopic,
       int id = record.GetEntry();
       if (odomStartData && odomStartData->entry == id) {
         // fmt::print("Data(ODOM)\n");
-        ret.odom.push_back({record.GetTimestamp(), record.GetTimestamp(),
-                            wpi::UnpackStruct<Twist3d>(record.GetRaw())});
-      }
-      else if (cam1StartData && cam1StartData->entry == id) {
+        ret.odometryMeasurements.push_back(
+            {record.GetTimestamp(),
+             helpers::TwistToPoseDelta(
+                 wpi::UnpackStruct<Twist3d>(record.GetRaw()))});
+      } else if (cam1StartData && cam1StartData->entry == id) {
         size_t len{record.GetSize() / wpi::Struct<TagDetection>::GetSize()};
 
         // fmt::print("Data(CAM1)\n");
@@ -118,8 +117,9 @@ wpilog_reader::LoadDataFile(std::string_view path, std::string_view odomTopic,
              in += record.GetSize()) {
           innerList.push_back(wpi::UnpackStruct<TagDetection>(record.GetRaw()));
         }
-        ret.cam1_data.push_back(
-            {record.GetTimestamp(), record.GetTimestamp(), innerList});
+        ret.keyframes.push_back({record.GetTimestamp(),
+                                 /* TODO! */ helpers::CameraIdxToKey(1),
+                                 innerList});
       }
     }
   }

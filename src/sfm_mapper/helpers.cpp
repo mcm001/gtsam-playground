@@ -122,3 +122,11 @@ bool tagWasUsed(std::map<gtsam::Key, std::vector<TagDetection>> tags, int id) {
 
   return false;
 }
+
+gtsam::Pose3 helpers::TwistToPoseDelta(frc::Twist3d twist) {
+  Vector6 eigenTwist;
+  eigenTwist << twist.rx.to<double>(), twist.ry.to<double>(),
+      twist.rz.to<double>(), twist.dx.to<double>(), twist.dy.to<double>(),
+      twist.dz.to<double>();
+  return Pose3::Expmap(eigenTwist);
+}
