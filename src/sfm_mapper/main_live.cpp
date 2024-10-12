@@ -139,8 +139,6 @@ int main() {
       mapper.Optimize(sfm_mapper::OptimizerState{newOdoms, newObservations});
     } catch (std::exception *e) {
       std::cerr << e->what() << std::endl;
-    } catch (gtsam::IndeterminantLinearSystemException *e) {
-      std::cerr << e->what() << std::endl;
     }
   }
 

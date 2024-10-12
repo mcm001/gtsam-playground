@@ -78,22 +78,29 @@ target_compile_options(gtsam-localizer PRIVATE -Wno-deprecated-enum-enum-convers
 add_executable(gtsam-node
   src/gtsam_tags_node.cpp
 )
-target_compile_options(gtsam-localizer PRIVATE -Wno-deprecated-enum-enum-conversion)
+target_compile_options(gtsam-node PRIVATE -Wno-deprecated-enum-enum-conversion)
 target_link_libraries(gtsam-node gtsam-localizer)
 
-add_executable(tag-mapper
-  src/sfm_mapper/main.cpp
+add_library(tag-mapper
   src/sfm_mapper/sfm_mapper.cpp
   src/sfm_mapper/PhotonPoseEstimator.cpp
   src/sfm_mapper/helpers.cpp
   src/sfm_mapper/mapper_nt_iface.cpp
 )
-target_compile_options(tag-mapper PRIVATE -Wno-deprecated-enum-enum-conversion)
+target_compile_options(tag-mapper PUBLIC -Wno-deprecated-enum-enum-conversion)
 target_link_libraries(tag-mapper gtsam-localizer wpilibc ${OPENCV_LIB_PATH})
-target_include_directories(tag-mapper PRIVATE src ${OPENCV_INCLUDE_PATH})
+target_include_directories(tag-mapper PUBLIC src ${OPENCV_INCLUDE_PATH})
 
-install(TARGETS tag-mapper)
-install(TARGETS gtsam-node)
+add_executable(tag-mapper-live
+  src/sfm_mapper/main_live.cpp
+)
+add_executable(tag-mapper-replay
+  src/sfm_mapper/main_replay.cpp
+)
+target_link_libraries(tag-mapper-live tag-mapper)
+target_link_libraries(tag-mapper-replay tag-mapper)
+
+install(TARGETS tag-mapper-live tag-mapper-replay gtsam-node)
 
 include(FetchContent)
 FetchContent_Declare(
