@@ -86,6 +86,7 @@ add_library(tag-mapper
   src/sfm_mapper/PhotonPoseEstimator.cpp
   src/sfm_mapper/helpers.cpp
   src/sfm_mapper/mapper_nt_iface.cpp
+  src/sfm_mapper/wpilog_reader.cpp
 )
 target_compile_options(tag-mapper PUBLIC -Wno-deprecated-enum-enum-conversion)
 target_link_libraries(tag-mapper gtsam-localizer wpilibc ${OPENCV_LIB_PATH})
@@ -127,3 +128,16 @@ target_compile_options(localizer_test PRIVATE -g -Og)
 
 include(GoogleTest)
 gtest_discover_tests(localizer_test)
+
+
+add_executable(
+  tag_mapper_test
+  test/Test_SFM.cpp
+)
+target_link_libraries(
+  tag_mapper_test
+  GTest::gtest_main tag-mapper
+)
+target_include_directories(tag_mapper_test PRIVATE ${PROJECT_SOURCE_DIR}/src)
+target_compile_options(tag_mapper_test PRIVATE -g -Og)
+gtest_discover_tests(tag_mapper_test)

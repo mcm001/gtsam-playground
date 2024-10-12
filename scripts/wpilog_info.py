@@ -26,7 +26,7 @@ for file in os.listdir("logs"):
             data = entry.getStartData()
 
             # print(f"Start record on topic {data.entry} : {data.name}")
-            
+
             startRecordsByTopic[data.entry] = data
             messagesByTopic[data.entry] = []
         elif entry.isFinish():
@@ -49,7 +49,7 @@ for file in os.listdir("logs"):
                 continue
 
             startData = startRecordsByTopic[entry.getEntry()]
-            
+
             if ".schema/struct:" in startData.name:
                 # huge hack
                 if "TagDetection" in startData.name:
