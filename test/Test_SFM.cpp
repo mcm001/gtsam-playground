@@ -27,9 +27,7 @@
 #include "sfm_mapper/wpilog_reader.h"
 
 TEST(SfmTest, Load) {
-    auto ret {wpilog_reader::LoadDataFile(
-        "logs/FRC_20241012_053443.wpilog",
-        "NT:/gtsam_meme/robot_odom",
-        "NT:/gtsam_meme/cam1/tags:"
-    )};
+  auto ret{wpilog_reader::LoadDataFile("../logs/FRC_20241012_053443.wpilog",
+                                       "NT:/gtsam_meme/robot_odom",
+                                       "NT:/gtsam_meme/cam1/tags")};
 }

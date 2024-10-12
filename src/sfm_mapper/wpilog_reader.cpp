@@ -26,20 +26,25 @@
 
 #include <fmt/core.h>
 
+#include <optional>
 #include <variant>
 #include <vector>
 
+#include <frc/geometry/struct/Twist3dStruct.h>
 #include <wpi/DataLogReader.h>
 #include <wpi/DenseMap.h>
 
+#include "TagDetectionStruct.h"
 #include "TagModel.h"
 
-using ReplayInfoVariant = std::variant<TagDetection, frc::Twist3d>;
+using namespace frc;
+using namespace wpi::log;
 
-std::vector<nt::Timestamped<ReplayInfoVariant>>
-LoadDataFile(std::string_view path, std::string_view odomTopic,
-             std::string_view cam1_topic) {
-  using namespace wpi::log;
+using ReplayInfoVariant = std::variant<TagDetection, Twist3d>;
+
+wpilog_reader::LogData
+wpilog_reader::LoadDataFile(std::string_view path, std::string_view odomTopic,
+                            std::string_view cam1_topic) {
 
   std::error_code ec;
   auto buf = wpi::MemoryBuffer::GetFile(path, ec);
@@ -49,8 +54,9 @@ LoadDataFile(std::string_view path, std::string_view odomTopic,
 
   DataLogReader reader{std::move(buf)};
 
-  std::map<std::string, DataLogReaderEntry, std::less<>> m_entriesByName;
-  wpi::DenseMap<int, StartRecordData *> entriesById;
+  std::optional<StartRecordData> odomStartData;
+  std::optional<StartRecordData> cam1StartData;
+  LogData ret;
 
   // from
   // https://github.com/wpilibsuite/allwpilib/blob/8c420fa4c1ddd88f8237c5464223a56685ae6dcf/glass/src/lib/native/cpp/support/DataLogReaderThread.cpp
@@ -62,57 +68,60 @@ LoadDataFile(std::string_view path, std::string_view odomTopic,
       // Check if is start data
       StartRecordData data;
       if (record.GetStartData(&data)) {
-        auto &entryPtr = entriesById[data.entry];
-        if (entryPtr) {
-          wpi::print("...DUPLICATE entry ID, overriding\n");
+        // fmt::println("Start({})", data.name);
+
+        // Check if this matches either of our topics
+        if (data.name == odomTopic) {
+          fmt::println("Start(odom)");
+          odomStartData = data;
+        } else if (data.name == cam1_topic) {
+          fmt::println("Start(cam1)");
+          cam1StartData = data;
+        } else {
+          // fmt::print("Start(UNKNOWN)\n");
         }
-        auto [it, isNew] = m_entriesByName.emplace(data.name, data);
+
       } else {
-        wpi::print("Start(INVALID)\n");
+        fmt::print("Start(INVALID)\n");
       }
     } else if (record.IsFinish()) {
       int entry;
       if (record.GetFinishEntry(&entry)) {
-        auto it = entriesById.find(entry);
-        if (it == entriesById.end()) {
-          wpi::print("...ID not found\n");
-        } else {
-          entriesById.erase(it);
-        }
+        fmt::print("Finish(TODO)\n");
+        // auto it = entriesById.find(entry);
+        // if (it == entriesById.end()) {
+        //   fmt::print("...ID not found\n");
+        // } else {
+        //   entriesById.erase(it);
+        // }
       } else {
-        wpi::print("Finish(INVALID)\n");
+        fmt::print("Finish(INVALID)\n");
       }
     } else if (record.IsSetMetadata()) {
       MetadataRecordData data;
       if (record.GetSetMetadataData(&data)) {
-        auto it = entriesById.find(data.entry);
-        if (it == entriesById.end()) {
-          wpi::print("...ID not found\n");
-        } else {
-          it->second->metadata = data.metadata;
-        }
+        fmt::print("SetMetadata(TODO)\n");
       } else {
-        wpi::print("SetMetadata(INVALID)\n");
+        fmt::print("SetMetadata(INVALID)\n");
       }
     } else if (record.IsControl()) {
-      wpi::print("Unrecognized control record\n");
+      fmt::print("Unrecognized control record\n");
     } else {
-      // Check we know about this record
 
+      // Check we know about this record
       int id = record.GetEntry();
-      auto it = entriesById.find(id);
-      if (it != entriesById.end()) {
-        fmt::println("> {}", it->name);
-        if (it->name == topicName) {
-          fmt::println("hi");
-        }
-      } else {
-        fmt::println("Unknown id {}", id);
+      if (odomStartData && odomStartData->entry == id) {
+        fmt::print("Data(ODOM)\n");
+        wpi::UnpackStruct<Twist3d>(record.GetRaw());
+      }
+      if (cam1StartData && cam1StartData->entry == id) {
+        fmt::print("Data(CAM1)\n");
+        wpi::UnpackStruct<TagDetection>(record.GetRaw());
       }
     }
   }
 
-  return {};
+  return ret;
 }
 
 int main() { return 0; }
