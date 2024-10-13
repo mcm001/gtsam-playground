@@ -101,10 +101,11 @@ wpilog_reader::LoadDataFile(std::string_view path, std::string_view odomTopic,
       int id = record.GetEntry();
       if (odomStartData && odomStartData->entry == id) {
         // fmt::print("Data(ODOM)\n");
-        ret.odometryMeasurements.push_back(
-            {record.GetTimestamp(),
-             helpers::TwistToPoseDelta(
-                 wpi::UnpackStruct<Twist3d>(record.GetRaw()))});
+        auto delta = helpers::TwistToPoseDelta(
+            wpi::UnpackStruct<Twist3d>(record.GetRaw()));
+        fmt::print("Pose {}, delta", record.GetTimestamp());
+        delta.print();
+        ret.odometryMeasurements.push_back({record.GetTimestamp(), delta});
       } else if (cam1StartData && cam1StartData->entry == id) {
         size_t innerLen{wpi::Struct<TagDetection>::GetSize()};
         if (record.GetSize() % innerLen) {

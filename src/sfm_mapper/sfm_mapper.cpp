@@ -49,6 +49,18 @@ static const int kIndexTx = 3;
 static const int kIndexTy = 4;
 static const int kIndexTz = 5;
 
+/*
+add transform to change from the wpilib/photon default (camera optical axis
+along +x) to the standard from opencv (z along optical axis)
+
+We want:
+x in [0,-1,0]
+y in [0,0,-1]
+z in [1,0,0]
+*/
+const gtsam::Pose3_ wpilibToCvCameraTransform{gtsam::Pose3{
+    gtsam::Rot3(0, 0, 1, -1, 0, 0, 0, -1, 0), gtsam::Point3{0.0, 0, 0.0}}};
+
 // How sure we are about "fixed" tags, order is [rad rad rad m m m]
 noiseModel::Diagonal::shared_ptr posePriorNoise = noiseModel::Diagonal::Sigmas(
     (Vector(6, 1) << 0.015, 0.015, 0.015, 0.005, 0.005, 0.005).finished());
@@ -64,14 +76,15 @@ SfmMapper::SfmMapper(frc::AprilTagFieldLayout layoutGuess_,
 
   for (const auto &[key, cal] : cameraCalMap) {
     // todo - guess null
-    Pose3 camGuess{Rot3::Ry(-.2), Point3{.0, 0, .0}};
+    Pose3 camGuess{Rot3::Ry(-.3), Point3{.5, 0, .5}};
 
     currentEstimate.insert(helpers::CameraIdxToKey(key), camGuess);
 
-    // // hack - constrain robot->cam
-    // graph.emplace_shared<PriorFactor<Pose3>>(
-    //     helpers::CameraIdxToKey(key), camGuess,
-    //     posePriorNoise);
+    // hack - constrain robot->cam
+    // graph.emplace_shared<PriorFactor<Pose3>>(helpers::CameraIdxToKey(key),
+    //                                          camGuess, posePriorNoise);
+    graph.emplace_shared<NonlinearEquality<Pose3>>(helpers::CameraIdxToKey(key),
+                                                   camGuess);
   }
 
   for (int tagId : fixedTags) {
@@ -112,7 +125,7 @@ static void ConstrainToFloor(ExpressionFactorGraph &graph, gtsam::Key key) {
       kIndexRz,
   };
   graph.emplace_shared<PartialPriorFactor<Pose3>>(
-      key, indices, vec, noiseModel::Isotropic::Sigma(4, 0.01));
+      key, indices, vec, noiseModel::Isotropic::Sigma(4, 0.1));
 }
 
 using TimeKeyMap = SfmMapper::TimeKeyMap;
@@ -156,7 +169,13 @@ void SfmMapper::AddOdometryFactors(const OptimizerState &input) {
     graph.emplace_shared<BetweenFactor<Pose3>>(
         latestRobotState, latestRobotState + 1, odom.poseDelta, odomNoise);
 
+    Symbol(latestRobotState).print("state was ");
+    wTb_latest.print(" w2b was");
+    odom.poseDelta.print("pose delta");
     wTb_latest = wTb_latest.transformPoseFrom(odom.poseDelta);
+    Symbol(latestRobotState).print("state will be ");
+    wTb_latest.print(" w2b now");
+
     currentEstimate.insert(latestRobotState + 1, wTb_latest);
 
     timeToKeyMap[odom.time] = latestRobotState + 1;
@@ -179,11 +198,13 @@ void SfmMapper::AddKeyframes(const OptimizerState &input) {
       for (size_t i = 0; i < NUM_CORNERS; i++) {
 
         // Decision variable - where our camera is in the world
-        const Pose3_ robotTcamera_fac(keyframe.cameraIdx);
+        const Pose3_ robotTcamera_wpilib{keyframe.cameraIdx};
+        const Pose3_ robotTcamera_cv{robotTcamera_wpilib *
+                                     wpilibToCvCameraTransform};
 
         // Where we'd predict the i'th corner of the tag to be
-        const auto prediction = PredictLandmarkImageLocationFactor(
-            worldTbody_fac, robotTcamera_fac, cameraCalMap[keyframe.cameraIdx],
+        const Point2_ prediction = PredictLandmarkImageLocationFactor(
+            worldTbody_fac, robotTcamera_cv, cameraCalMap[keyframe.cameraIdx],
             worldPcorners[i]);
 
         // where we saw the i'th corner in the image
@@ -191,6 +212,10 @@ void SfmMapper::AddKeyframes(const OptimizerState &input) {
 
         // Add this prediction/measurement pair to our graph
         graph.addExpressionFactor(prediction, measurement, cameraNoise);
+
+        Point2 initialError = measurement - prediction.value(currentEstimate);
+        fmt::println("tag {} initial error ({}, {})/L2 norm {:.2f}px", tag.id,
+                     initialError(0), initialError(1), initialError.norm());
       }
     }
   }
@@ -204,17 +229,10 @@ void SfmMapper::Optimize(const OptimizerState &input) {
     gotAkeyframe = true;
 
     auto keyframe = input.keyframes[0];
-    auto tags = keyframe.observation;
-    gtsam::Cal3_S2 cal = cameraCalMap[keyframe.cameraIdx];
-    auto est = estimateWorldTcam(tags, layoutGuess, cal.fx(), cal.fy(),
-                                 cal.px(), cal.py());
 
-    if (!est) {
-      throw std::runtime_error("Couldn't find tag in map?");
-      return;
-    }
-
-    wTb_latest = *est;
+    // hack - take pose from the first tagdetection
+    wTb_latest =
+        Pose3dToGtsamPose3(frc::Pose3d{keyframe.observation[0].poseGuess});
 
     latestRobotState = helpers::StateNumToKey(1);
 

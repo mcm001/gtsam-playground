@@ -86,11 +86,7 @@ std::map<gtsam::Key, gtsam::Cal3_S2> cameraCal{
     {helpers::CameraIdxToKey(1), camera1Cal}};
 
 // HACK: assume tag 7 is "fixed"
-const std::vector<int> FIXED_TAGS{7};
-
-// HACK: assume one camera
-Pose3 worldTbody_nominal{};
-gtsam::Key cameraKey{C(1)};
+const std::vector<int> FIXED_TAGS{7, 8};
 
 // Odoometry factor stdev: rad,rad,rad,m, m, m
 ::gtsam::SharedNoiseModel odomNoise = noiseModel::Diagonal::Sigmas(
@@ -107,7 +103,7 @@ int main() {
   MapperNtIface ntIface;
 
   auto ret{wpilog_reader::LoadDataFile(
-      "/home/matt/github/gtsam-playground/logs/FRC_20241012_184342.wpilog",
+      "/home/matt/github/gtsam-playground/logs/FRC_20241012_193357.wpilog",
       "NT:/gtsam_meme/robot_odom", "NT:/gtsam_meme/cam1/tags")};
 
   sfm_mapper::SfmMapper mapper{tagLayoutGuess, odomNoise, cameraNoise,

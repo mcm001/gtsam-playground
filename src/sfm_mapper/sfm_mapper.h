@@ -67,7 +67,7 @@ private:
 
   void AddKeyframes(const OptimizerState &newThings);
 
-  gtsam::ExpressionFactorGraph graph;
+  gtsam::ExpressionFactorGraph graph{};
   gtsam::Values currentEstimate{};
 
   // initial tag layout guess. In the future, refactor to support totally
