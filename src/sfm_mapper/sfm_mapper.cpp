@@ -76,15 +76,9 @@ SfmMapper::SfmMapper(frc::AprilTagFieldLayout layoutGuess_,
 
   for (const auto &[key, cal] : cameraCalMap) {
     // todo - guess null
-    Pose3 camGuess{Rot3::Ry(-.3), Point3{.5, 0, .5}};
+    Pose3 camGuess{Rot3::Ry(-.15), Point3{.4, 0, .4}};
 
     currentEstimate.insert(helpers::CameraIdxToKey(key), camGuess);
-
-    // hack - constrain robot->cam
-    // graph.emplace_shared<PriorFactor<Pose3>>(helpers::CameraIdxToKey(key),
-    //                                          camGuess, posePriorNoise);
-    graph.emplace_shared<NonlinearEquality<Pose3>>(helpers::CameraIdxToKey(key),
-                                                   camGuess);
   }
 
   for (int tagId : fixedTags) {
@@ -96,14 +90,11 @@ SfmMapper::SfmMapper(frc::AprilTagFieldLayout layoutGuess_,
 
     graph.emplace_shared<NonlinearEquality<Pose3>>(helpers::TagIdToKey(tagId),
                                                    *worldTtag);
-    // graph.emplace_shared<PriorFactor<Pose3>>(helpers::TagIdToKey(tagId),
-    //                                          *worldTtag, posePriorNoise);
   }
 
   for (const frc::AprilTag &tag : layoutGuess.GetTags()) {
-    if (tag.ID == 7 || tag.ID == 8)
-      currentEstimate.insert(helpers::TagIdToKey(tag.ID),
-                             Pose3dToGtsamPose3(tag.pose));
+    currentEstimate.insert(helpers::TagIdToKey(tag.ID),
+                           Pose3dToGtsamPose3(tag.pose));
   }
 
   graph.print("Initial factor list: ");
@@ -125,12 +116,12 @@ static void ConstrainToFloor(ExpressionFactorGraph &graph, gtsam::Key key) {
   vec[0] = logmap(0); // Rx
   vec[0] = logmap(1); // Ry
 
-  // vec.block(1, 0, 3, 1) = logmap;
   std::vector<size_t> indices{
       kIndexTz,
       kIndexRx,
       kIndexRy,
   };
+
   graph.emplace_shared<PartialPriorFactor<Pose3>>(
       key, indices, vec, noiseModel::Isotropic::Sigma(3, 0.1));
 }
