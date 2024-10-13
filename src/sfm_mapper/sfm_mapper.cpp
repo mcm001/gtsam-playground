@@ -111,21 +111,28 @@ SfmMapper::SfmMapper(frc::AprilTagFieldLayout layoutGuess_,
   graph.saveGraph("graph_ctor.dot", currentEstimate);
 }
 
+/**
+ * Constrain my robot to be flat on the 2d floor plane at Z=0. This means we
+ * want the Z coordinate to be 0, and the rotation about X and Y to be 0.
+ *
+ * Note that the local tangent space for SE(3) encoded as (rx ry rz tx ty tz).
+ */
 static void ConstrainToFloor(ExpressionFactorGraph &graph, gtsam::Key key) {
   auto logmap = Rot3::Logmap(Rot3::Identity());
-  auto vec = gtsam::Vector(4);
-  vec[0] = 0;
-  vec.block(1, 0, 3, 1) = logmap;
-  // std::cout << "logmap: " << logmap << std::endl;
-  // std::cout << "Constraining to: " << vec << std::endl;
+  auto vec = gtsam::Vector(3);
+
+  vec[0] = 0;         // Tz
+  vec[0] = logmap(0); // Rx
+  vec[0] = logmap(1); // Ry
+
+  // vec.block(1, 0, 3, 1) = logmap;
   std::vector<size_t> indices{
       kIndexTz,
       kIndexRx,
       kIndexRy,
-      kIndexRz,
   };
   graph.emplace_shared<PartialPriorFactor<Pose3>>(
-      key, indices, vec, noiseModel::Isotropic::Sigma(4, 0.1));
+      key, indices, vec, noiseModel::Isotropic::Sigma(3, 0.1));
 }
 
 using TimeKeyMap = SfmMapper::TimeKeyMap;
