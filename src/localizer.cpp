@@ -380,6 +380,12 @@ Key Localizer::GetOrInsertKey(Key newKey, double time) {
 }
 
 void Localizer::AddTagObservation(CameraVisionObservation obs) {
+  const auto &isamTimestamps = smootherISAM2.timestamps();
+  if (obs.timeUs < isamTimestamps.begin()->second) {
+    std::cerr << "Timestamp is before even isam history - skipping" << std::endl;
+    return;
+  }
+
   int tagID = obs.tagID;
   const Cal3_S2_ &cameraCal = obs.cameraCal;
   const Pose3 &robotTcamera = obs.robotTcamera;
