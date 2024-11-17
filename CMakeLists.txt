@@ -11,6 +11,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/mo
 set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin )
 set( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib )
 
+include(FetchContent)
+
 # Grab genresources
 include(GenResources)
 
@@ -103,7 +105,16 @@ target_link_libraries(tag-mapper-replay tag-mapper)
 
 install(TARGETS tag-mapper-live tag-mapper-replay gtsam-node)
 
-include(FetchContent)
+# clang-tidy
+set(CMAKE_CXX_CLANG_TIDY clang-tidy -checks=-*,readability-*)
+
+add_executable(constrained_solvepnp_test src/ConstrainedPnp.cpp)
+target_link_libraries(constrained_solvepnp_test gtsam gtsam_unstable wpimath)
+
+set(CMAKE_CXX_CLANG_TIDY "")
+
+install(TARGETS gtsam-node)
+
 FetchContent_Declare(
   googletest
   URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip

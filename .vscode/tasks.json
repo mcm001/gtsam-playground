@@ -9,8 +9,21 @@
             },
             "group": {
                 "kind": "build",
-                "isDefault": true
+                "isDefault": false
             }
         },
+        {
+            "label": "build constrained_solvepnp_test",
+            "type": "shell",
+            "command": "cmake --build ${workspaceFolder}/build --target constrained_solvepnp_test",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        }
     ]
 }
