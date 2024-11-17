@@ -59,6 +59,8 @@ z in [1,0,0]
 const Pose3 wpilibToCvCameraTransform{
     Pose3{Rot3(0, 0, 1, -1, 0, 0, 0, -1, 0), Point3{0.0, 0, 0.0}}};
 
+// Noise model to use on our pose-partial-prior
+// TODO - expose this as something tunable
 ::gtsam::SharedNoiseModel partialPosePriorNoise = noiseModel::Diagonal::Sigmas(
     (Vector(4, 1) << 0.001, 0.01, 0.01, 0.05).finished());
 
@@ -66,10 +68,13 @@ const Pose3 wpilibToCvCameraTransform{
  * Constrain my robot to be flat on the 2d floor plane at Z=0. This means we
  * want the Z coordinate to be 0, and the rotation about X and Y to be 0.
  *
- * Note that the local tangent space for SE(3) encoded as (rx ry rz tx ty tz).
+ * Further, we constrain the yaw, leaving only Tx and Ty fully unconstrained.
+ *
+ * Note that the local tangent space for SE(3) is encoded in order (rx ry rz tx
+ * ty tz), per Pose3.h's interval documentation.
  */
-static void ConstrainToFloor(ExpressionFactorGraph &graph, gtsam::Key key,
-                             double yawEst) {
+static void AddPosePriorFloorGyro(ExpressionFactorGraph &graph, gtsam::Key key,
+                                  double yawEst) {
   auto logmap = Rot3::Logmap(Rot3::Rz(yawEst));
 
   auto vec = gtsam::Vector(4);
@@ -85,8 +90,6 @@ static void ConstrainToFloor(ExpressionFactorGraph &graph, gtsam::Key key,
       kIndexRz,
   };
 
-  // TODO - expose this nosiemodel as a variable
-  const double DEFAULT_POSEPRIOR_NOISE{0.1};
   graph.emplace_shared<PartialPriorFactor<Pose3>>(key, indices, vec,
                                                   partialPosePriorNoise);
 }
@@ -97,25 +100,31 @@ const Pose3_ worldTbody_fac{robotPose};
 struct PoseEstimator {
   ExpressionFactorGraph graph{};
   Values currentEstimate;
-  gtsam::SharedNoiseModel cameraNoise{noiseModel::Isotropic::Sigma(2, 1)};
+  gtsam::SharedNoiseModel cameraNoise{noiseModel::Isotropic::Sigma(2, 1.0)};
   gtsam::Pose3 robotTcamera_wpilib;
   gtsam::Cal3_S2 cameraCal;
 
+  /**
+   * Clear all factors and reset our estimate
+   */
   void Reset() {
     graph.resize(0);
     currentEstimate.clear();
   }
 
-  void AddOdometry(Pose3 pose) {
+  /**
+   * Set where we think the robot is in the field. The yaw component of this
+   * pose is used as a prior on robot yaw
+   */
+  void SetRobotPoseGuess(Pose3 pose) {
     currentEstimate.insert_or_assign(robotPose, pose);
 
-    // Noise on the prior factor we use to anchor the first pose. Order is r, t
-    Vector6 sigmas;
-
-    // Pose is probably flat on the floor
-    ConstrainToFloor(graph, robotPose, pose.rotation().yaw());
+    AddPosePriorFloorGyro(graph, robotPose, pose.rotation().yaw());
   }
 
+  /**
+   * Add a tag observation set from the current timestep
+   */
   void AddKeyframes(std::vector<TagDetection> observation) {
     for (const TagDetection &tag : observation) {
       auto worldPcorners{TagModel::WorldToCorners(tag.id)};
@@ -146,7 +155,10 @@ struct PoseEstimator {
     }
   }
 
-  Pose3 Solve() {
+  /**
+   * Solve the optimization problem for the robot pose
+   */
+  const Pose3 Solve() const {
     DoglegParams params;
     params.verbosity = NonlinearOptimizerParams::ERROR;
 
@@ -161,8 +173,15 @@ struct PoseEstimator {
 };
 
 int main() {
-  // todo - guess null
-  Pose3 camGuess{Rot3{}, Point3{}};
+  PoseEstimator estimator{};
+  estimator.robotTcamera_wpilib = Pose3{};
+  estimator.cameraCal = {1000, 1000, 0, 320, 240};
+
+  estimator.Reset();
+  estimator.SetRobotPoseGuess(Pose3{});
+  estimator.AddKeyframes({});
+
+  estimator.Solve();
 
   return 0;
 }
