@@ -77,6 +77,8 @@ static void AddPosePriorFloorGyro(ExpressionFactorGraph &graph, gtsam::Key key,
                                   double yawEst) {
   auto logmap = Rot3::Logmap(Rot3::Rz(yawEst));
 
+  fmt::println("Constraining yaw to {} rad", yawEst);
+
   auto vec = gtsam::Vector(4);
   vec[0] = 0;         // Tz
   vec[1] = logmap(0); // Rx
@@ -166,7 +168,9 @@ struct PoseEstimator {
 
     auto values = optimizer.optimize();
 
-    values.at<Pose3>(robotPose).print("Estimated pose");
+    auto est = values.at<Pose3>(robotPose);
+    est.print("Estimated pose");
+    fmt::println("Estimated pose x {} y {} yaw {}", est.x(), est.y(), est.rotation().yaw());
 
     return values.at<Pose3>(robotPose);
   }
@@ -174,12 +178,21 @@ struct PoseEstimator {
 
 int main() {
   PoseEstimator estimator{};
-  estimator.robotTcamera_wpilib = Pose3{};
-  estimator.cameraCal = {1000, 1000, 0, 320, 240};
+  estimator.robotTcamera_wpilib = Pose3{Rot3::Ry(-0.5236), Point3{0.5, 0, 0.5}};
+  estimator.cameraCal = {1.9938E+02, 1.9917E+02, 0, 320/2, 240/2};
 
   estimator.Reset();
-  estimator.SetRobotPoseGuess(Pose3{});
-  estimator.AddKeyframes({});
+  estimator.SetRobotPoseGuess(Pose3{Rot3::Rz(3.1), Point3{3.5, 5.5, 0}});
+  estimator.AddKeyframes(
+      {
+        TagDetection{7,
+                    {
+                      {.x = 153.9, .y=169.1},
+                      {.x = 165.0, .y=169.0},
+                      {.x = 164.9, .y=158.8},
+                      {.x = 154.2, .y=158.0}
+                    }}}
+  );
 
   estimator.Solve();
 

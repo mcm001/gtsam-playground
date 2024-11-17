@@ -108,8 +108,16 @@ install(TARGETS tag-mapper-live tag-mapper-replay gtsam-node)
 # clang-tidy
 set(CMAKE_CXX_CLANG_TIDY clang-tidy -checks=-*,readability-*)
 
-add_executable(constrained_solvepnp_test src/ConstrainedPnp.cpp)
-target_link_libraries(constrained_solvepnp_test gtsam gtsam_unstable wpimath)
+add_executable(constrained_solvepnp_test 
+  src/ConstrainedPnp.cpp
+  src/TagModel.cpp
+  src/gtsam_utils.cpp)
+target_link_libraries(constrained_solvepnp_test 
+  gtsam 
+  gtsam_unstable 
+  wpimath
+  apriltag
+)
 
 set(CMAKE_CXX_CLANG_TIDY "")
 
