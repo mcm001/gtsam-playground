@@ -1,1 +1,7 @@
 
+[submodule "gtsam2"]
+	path = gtsam
+	url = https://github.com/mcm001/gtsam
+[submodule "ni-libraries"]
+	path = ni-libraries
+	url = https://github.com/wpilibsuite/ni-libraries

@@ -32,6 +32,11 @@
 #include <iostream>
 #include <vector>
 
+#include <hal/HAL.h>
+
+#include <wpi/print.h>
+#include <wpi/timestamp.h>
+
 #include "TagDetection.h"
 #include "TagModel.h"
 #include "gtsam_utils.h"
@@ -170,31 +175,38 @@ struct PoseEstimator {
 
     auto est = values.at<Pose3>(robotPose);
     est.print("Estimated pose");
-    fmt::println("Estimated pose x {} y {} yaw {}", est.x(), est.y(), est.rotation().yaw());
+    fmt::println("Estimated pose x {} y {} yaw {}", est.x(), est.y(),
+                 est.rotation().yaw());
 
     return values.at<Pose3>(robotPose);
   }
 };
 
 int main() {
+  HAL_Initialize(500, 0);
+
   PoseEstimator estimator{};
   estimator.robotTcamera_wpilib = Pose3{Rot3::Ry(-0.5236), Point3{0.5, 0, 0.5}};
-  estimator.cameraCal = {1.9938E+02, 1.9917E+02, 0, 320/2, 240/2};
+  estimator.cameraCal = {1.9938E+02, 1.9917E+02, 0, 320 / 2, 240 / 2};
 
+  auto t1 = wpi::Now();
   estimator.Reset();
-  estimator.SetRobotPoseGuess(Pose3{Rot3::Rz(3.1), Point3{3.5, 5.5, 0}});
-  estimator.AddKeyframes(
-      {
-        TagDetection{7,
-                    {
-                      {.x = 153.9, .y=169.1},
-                      {.x = 165.0, .y=169.0},
-                      {.x = 164.9, .y=158.8},
-                      {.x = 154.2, .y=158.0}
-                    }}}
-  );
+  auto t2 = wpi::Now();
+  estimator.SetRobotPoseGuess(Pose3{Rot3::Rz(3.0), Point3{3, 5, 0}});
+  auto t3 = wpi::Now();
+  estimator.AddKeyframes({TagDetection{7,
+                                       {{.x = 153.9, .y = 169.1},
+                                        {.x = 165.0, .y = 169.0},
+                                        {.x = 164.9, .y = 158.8},
+                                        {.x = 154.2, .y = 158.0}}}});
+  auto t4 = wpi::Now();
 
   estimator.Solve();
+
+  auto t5 = wpi::Now();
+
+  wpi::println("Reset {} Guess {} keyframe {} solve {} total {} (microseconds)",
+               t2 - t1, t3 - t2, t4 - t3, t5 - t4, t5 - t1);
 
   return 0;
 }

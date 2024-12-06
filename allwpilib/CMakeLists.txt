@@ -27,6 +27,8 @@ set(WITH_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(WITH_GUI OFF CACHE BOOL "" FORCE)
 set(WITH_SIMULATION_MODULES OFF CACHE BOOL "" FORCE)
 
+include_directories(${PROJECT_SOURCE_DIR}/ni-libraries/src/include)
+
 # Add allwpilib directly to our build.
 add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/allwpilib-src
                  ${CMAKE_CURRENT_BINARY_DIR}/allwpilib-build

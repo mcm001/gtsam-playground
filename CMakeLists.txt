@@ -20,6 +20,13 @@ add_compile_options(-fno-omit-frame-pointer)
 set(CXXFLAGS "${CXXFLAGS} -fno-omit-frame-pointer")
 set(CMAKE_INSTALL_RPATH "lib")
 
+set(GTSAM_BUILD_UNSTABLE ON)
+set(GTSAM_ENABLE_TIMING OFF)
+set(GTSAM_USE_BOOST_FEATURES OFF)
+set(GTSAM_ENABLE_BOOST_SERIALIZATION  OFF)
+set(GTSAM_ALLOW_DEPRECATED_SINCE_V42 OFF)
+set(GTSAM_USE_SYSTEM_METIS OFF)
+set(WITH_PROTOBUF OFF CACHE BOOL "" FORCE)
 add_subdirectory(gtsam)
 add_subdirectory(allwpilib)
 
@@ -105,8 +112,8 @@ target_link_libraries(tag-mapper-replay tag-mapper)
 
 install(TARGETS tag-mapper-live tag-mapper-replay gtsam-node)
 
-# clang-tidy
-set(CMAKE_CXX_CLANG_TIDY clang-tidy -checks=-*,readability-*)
+# # clang-tidy
+# set(CMAKE_CXX_CLANG_TIDY clang-tidy -checks=-*,readability-*)
 
 add_executable(constrained_solvepnp_test 
   src/ConstrainedPnp.cpp
@@ -117,6 +124,7 @@ target_link_libraries(constrained_solvepnp_test
   gtsam_unstable 
   wpimath
   apriltag
+  hal
 )
 
 set(CMAKE_CXX_CLANG_TIDY "")
