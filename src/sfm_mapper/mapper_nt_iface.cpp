@@ -41,7 +41,7 @@ MapperNtIface::MapperNtIface()
   nt::NetworkTableInstance inst = nt::NetworkTableInstance::GetDefault();
 
   inst.StopServer();
-  inst.SetServer("10.0.0.183");
+  inst.SetServer("10.0.0.118");
   inst.StartClient4("gtsam-mapper-meme");
 
   frc::SmartDashboard::PutData("GtsamMeme", &field);

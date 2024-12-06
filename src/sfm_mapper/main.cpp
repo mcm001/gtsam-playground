@@ -195,6 +195,10 @@ public:
 
     cout << "Results:" << endl;
 
+    std::stringstream ss;
+    ss << "tag_map_" << result.size() << ".dot";
+    graph.saveGraph(ss.str(), result);
+
     {
       gtsam::Marginals marginals(graph, result);
       std::vector<frc::AprilTag> tags;
