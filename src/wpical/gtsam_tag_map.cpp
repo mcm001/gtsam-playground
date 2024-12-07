@@ -27,7 +27,13 @@
 #include <map>
 #include <vector>
 
+#include <opencv2/calib3d.hpp>
+#include <opencv2/core/eigen.hpp>
+
+#include "pose_converters.h"
+
 using namespace gtsam;
+using namespace wpical;
 
 static std::map<int, Pose3>
 TagLayoutToMap(const frc::AprilTagFieldLayout &layout) {
@@ -40,7 +46,7 @@ TagLayoutToMap(const frc::AprilTagFieldLayout &layout) {
   return worldTtags;
 }
 
-std::vector<Point3> MakeTagModel(double width) {
+static std::vector<Point3> MakeTagModel(double width) {
   return {
       {0, -width / 2.0, -width / 2.0},
       {0, width / 2.0, -width / 2.0},
@@ -48,12 +54,11 @@ std::vector<Point3> MakeTagModel(double width) {
       {0, -width / 2.0, width / 2.0},
   };
 }
-std::vector<cv::Point3f> MakeTagModelOpenCV(double width) {
-  std::vector<cv::Point3f> objectPoints{
-      cv::Point3f(0, -width / 2.0, -width / 2.0),
-      cv::Point3f(0, +width / 2.0, -width / 2.0),
-      cv::Point3f(0, +width / 2.0, +width / 2.0),
-      cv::Point3f(0, -width / 2.0, +width / 2.0)};
+static std::vector<cv::Point3f> MakeTagModelOpenCV(double width) {
+  return {cv::Point3f(0, -width / 2.0, -width / 2.0),
+          cv::Point3f(0, +width / 2.0, -width / 2.0),
+          cv::Point3f(0, +width / 2.0, +width / 2.0),
+          cv::Point3f(0, -width / 2.0, +width / 2.0)};
 }
 
 wpical::GtsamApriltagMap::GtsamApriltagMap(
@@ -62,7 +67,8 @@ wpical::GtsamApriltagMap::GtsamApriltagMap(
       tagToCornersCv{MakeTagModelOpenCV(tagWidth.to<double>())},
       worldTtags{TagLayoutToMap(layout)} {}
 
-const std::optional<Pose3> wpical::GtsamApriltagMap::WorldToTag(const int id) const {
+const std::optional<Pose3>
+wpical::GtsamApriltagMap::WorldToTag(const int id) const {
   if (auto it = worldTtags.find(id); it != worldTtags.end()) {
     return it->second;
   } else {
@@ -99,7 +105,7 @@ std::optional<gtsam::Pose3>
 wpical::EstimateWorldTCam_SingleTag(TagDetection tagToUse,
                                     wpical::GtsamApriltagMap aprilTags,
                                     CameraMatrix camMat) {
-  auto distCoeffs = wpical::DistortionMatrix::Zero();
+  Eigen::Matrix<double, 8, 1> distCoeffs = wpical::DistortionMatrix::Zero();
 
   const std::vector<cv::Point3f> &objectPoints = aprilTags.TagToCornersCv();
 
@@ -110,9 +116,10 @@ wpical::EstimateWorldTCam_SingleTag(TagDetection tagToUse,
   }
 
   // eigen/cv marshalling
-  cv::Mat cameraMatCV(camMat->rows(), camMat->cols(), CV_64F);
+  cv::Mat cameraMatCV(camMat.rows(), camMat.cols(), cv::DataType<double>::type);
   cv::eigen2cv(camMat, cameraMatCV);
-  cv::Mat distCoeffsMatCV(distCoeffs->rows(), distCoeffs->cols(), CV_64F);
+  cv::Mat distCoeffsMatCV(distCoeffs.rows(), distCoeffs.cols(),
+                          cv::DataType<double>::type);
   cv::eigen2cv(distCoeffs, distCoeffsMatCV);
 
   // actually do solvepnp

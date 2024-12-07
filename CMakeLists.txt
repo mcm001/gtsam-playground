@@ -85,21 +85,27 @@ add_executable(gtsam-node
 target_compile_options(gtsam-localizer PRIVATE -Wno-deprecated-enum-enum-conversion)
 target_link_libraries(gtsam-node gtsam-localizer)
 
-add_library(tag-mapper-lib
-  src/sfm_mapper/PhotonPoseEstimator.cpp
-  src/sfm_mapper/helpers.cpp
-  src/sfm_mapper/mapper_nt_iface.cpp
+add_library(wpical
+  src/wpical/wpical.cpp
+  src/wpical/pose_converters.cpp
+  src/wpical/gtsam_tag_map.cpp
 )
-target_link_libraries(tag-mapper-lib PRIVATE gtsam-localizer wpilibc ${OPENCV_LIB_PATH})
-target_include_directories(tag-mapper-lib PRIVATE src ${OPENCV_INCLUDE_PATH})
+target_link_libraries(wpical PRIVATE gtsam apriltag ${OPENCV_LIB_PATH})
+target_include_directories(wpical PRIVATE src ${OPENCV_INCLUDE_PATH})
+
+if (CMAKE_COMPILER_IS_GNUCC)
+    target_compile_options(wpical PRIVATE -Wno-deprecated-enum-enum-conversion)
+endif()
 
 add_executable(tag-mapper 
-  src/sfm_mapper/main.cpp
+  src/tag_mapper/main.cpp
+  src/tag_mapper/mapper_nt_iface.cpp
 )
 target_compile_options(tag-mapper PRIVATE -Wno-deprecated-enum-enum-conversion)
-target_link_libraries(tag-mapper gtsam-localizer wpilibc tag-mapper-lib ${OPENCV_LIB_PATH})
+target_link_libraries(tag-mapper gtsam wpilibc apriltag wpical ${OPENCV_LIB_PATH})
 target_include_directories(tag-mapper PRIVATE src ${OPENCV_INCLUDE_PATH})
 
+install(TARGETS wpical)
 install(TARGETS tag-mapper)
 install(TARGETS gtsam-node)
 
@@ -126,19 +132,6 @@ target_link_libraries(
 )
 target_include_directories(localizer_test PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_compile_options(localizer_test PRIVATE -g -Og)
-
-
-add_library(wpical
-  src/wpical/wpical.cpp
-  src/wpical/pose_converters.cpp
-)
-target_link_libraries(wpical PRIVATE gtsam apriltag ${OPENCV_LIB_PATH})
-target_include_directories(wpical PRIVATE src ${OPENCV_INCLUDE_PATH})
-
-if (CMAKE_COMPILER_IS_GNUCC)
-    target_compile_options(wpical PRIVATE -Wno-deprecated-enum-enum-conversion)
-endif()
-
 
 include(GoogleTest)
 gtest_discover_tests(localizer_test)

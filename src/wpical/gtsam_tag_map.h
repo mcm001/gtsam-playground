@@ -34,6 +34,8 @@
 #include <opencv2/core/types.hpp>
 #include <units/length.h>
 
+#include "TagDetection.h"
+
 namespace wpical {
 using CameraMatrix = Eigen::Matrix<double, 3, 3>;
 using DistortionMatrix = Eigen::Matrix<double, 8, 1>;

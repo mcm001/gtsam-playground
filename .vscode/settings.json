@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "*.jinja": "jinja",
         "*.tcc": "cpp",
         "deque": "cpp",
         "list": "cpp",
@@ -91,7 +92,17 @@
         "fft": "cpp",
         "*.evaluator": "cpp",
         "version": "cpp",
-        "source_location": "cpp"
+        "source_location": "cpp",
+        "csetjmp": "cpp",
+        "barrier": "cpp",
+        "coroutine": "cpp",
+        "cuchar": "cpp",
+        "netfwd": "cpp",
+        "rope": "cpp",
+        "slist": "cpp",
+        "latch": "cpp",
+        "syncstream": "cpp",
+        "*.expression": "cpp"
     },
     "python.autoComplete.extraPaths": [
         "/opt/ros/noetic/lib/python3/dist-packages"

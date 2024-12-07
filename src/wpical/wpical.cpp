@@ -71,7 +71,7 @@ std::set<int> TagsUsed(KeyframeMap tags) {
   return {v.begin(), v.end()};
 }
 
-CalResult OptimizeLayout(
+CalResult wpical::OptimizeLayout(
     const GtsamApriltagMap &tagLayoutGuess, const KeyframeMap &keyframes,
     gtsam::Cal3_S2 cal,
     const std::map<int32_t, std::pair<gtsam::Pose3, gtsam::SharedNoiseModel>>
@@ -176,6 +176,7 @@ CalResult OptimizeLayout(
   }
 
   CalResult ret;
+  ret.result = result;
 
   {
     gtsam::Marginals marginals(graph, result);
@@ -185,7 +186,8 @@ CalResult OptimizeLayout(
     for (auto [key, value] : result) {
       std::cout << "\n========= Key " << gtsam::Symbol(key) << " ==========\n";
 
-      // Assume all our keys are pose3 factors. lol.
+      // Assume all our keys are pose3 factors. lol. Print out some fun info
+      // about them
       auto est = GtsamToFrcPose3d(result.at<gtsam::Pose3>(key));
       fmt::println("Estimated pose:");
       fmt::println("Translation: x={:.2f} y={:.2f} z={:.2f}", est.X(), est.Y(),
@@ -196,19 +198,27 @@ CalResult OptimizeLayout(
                    est.Rotation().GetQuaternion().Y(),
                    est.Rotation().GetQuaternion().Z());
 
+      gtsam::Matrix marginalCov = marginals.marginalCovariance(key);
+
       // Covariance is the variance of x_i with x_i - stddev is sqrt(var)
       std::cout << "Marginal covariance (r t):" << std::endl
                 << marginals.marginalCovariance(key).diagonal().cwiseSqrt()
                 << std::endl;
 
       // todo - track all tag keys instead of this hack
-      if (key >= L(0) && key <= L(2000)) {
-        tags.push_back(frc::AprilTag{static_cast<int>(key - L(0)), est});
+      if (key >= L(0) && key <= L(1000000)) {
+        int id = static_cast<int>(key - L(0));
+
+        tags.push_back(frc::AprilTag{id, est});
+        ret.tagPoseCovariances[id] = marginalCov;
+      }
+      if (key >= X(0) && key <= X(1000000)) {
+        ret.cameraPoseCovariances[key] = marginalCov;
       }
     }
 
     frc::AprilTagFieldLayout layout{tags, 16.541_m, 8.211_m};
-    // ntIface.PublishLayout(layout);
+    ret.optimizedLayout = layout;
   }
 
   return ret;
