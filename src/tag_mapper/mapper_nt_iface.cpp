@@ -37,7 +37,13 @@ MapperNtIface::MapperNtIface()
                                               .pollStorage = 100,
                                               .sendAll = true,
                                               .keepDuplicates = true,
-                                          })) {
+                                          })),
+    tagPoseCovPub(nt::NetworkTableInstance::GetDefault()
+                           .GetStructArrayTopic<Pose3WithCovariance>("/output/tagPoseCov").Publish()),
+    cameraPoseCovPub(nt::NetworkTableInstance::GetDefault()
+                           .GetStructArrayTopic<Pose3WithCovariance>("/output/camPoseCov").Publish())
+                                          
+                                           {
   nt::NetworkTableInstance inst = nt::NetworkTableInstance::GetDefault();
 
   inst.StopServer();
@@ -62,13 +68,15 @@ std::map<gtsam::Key, std::vector<TagDetection>> MapperNtIface::NewKeyframes() {
   return ret;
 }
 
-void MapperNtIface::PublishLayout(AprilTagFieldLayout layout) {
+void MapperNtIface::PublishResult(frc::AprilTagFieldLayout layout, 
+  std::vector<Pose3WithCovariance> tags, std::vector<Pose3WithCovariance> camera) {
   // todo - this destroys the relationship between ID and pose
   std::vector<Pose2d> out;
-
   for (const auto tag : layout.GetTags()) {
     out.push_back(tag.pose.ToPose2d());
   }
-
   field.GetObject("EstimatedField")->SetPoses(out);
+
+  tagPoseCovPub.Set(tags);
+  cameraPoseCovPub.Set(camera);
 }

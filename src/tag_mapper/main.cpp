@@ -92,7 +92,17 @@ int main() {
 
     auto result { OptimizeLayout(tagMap, keyframes, cal, fixedTags, cameraNoise) };
 
-    ntIface.PublishLayout(result.optimizedLayout);
+    std::vector<Pose3WithCovariance> tags;
+    std::vector<Pose3WithCovariance> camera;
+
+    for (const auto& [key, val] : result.tagPoseCovariances) {
+      tags.push_back(val);
+    }
+    for (const auto& [key, val] : result.cameraPoseCovariances) {
+      camera.push_back(val);
+    }
+
+    ntIface.PublishResult(result.optimizedLayout, tags, camera);
   }
 
   return 0;

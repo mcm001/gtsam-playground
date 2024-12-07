@@ -198,22 +198,23 @@ CalResult wpical::OptimizeLayout(
                    est.Rotation().GetQuaternion().Y(),
                    est.Rotation().GetQuaternion().Z());
 
-      gtsam::Matrix marginalCov = marginals.marginalCovariance(key);
-
       // Covariance is the variance of x_i with x_i - stddev is sqrt(var)
-      std::cout << "Marginal covariance (r t):" << std::endl
-                << marginals.marginalCovariance(key).diagonal().cwiseSqrt()
-                << std::endl;
+      gtsam::Matrix marginalCov = marginals.marginalCovariance(key);
+      auto stddev = marginalCov.diagonal().cwiseSqrt();
+
+      std::cout << "Marginal stddev (r t):" << std::endl << stddev << std::endl;
 
       // todo - track all tag keys instead of this hack
       if (key >= L(0) && key <= L(1000000)) {
         int id = static_cast<int>(key - L(0));
 
         tags.push_back(frc::AprilTag{id, est});
-        ret.tagPoseCovariances[id] = marginalCov;
+        ret.tagPoseCovariances[id] =
+            Pose3WithCovariance::FromEigen(est, stddev);
       }
       if (key >= X(0) && key <= X(1000000)) {
-        ret.cameraPoseCovariances[key] = marginalCov;
+        ret.cameraPoseCovariances[key] =
+            Pose3WithCovariance::FromEigen(est, stddev);
       }
     }
 

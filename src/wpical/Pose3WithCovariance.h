@@ -24,36 +24,24 @@
 
 #pragma once
 
-#include <gtsam/inference/Symbol.h>
-
-#include <map>
-#include <vector>
-
-#include <frc/apriltag/AprilTagFieldLayout.h>
+#include <Eigen/Core>
 #include <frc/geometry/Pose3d.h>
-#include <frc/smartdashboard/Field2d.h>
-#include <networktables/StructArrayTopic.h>
-#include <networktables/StructTopic.h>
 
-#include "TagDetection.h"
-#include "TagDetectionStruct.h"
-#include "wpical/Pose3WithCovariance.h"
+struct Pose3WithCovariance {
+  frc::Pose3d pose;
+  // in order rx ry rz tx ty tz. Units are SI units
+  std::array<double, 6> covariance;
 
-class MapperNtIface {
+  static Pose3WithCovariance FromEigen(frc::Pose3d pose,
+                                       Eigen::MatrixXd covariance) {
+    std::array<double, 6> cov;
 
-public:
-  MapperNtIface();
+    for (size_t i = 0; i < 6; i++) {
+      cov[i] = covariance(i);
+    }
 
-  std::map<gtsam::Key, std::vector<TagDetection>> NewKeyframes();
-  void PublishResult(frc::AprilTagFieldLayout layout, std::vector<Pose3WithCovariance> tags, std::vector<Pose3WithCovariance> camera);
-
-private:
-  nt::StructArraySubscriber<TagDetection> keyframeListener;
-
-  nt::StructArrayPublisher<Pose3WithCovariance> tagPoseCovPub;
-  nt::StructArrayPublisher<Pose3WithCovariance> cameraPoseCovPub;
-
-  frc::Field2d field{};
-
-  gtsam::Key keyframe = gtsam::symbol_shorthand::X(0);
+    return {pose, cov};
+  }
 };
+
+#include "Pose3WithCovarianceStruct.h"
