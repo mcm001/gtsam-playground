@@ -26,29 +26,11 @@
 
 #include <gtsam/geometry/Pose3.h>
 
-#include <optional>
-#include <vector>
-
-#include <frc/apriltag/AprilTagFieldLayout.h>
 #include <frc/geometry/Pose3d.h>
-#include <frc/geometry/Transform3d.h>
 #include <opencv2/core/mat.hpp>
-#include <units/time.h>
 
-#include "TagDetection.h"
-
-namespace photon {
-using CameraMatrix = Eigen::Matrix<double, 3, 3>;
-using DistortionMatrix = Eigen::Matrix<double, 8, 1>;
-
-std::optional<gtsam::Pose3>
-EstimateWorldTCam_SingleTag(std::vector<TagDetection> result,
-                            frc::AprilTagFieldLayout aprilTags,
-                            std::optional<CameraMatrix> camMat,
-                            std::optional<DistortionMatrix> distCoeffs);
-std::optional<gtsam::Pose3>
-MultiTagOnRioStrategy(std::vector<TagDetection> result,
-                      frc::AprilTagFieldLayout aprilTags,
-                      std::optional<CameraMatrix> camMat,
-                      std::optional<DistortionMatrix> distCoeffs);
-} // namespace photon
+namespace wpical {
+gtsam::Pose3 Pose3dToGtsamPose3(frc::Pose3d pose);
+frc::Pose3d GtsamToFrcPose3d(gtsam::Pose3 pose);
+frc::Pose3d ToPose3d(const cv::Mat &tvec, const cv::Mat &rvec);
+} // namespace wpical

@@ -59,6 +59,7 @@ SET(OPENCV_INCLUDE_PATH ${opencv_header_SOURCE_DIR})
 # Generate gtsam-localizer resources
 generate_resources(src/resources/ generated/main/cpp GTSAMLOCALIZER meme localizer_resources_src)
 
+
 add_library(gtsam-localizer 
   src/localizer.cpp 
   src/TagModel.cpp
@@ -129,9 +130,14 @@ target_compile_options(localizer_test PRIVATE -g -Og)
 
 add_library(wpical
   src/wpical/wpical.cpp
+  src/wpical/pose_converters.cpp
 )
 target_link_libraries(wpical PRIVATE gtsam apriltag ${OPENCV_LIB_PATH})
 target_include_directories(wpical PRIVATE src ${OPENCV_INCLUDE_PATH})
+
+if (CMAKE_COMPILER_IS_GNUCC)
+    target_compile_options(wpical PRIVATE -Wno-deprecated-enum-enum-conversion)
+endif()
 
 
 include(GoogleTest)

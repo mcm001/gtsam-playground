@@ -32,11 +32,20 @@
 #include <gtsam/nonlinear/Marginals.h>
 #include <gtsam/slam/expressions.h>
 
+#include <iostream>
+#include <map>
+#include <memory>
 #include <optional>
+#include <set>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include <opencv2/calib3d.hpp>
 #include <opencv2/core/mat.hpp>
 #include <opencv2/core/types.hpp>
+
+#include "pose_converters.h"
 
 #define OPENCV_DISABLE_EIGEN_TENSOR_SUPPORT
 #include <opencv2/core/eigen.hpp>
@@ -49,186 +58,22 @@ using symbol_shorthand::X;
 using CameraMatrix = Eigen::Matrix<double, 3, 3>;
 using DistortionMatrix = Eigen::Matrix<double, 8, 1>;
 
-bool tagWasUsed(std::map<gtsam::Key, std::vector<TagDetection>> tags, int id) {
+/**
+ * Check if a given tag {id} was seen in a
+ */
+std::set<int> TagsUsed(KeyframeMap tags) {
+  std::vector<int> v;
   for (const auto &[key, tags] : tags) {
     for (const TagDetection &tag : tags) {
-      if (tag.id == id) {
-        return true;
-      }
+      v.push_back(tag.id);
     }
   }
-
-  return false;
-}
-
-Pose3 Pose3dToGtsamPose3(frc::Pose3d pose) {
-  const auto q = pose.Rotation().GetQuaternion();
-  return Pose3{Rot3(q.W(), q.X(), q.Y(), q.Z()),
-               Point3(pose.X().to<double>(), pose.Y().to<double>(),
-                      pose.Z().to<double>())};
-}
-
-frc::Pose3d GtsamToFrcPose3d(gtsam::Pose3 pose) {
-  return frc::Pose3d{frc::Translation3d{units::meter_t{pose.x()},
-                                        units::meter_t{pose.y()},
-                                        units::meter_t{pose.z()}},
-                     frc::Rotation3d{pose.rotation().matrix()}};
-}
-
-gtsam::Point2_
-PredictLandmarkImageLocationFactor(gtsam::Pose3_ worldTcamera_fac,
-                                   gtsam::Cal3_S2_ cameraCal,
-                                   gtsam::Point3_ worldPcorner) {
-  // Tag corner 3D position in the camera frame
-  const Point3_ camPcorner = transformTo(worldTcamera_fac, worldPcorner);
-  // project from vector down to pinhole location, then uncalibrate to pixel
-  // locations
-  const Point2_ prediction =
-      uncalibrate<Cal3_S2>(cameraCal, project(camPcorner));
-
-  return prediction;
-}
-
-// HACK - assume 6.5in wide tag
-float width = 6.5 * 25.4 / 1000.0;
-std::vector<Point3> tagToCorners{
-    {0, -width / 2.0, -width / 2.0},
-    {0, width / 2.0, -width / 2.0},
-    {0, width / 2.0, width / 2.0},
-    {0, -width / 2.0, width / 2.0},
-};
-std::vector<Point3_> WorldToCornersFactor(Pose3_ worldTtag) {
-  std::vector<Point3_> out;
-  for (const auto &p : tagToCorners) {
-    out.push_back(transformFrom(worldTtag, p));
-  }
-
-  return out;
-}
-
-// TODO HACK fill in
-std::map<int, gtsam::Pose3> worldTtags;
-std::optional<gtsam::Pose3> worldToTag(int id) {
-  if (auto it = worldTtags.find(id); it != worldTtags.end()) {
-    return it->second;
-  } else {
-    return std::nullopt;
-  }
-}
-
-frc::Pose3d ToPose3d(const cv::Mat &tvec, const cv::Mat &rvec) {
-  using namespace frc;
-  using namespace units;
-
-  // cv::Mat R;
-  // cv::Rodrigues(rvec, R); // R is 3x3
-  // R = R.t();                 // rotation of inverse
-  // cv::Mat tvecI = -R * tvec; // translation of inverse
-
-  Eigen::Matrix<double, 3, 1> tv;
-  tv[0] = tvec.at<double>(0, 0);
-  tv[1] = tvec.at<double>(1, 0);
-  tv[2] = tvec.at<double>(2, 0);
-  Eigen::Matrix<double, 3, 1> rv;
-  rv[0] = rvec.at<double>(0, 0);
-  rv[1] = rvec.at<double>(1, 0);
-  rv[2] = rvec.at<double>(2, 0);
-
-  return Pose3d(Translation3d(meter_t{tv[0]}, meter_t{tv[1]}, meter_t{tv[2]}),
-                Rotation3d(rv));
-}
-
-std::optional<gtsam::Pose3>
-EstimateWorldTCam_SingleTag(std::vector<TagDetection> result,
-                            frc::AprilTagFieldLayout aprilTags,
-                            std::optional<CameraMatrix> camMat,
-                            std::optional<DistortionMatrix> distCoeffs) {
-  if (!camMat || !distCoeffs || !result.size()) {
-    return std::nullopt;
-  }
-
-  auto tagToUse = result[0];
-
-  // List of corners mapped from 3d space (meters) to the 2d camera screen
-  // (pixels).
-  /*
-    ⟶ +X  3 ----- 2
-    |      |       |
-    V      |       |
-    +Y     0 ----- 1
-
-    In object space, we have this order, with origin at the center and +X out of
-    the tag ^ +Z          3 --- 2 |             |     |
-    -----> +Y     0 --- 1
-  */
-  auto TagCorner = [](units::meter_t x, units::meter_t y) {
-    // Tag coordinate system
-    return cv::Point3f{0, (float)x.to<double>(), (float)y.to<double>()};
-  };
-  std::vector<cv::Point3f> objectPoints{
-      TagCorner(-3_in, -3_in), TagCorner(+3_in, -3_in), TagCorner(+3_in, +3_in),
-      TagCorner(-3_in, +3_in)};
-
-  std::vector<cv::Point2f> imagePoints;
-  for (const auto &corner : tagToUse.corners) {
-    imagePoints.emplace_back(corner.x, corner.y);
-  }
-
-  // eigen/cv marshalling
-  cv::Mat cameraMatCV(camMat->rows(), camMat->cols(), CV_64F);
-  cv::eigen2cv(*camMat, cameraMatCV);
-  cv::Mat distCoeffsMatCV(distCoeffs->rows(), distCoeffs->cols(), CV_64F);
-  cv::eigen2cv(*distCoeffs, distCoeffsMatCV);
-
-  // actually do solvepnp
-  cv::Mat rvec(3, 1, cv::DataType<double>::type);
-  cv::Mat tvec(3, 1, cv::DataType<double>::type);
-  cv::solvePnP(objectPoints, imagePoints, cameraMatCV, distCoeffsMatCV, rvec,
-               tvec);
-
-  std::vector<cv::Point2f> projectedPoints;
-  cv::projectPoints(objectPoints, rvec, tvec, cameraMatCV, distCoeffsMatCV,
-                    projectedPoints);
-
-  // std::cout << "rvec: " << rvec << std::endl;
-  // std::cout << "tvec: " << tvec << std::endl;
-  // for (unsigned int i = 0; i < projectedPoints.size(); ++i) {
-  //   std::cout << "Image point: " << imagePoints[i] << " Projected to "
-  //             << projectedPoints[i] << std::endl;
-  // }
-
-  if (const auto w2tag = worldToTag(tagToUse.id)) {
-    auto camToTag = Pose3dToGtsamPose3(ToPose3d(tvec, rvec));
-    auto tag2cam = camToTag.inverse();
-    // std::cout << " > world2tag\n" << *w2tag << std::endl;
-    // std::cout << " > cam2tag\n" << camToTag << std::endl;
-    // std::cout << " > tag2cam\n" << tag2cam << std::endl;
-
-    return (*w2tag).transformPoseFrom(tag2cam);
-  } else {
-    return std::nullopt;
-  }
-}
-
-std::optional<gtsam::Pose3> estimateWorldTcam(std::vector<TagDetection> tags,
-                                              frc::AprilTagFieldLayout layout,
-                                              Cal3_S2 cal) {
-  CameraMatrix calCore = cal.K();
-  DistortionMatrix calDist = DistortionMatrix::Zero();
-
-  if (const auto worldTcam =
-          EstimateWorldTCam_SingleTag(tags, layout, calCore, calDist)) {
-    // worldTcam->print(" >>> World2cam_singletag:\n");
-
-    return worldTcam;
-  } else {
-    return std::nullopt;
-  }
+  return {v.begin(), v.end()};
 }
 
 CalResult OptimizeLayout(
-    const frc::AprilTagFieldLayout &tagLayoutGuess,
-    const KeyframeMap &keyframes, gtsam::Cal3_S2 cal,
+    const GtsamApriltagMap &tagLayoutGuess, const KeyframeMap &keyframes,
+    gtsam::Cal3_S2 cal,
     const std::map<int32_t, std::pair<gtsam::Pose3, gtsam::SharedNoiseModel>>
         &fixedTags,
     const gtsam::SharedNoiseModel cameraNoise) {
@@ -243,7 +88,8 @@ CalResult OptimizeLayout(
   // Add all our tag observation factors
   for (const auto &[stateKey, tags] : keyframes) {
     for (const TagDetection &tag : tags) {
-      auto worldPcorners = WorldToCornersFactor(L(tag.id));
+      auto worldPcorners =
+          tagLayoutGuess.WorldToCornersFactor(Pose3_{L(tag.id)});
 
       // add each tag corner
       constexpr int NUM_CORNERS = 4;
@@ -267,7 +113,14 @@ CalResult OptimizeLayout(
 
   // Guess for all camera poses based on tag layout JSON
   for (const auto &[stateKey, tags] : keyframes) {
-    auto worldTcam_guess = estimateWorldTcam(tags, tagLayoutGuess, cal);
+    if (!tags.size()) {
+      std::cerr << "Can't guess pose of camera for observation " << stateKey
+                << " (no tags in observation)" << std::endl;
+      continue;
+    }
+
+    auto worldTcam_guess =
+        EstimateWorldTCam_SingleTag(*tags.begin(), tagLayoutGuess, cal.K());
     if (!worldTcam_guess) {
       std::cerr << "Can't guess pose of camera for observation " << stateKey
                 << std::endl;
@@ -277,9 +130,11 @@ CalResult OptimizeLayout(
   }
 
   // Guess for tag locations = tag layout json
-  for (const frc::AprilTag &tag : tagLayoutGuess.GetTags()) {
-    if (tagWasUsed(keyframes, tag.ID)) {
-      initial.insert(L(tag.ID), Pose3dToGtsamPose3(tag.pose));
+  for (int id : TagsUsed(keyframes)) {
+    if (auto worldTtag = tagLayoutGuess.WorldToTag(id)) {
+      initial.insert(L(id), worldTtag.value());
+    } else {
+      std::cerr << "Can't guess pose of tag " << id << std::endl;
     }
   }
 
@@ -307,7 +162,7 @@ CalResult OptimizeLayout(
 
   auto end = std::chrono::steady_clock::now();
   auto dt = end - start;
-  long long microseconds =
+  uint64_t microseconds =
       std::chrono::duration_cast<std::chrono::microseconds>(dt).count();
 
   std::cout << "\n===== Converged in " << optimizer.iterations()

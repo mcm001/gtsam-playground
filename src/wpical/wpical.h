@@ -30,11 +30,13 @@
 #include <gtsam/nonlinear/Values.h>
 
 #include <map>
+#include <utility>
 #include <vector>
 
 #include <frc/apriltag/AprilTagFieldLayout.h>
 
 #include "TagDetection.h"
+#include "gtsam_tag_map.h"
 
 namespace wpical {
 using KeyframeMap = std::map<gtsam::Key, std::vector<TagDetection>>;
@@ -50,8 +52,8 @@ struct CalResult {
 
 // note that we expect the pixel locations to be -undistorted- here
 CalResult OptimizeLayout(
-    const frc::AprilTagFieldLayout &tagLayoutGuess,
-    const KeyframeMap &keyframes, gtsam::Cal3_S2 cal,
+    const GtsamApriltagMap &tagLayoutGuess, const KeyframeMap &keyframes,
+    gtsam::Cal3_S2 cal,
     const std::map<int32_t, std::pair<gtsam::Pose3, gtsam::SharedNoiseModel>>
         &fixedTags,
     const gtsam::SharedNoiseModel cameraNoise);
