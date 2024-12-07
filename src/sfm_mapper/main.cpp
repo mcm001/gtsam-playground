@@ -141,7 +141,7 @@ public:
     // accuracy doesn't super matter
     Values initial;
 
-    // Guess for all camera poses
+    // Guess for all camera poses based on tag layout JSON
     for (const auto &[stateKey, tags] : keyframes) {
       auto worldTcam_guess = estimateWorldTcam(tags, tagLayoutGuess);
       if (!worldTcam_guess) {
@@ -152,13 +152,10 @@ public:
       }
     }
 
-    // Guess for tag locations
+    // Guess for tag locations = tag layout json
     for (const frc::AprilTag &tag : tagLayoutGuess.GetTags()) {
       if (tagWasUsed(keyframes, tag.ID)) {
-        // quick offset hack to disturb the pose by to prove that we converge to
-        // the ground truth
-        Pose3 offset{Rot3::RzRyRx(0.12, -0.15, 0.02), Point3{0.5, -0.5, 1.1}};
-        initial.insert(L(tag.ID), Pose3dToGtsamPose3(tag.pose) * offset);
+        initial.insert(L(tag.ID), Pose3dToGtsamPose3(tag.pose));
       }
     }
 

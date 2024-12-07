@@ -91,7 +91,11 @@ std::optional<gtsam::Pose3> estimateWorldTcam(std::vector<TagDetection> tags,
 
   if (const auto worldTcam =
           photon::EstimateWorldTCam_SingleTag(tags, layout, calCore, calDist)) {
-    // worldTcam->print(" >>> World2cam_singletag:\n");
+    worldTcam->print(" >>> World2cam_singletag:\n");
+
+    auto mt = photon::MultiTagOnRioStrategy(tags, layout, calCore, calDist);
+    mt->print(" >>> World2cam_multitag:\n");
+
     return worldTcam;
   } else {
     return std::nullopt;

@@ -109,7 +109,7 @@ frc::Pose3d detail::ToPose3d(const cv::Mat &tvec, const cv::Mat &rvec) {
                 Rotation3d(rv));
 }
 
-std::optional<frc::Pose3d>
+std::optional<gtsam::Pose3>
 MultiTagOnRioStrategy(std::vector<TagDetection> targets,
                       frc::AprilTagFieldLayout aprilTags,
                       std::optional<CameraMatrix> camMat,
@@ -162,7 +162,7 @@ MultiTagOnRioStrategy(std::vector<TagDetection> targets,
 
   const Pose3d pose = detail::ToPose3d(tvec, rvec);
 
-  return pose;
+  return Pose3dToGtsamPose3(pose).inverse();
 }
 
 std::optional<gtsam::Pose3>

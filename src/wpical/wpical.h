@@ -24,31 +24,35 @@
 
 #pragma once
 
+#include <gtsam/geometry/Cal3_S2.h>
 #include <gtsam/geometry/Pose3.h>
+#include <gtsam/linear/NoiseModel.h>
+#include <gtsam/nonlinear/Values.h>
 
-#include <optional>
+#include <map>
 #include <vector>
 
 #include <frc/apriltag/AprilTagFieldLayout.h>
-#include <frc/geometry/Pose3d.h>
-#include <frc/geometry/Transform3d.h>
-#include <opencv2/core/mat.hpp>
-#include <units/time.h>
 
 #include "TagDetection.h"
 
-using CameraMatrix = Eigen::Matrix<double, 3, 3>;
-using DistortionMatrix = Eigen::Matrix<double, 8, 1>;
+namespace wpical {
+using KeyframeMap = std::map<gtsam::Key, std::vector<TagDetection>>;
 
-namespace photon {
-std::optional<gtsam::Pose3>
-EstimateWorldTCam_SingleTag(std::vector<TagDetection> result,
-                            frc::AprilTagFieldLayout aprilTags,
-                            std::optional<CameraMatrix> camMat,
-                            std::optional<DistortionMatrix> distCoeffs);
-std::optional<gtsam::Pose3>
-MultiTagOnRioStrategy(std::vector<TagDetection> result,
-                      frc::AprilTagFieldLayout aprilTags,
-                      std::optional<CameraMatrix> camMat,
-                      std::optional<DistortionMatrix> distCoeffs);
-} // namespace photon
+struct CalResult {
+  gtsam::Values result;
+
+  std::map<int32_t, gtsam::Matrix> tagPoseCovariances;
+  std::map<gtsam::Key, gtsam::Matrix> cameraPoseCovariances;
+
+  frc::AprilTagFieldLayout optimizedLayout;
+};
+
+// note that we expect the pixel locations to be -undistorted- here
+CalResult OptimizeLayout(
+    const frc::AprilTagFieldLayout &tagLayoutGuess,
+    const KeyframeMap &keyframes, gtsam::Cal3_S2 cal,
+    const std::map<int32_t, std::pair<gtsam::Pose3, gtsam::SharedNoiseModel>>
+        &fixedTags,
+    const gtsam::SharedNoiseModel cameraNoise);
+} // namespace wpical

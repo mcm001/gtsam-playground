@@ -3,7 +3,7 @@
 ## Resources
 
 - Factor Graphs and GTSAM. https://gtsam.org/tutorials/intro.html#magicparlabel-65377
-- Factor Graphs for Robot Perception. Dellaert & Kaess. https://www.cs.cmu.edu/~kaess/pub/Dellaert17fnt.pdf 
+- Factor Graphs for Robot Perception. Dellaert & Kaess. https://www.cs.cmu.edu/~kaess/pub/Dellaert17fnt.pdf
 - An Introduction to Factor Graphs. Loeliger. https://people.binf.ku.dk/~thamelry/MLSB08/hal.pdf (a good slide deck)
 
 The TLDR of the TLDR (really. Go skim at least [Factor Graphs and GTSAM](https://gtsam.org/tutorials/intro.html#magicparlabel-65411)) is that a factor graph is a graph of variables (things we want to optimize, like robot poses or landmark pose) connected by "factors" which describe relationships between our variables. For example, this factor graph shows 3 robot state variables (x1, x2, and x3; the white circles). The relationship between these states is described by factors (black filled in circles) which encode information about robot pose delta between states (in the backbone), and an external measurement from a sensor like GPS.

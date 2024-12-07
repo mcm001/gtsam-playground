@@ -4,12 +4,15 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CXX_STANDARD 20)
 
+
 project(gtsam-playground)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 
 # redirect output binaries
 set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin )
 set( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib )
+
+include(FetchContent)
 
 # Grab genresources
 include(GenResources)
@@ -81,14 +84,19 @@ add_executable(gtsam-node
 target_compile_options(gtsam-localizer PRIVATE -Wno-deprecated-enum-enum-conversion)
 target_link_libraries(gtsam-node gtsam-localizer)
 
-add_executable(tag-mapper 
-  src/sfm_mapper/main.cpp
+add_library(tag-mapper-lib
   src/sfm_mapper/PhotonPoseEstimator.cpp
   src/sfm_mapper/helpers.cpp
   src/sfm_mapper/mapper_nt_iface.cpp
 )
+target_link_libraries(tag-mapper-lib PRIVATE gtsam-localizer wpilibc ${OPENCV_LIB_PATH})
+target_include_directories(tag-mapper-lib PRIVATE src ${OPENCV_INCLUDE_PATH})
+
+add_executable(tag-mapper 
+  src/sfm_mapper/main.cpp
+)
 target_compile_options(tag-mapper PRIVATE -Wno-deprecated-enum-enum-conversion)
-target_link_libraries(tag-mapper gtsam-localizer wpilibc ${OPENCV_LIB_PATH})
+target_link_libraries(tag-mapper gtsam-localizer wpilibc tag-mapper-lib ${OPENCV_LIB_PATH})
 target_include_directories(tag-mapper PRIVATE src ${OPENCV_INCLUDE_PATH})
 
 install(TARGETS tag-mapper)
@@ -109,13 +117,22 @@ add_executable(
   localizer_test
   test/Test_Localizer.cpp
   test/Test_Config.cpp
+  test/Test_helpers.cpp
 )
 target_link_libraries(
   localizer_test
-  GTest::gtest_main gtsam-localizer
+  GTest::gtest_main gtsam-localizer tag-mapper-lib
 )
 target_include_directories(localizer_test PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_compile_options(localizer_test PRIVATE -g -Og)
+
+
+add_library(wpical
+  src/wpical/wpical.cpp
+)
+target_link_libraries(wpical PRIVATE gtsam apriltag ${OPENCV_LIB_PATH})
+target_include_directories(wpical PRIVATE src ${OPENCV_INCLUDE_PATH})
+
 
 include(GoogleTest)
 gtest_discover_tests(localizer_test)
