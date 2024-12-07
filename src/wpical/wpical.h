@@ -35,7 +35,7 @@
 
 #include <frc/apriltag/AprilTagFieldLayout.h>
 
-#include "Pose3WithCovariance.h"
+#include "Pose3WithVariance.h"
 #include "TagDetection.h"
 #include "gtsam_tag_map.h"
 
@@ -45,8 +45,8 @@ using KeyframeMap = std::map<gtsam::Key, std::vector<TagDetection>>;
 struct CalResult {
   gtsam::Values result;
 
-  std::map<int32_t, Pose3WithCovariance> tagPoseCovariances;
-  std::map<gtsam::Key, Pose3WithCovariance> cameraPoseCovariances;
+  std::map<int32_t, Pose3WithVariance> tagPoseCovariances;
+  std::map<gtsam::Key, Pose3WithVariance> cameraPoseCovariances;
 
   frc::AprilTagFieldLayout optimizedLayout;
 };

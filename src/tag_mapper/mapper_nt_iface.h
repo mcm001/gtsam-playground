@@ -37,7 +37,7 @@
 
 #include "TagDetection.h"
 #include "TagDetectionStruct.h"
-#include "wpical/Pose3WithCovariance.h"
+#include "wpical/Pose3WithVariance.h"
 
 class MapperNtIface {
 
@@ -45,13 +45,13 @@ public:
   MapperNtIface();
 
   std::map<gtsam::Key, std::vector<TagDetection>> NewKeyframes();
-  void PublishResult(frc::AprilTagFieldLayout layout, std::vector<Pose3WithCovariance> tags, std::vector<Pose3WithCovariance> camera);
+  void PublishResult(frc::AprilTagFieldLayout layout, std::vector<Pose3WithVariance> tags, std::vector<Pose3WithVariance> camera);
 
 private:
   nt::StructArraySubscriber<TagDetection> keyframeListener;
 
-  nt::StructArrayPublisher<Pose3WithCovariance> tagPoseCovPub;
-  nt::StructArrayPublisher<Pose3WithCovariance> cameraPoseCovPub;
+  nt::StructArrayPublisher<Pose3WithVariance> tagPoseCovPub;
+  nt::StructArrayPublisher<Pose3WithVariance> cameraPoseCovPub;
 
   frc::Field2d field{};
 

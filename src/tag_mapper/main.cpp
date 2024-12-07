@@ -92,8 +92,8 @@ int main() {
 
     auto result { OptimizeLayout(tagMap, keyframes, cal, fixedTags, cameraNoise) };
 
-    std::vector<Pose3WithCovariance> tags;
-    std::vector<Pose3WithCovariance> camera;
+    std::vector<Pose3WithVariance> tags;
+    std::vector<Pose3WithVariance> camera;
 
     for (const auto& [key, val] : result.tagPoseCovariances) {
       tags.push_back(val);

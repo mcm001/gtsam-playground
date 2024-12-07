@@ -24,13 +24,13 @@
 
 #pragma once
 
-#include "Pose3WithCovariance.h"
+#include "Pose3WithVariance.h"
 
-template <> struct WPILIB_DLLEXPORT wpi::Struct<Pose3WithCovariance> {
+template <> struct WPILIB_DLLEXPORT wpi::Struct<Pose3WithVariance> {
   static constexpr size_t poseSize = wpi::Struct<frc::Pose3d>::GetSize();
 
   static constexpr std::string_view GetTypeName() {
-    return "Pose3WithCovariance";
+    return "Pose3WithVariance";
   }
 
   static constexpr size_t GetSize() { return poseSize + (6 * sizeof(double)); }
@@ -39,8 +39,8 @@ template <> struct WPILIB_DLLEXPORT wpi::Struct<Pose3WithCovariance> {
     return "Pose3d pose; double covariance[6]";
   }
 
-  static Pose3WithCovariance Unpack(std::span<const uint8_t> data) {
-    return Pose3WithCovariance{
+  static Pose3WithVariance Unpack(std::span<const uint8_t> data) {
+    return Pose3WithVariance{
         wpi::UnpackStruct<frc::Pose3d, 0>(data),
         {
             wpi::UnpackStruct<double, poseSize + 0 * sizeof(double)>(data),
@@ -52,7 +52,7 @@ template <> struct WPILIB_DLLEXPORT wpi::Struct<Pose3WithCovariance> {
         }};
   }
 
-  static void Pack(std::span<uint8_t> data, const Pose3WithCovariance &value) {
+  static void Pack(std::span<uint8_t> data, const Pose3WithVariance &value) {
     wpi::PackStruct<0>(data, value.pose);
     wpi::PackStruct<poseSize + sizeof(double) * 0>(data, value.covariance[0]);
     wpi::PackStruct<poseSize + sizeof(double) * 1>(data, value.covariance[1]);
@@ -61,6 +61,11 @@ template <> struct WPILIB_DLLEXPORT wpi::Struct<Pose3WithCovariance> {
     wpi::PackStruct<poseSize + sizeof(double) * 4>(data, value.covariance[4]);
     wpi::PackStruct<poseSize + sizeof(double) * 5>(data, value.covariance[5]);
   }
+
+  static void ForEachNested(
+      std::invocable<std::string_view, std::string_view> auto fn) {
+    wpi::ForEachStructSchema<frc::Pose3d>(fn);
+  }
 };
 
-static_assert(wpi::StructSerializable<Pose3WithCovariance>);
+static_assert(wpi::StructSerializable<Pose3WithVariance>);

@@ -39,9 +39,9 @@ MapperNtIface::MapperNtIface()
                                               .keepDuplicates = true,
                                           })),
     tagPoseCovPub(nt::NetworkTableInstance::GetDefault()
-                           .GetStructArrayTopic<Pose3WithCovariance>("/output/tagPoseCov").Publish()),
+                           .GetStructArrayTopic<Pose3WithVariance>("/output/tagPoseCov").Publish()),
     cameraPoseCovPub(nt::NetworkTableInstance::GetDefault()
-                           .GetStructArrayTopic<Pose3WithCovariance>("/output/camPoseCov").Publish())
+                           .GetStructArrayTopic<Pose3WithVariance>("/output/camPoseCov").Publish())
                                           
                                            {
   nt::NetworkTableInstance inst = nt::NetworkTableInstance::GetDefault();
@@ -69,7 +69,7 @@ std::map<gtsam::Key, std::vector<TagDetection>> MapperNtIface::NewKeyframes() {
 }
 
 void MapperNtIface::PublishResult(frc::AprilTagFieldLayout layout, 
-  std::vector<Pose3WithCovariance> tags, std::vector<Pose3WithCovariance> camera) {
+  std::vector<Pose3WithVariance> tags, std::vector<Pose3WithVariance> camera) {
   // todo - this destroys the relationship between ID and pose
   std::vector<Pose2d> out;
   for (const auto tag : layout.GetTags()) {

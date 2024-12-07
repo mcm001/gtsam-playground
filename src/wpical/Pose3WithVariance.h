@@ -27,12 +27,12 @@
 #include <Eigen/Core>
 #include <frc/geometry/Pose3d.h>
 
-struct Pose3WithCovariance {
+struct Pose3WithVariance {
   frc::Pose3d pose;
   // in order rx ry rz tx ty tz. Units are SI units
   std::array<double, 6> covariance;
 
-  static Pose3WithCovariance FromEigen(frc::Pose3d pose,
+  static Pose3WithVariance FromEigen(frc::Pose3d pose,
                                        Eigen::MatrixXd covariance) {
     std::array<double, 6> cov;
 
@@ -44,4 +44,4 @@ struct Pose3WithCovariance {
   }
 };
 
-#include "Pose3WithCovarianceStruct.h"
+#include "Pose3WithVarianceStruct.h"

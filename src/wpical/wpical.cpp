@@ -210,11 +210,11 @@ CalResult wpical::OptimizeLayout(
 
         tags.push_back(frc::AprilTag{id, est});
         ret.tagPoseCovariances[id] =
-            Pose3WithCovariance::FromEigen(est, stddev);
+            Pose3WithVariance::FromEigen(est, stddev);
       }
       if (key >= X(0) && key <= X(1000000)) {
         ret.cameraPoseCovariances[key] =
-            Pose3WithCovariance::FromEigen(est, stddev);
+            Pose3WithVariance::FromEigen(est, stddev);
       }
     }
 
