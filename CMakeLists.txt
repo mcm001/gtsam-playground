@@ -102,7 +102,6 @@ add_library(gtsam-localizer
   src/odom_listener.cpp
   src/data_publisher.cpp
   src/config_listener.cpp
-  ${localizer_resources_src}
 )
 
 message("Adding includes: ${gtsam_include_path} ${wpimath_include_path} ${wpiutil_include_path} ${apriltag_include_path} ")

@@ -1,0 +1,47 @@
+graph {
+  size="5,5";
+
+  var7782220156096217094[label="l6", pos="3.63445,1.89242!"];
+  var7782220156096217095[label="l7", pos="0.969689,0.00854354!"];
+  var7782220156096217096[label="l8", pos="0.403869,0!"];
+  var8646911284551352320[label="x0", pos="0,3.69542!"];
+
+  factor0[label="", shape=point];
+  var7782220156096217095--factor0;
+  factor1[label="", shape=point];
+  var7782220156096217096--factor1;
+  var8646911284551352320--factor1;
+  factor2[label="", shape=point];
+  var7782220156096217096--factor2;
+  var8646911284551352320--factor2;
+  factor3[label="", shape=point];
+  var7782220156096217096--factor3;
+  var8646911284551352320--factor3;
+  factor4[label="", shape=point];
+  var7782220156096217096--factor4;
+  var8646911284551352320--factor4;
+  factor5[label="", shape=point];
+  var7782220156096217095--factor5;
+  var8646911284551352320--factor5;
+  factor6[label="", shape=point];
+  var7782220156096217095--factor6;
+  var8646911284551352320--factor6;
+  factor7[label="", shape=point];
+  var7782220156096217095--factor7;
+  var8646911284551352320--factor7;
+  factor8[label="", shape=point];
+  var7782220156096217095--factor8;
+  var8646911284551352320--factor8;
+  factor9[label="", shape=point];
+  var7782220156096217094--factor9;
+  var8646911284551352320--factor9;
+  factor10[label="", shape=point];
+  var7782220156096217094--factor10;
+  var8646911284551352320--factor10;
+  factor11[label="", shape=point];
+  var7782220156096217094--factor11;
+  var8646911284551352320--factor11;
+  factor12[label="", shape=point];
+  var7782220156096217094--factor12;
+  var8646911284551352320--factor12;
+}
