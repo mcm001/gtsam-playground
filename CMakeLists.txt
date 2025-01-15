@@ -25,42 +25,58 @@ set(BUILD_ARCH "linuxx86-64") # also valid: windowsx86-64
 include(FetchContent)
 
 # Download stuff
-function(FETCH_MAVEN repository package libname libversion)
+function(FETCH_MAVEN repository package libname libversion libpath includepath)
   message("Repo ${repository} package ${package} libname ${libname} version ${libversion}")  
 
-  MESSAGE("Downloading https://frcmaven.wpi.edu/artifactory/${repository}/edu/wpi/first/${package}/${FRC_YEAR}/${libname}/${libname}-cpp/${libversion}/${libname}-cpp-${libversion}-${BUILD_ARCH}${BUILD_TYPE}.zip")
   FetchContent_Declare(
       "${libname}_lib"
       URL https://frcmaven.wpi.edu/artifactory/${repository}/edu/wpi/first/${package}/${libname}-cpp/${libversion}/${libname}-cpp-${libversion}-${BUILD_ARCH}${BUILD_TYPE}.zip
   )
   FetchContent_MakeAvailable("${libname}_lib")
-  message("SEARCHING ${${libname}_lib_SOURCE_DIR}")
-  file(GLOB_RECURSE ${libname}_LIBS
+
+
+  FetchContent_Declare(
+      "${libname}_header"
+      URL https://frcmaven.wpi.edu/artifactory/${repository}/edu/wpi/first/${package}/${libname}-cpp/${libversion}/${libname}-cpp-${libversion}-headers.zip
+  )
+  FetchContent_MakeAvailable("${libname}_header")
+
+  file(GLOB_RECURSE lib_glob
     "${${libname}_lib_SOURCE_DIR}/**/*.lib"
     "${${libname}_lib_SOURCE_DIR}/**/*.so*"
     "${${libname}_lib_SOURCE_DIR}/**/*.dylib*"
     "${${libname}_lib_SOURCE_DIR}/**/*.a"
   )
 
-  MESSAGE("Downloading https://frcmaven.wpi.edu/artifactory/${repository}/edu/wpi/first/${package}/${FRC_YEAR}/${libname}/${libname}-cpp/${libversion}/${libname}-cpp-${libversion}-headers.zip")
-  FetchContent_Declare(
-      "${libname}_header"
-      URL https://frcmaven.wpi.edu/artifactory/${repository}/edu/wpi/first/${package}/${libname}-cpp/${libversion}/${libname}-cpp-${libversion}-headers.zip
-  )
-  FetchContent_MakeAvailable("${libname}_header")
-  SET("${libname}_INCLUDE_PATH" "${libname}_header_SOURCE_DIR" PARENT_SCOPE)
+  SET(${includepath} ${${libname}_header_SOURCE_DIR} PARENT_SCOPE)
+  set(${libpath} ${lib_glob} PARENT_SCOPE)
 
-  message("${libname}_LIBS set to ${${libname}_LIBS}")
-  message("${libname}_INCLUDE_PATH set to ${${libname}_header_SOURCE_DIR}")
+  message("Outputting to ${libpath}: ${lib_glob}")
+  message("and ${includepath}: ${${libname}_header_SOURCE_DIR}")
+
+  return(PROPAGATE ${includepath} ${libpath})
 endfunction()
 
-FETCH_MAVEN(development thirdparty/${FRC_YEAR}/gtsam gtsam ${GTSAM_VERSION})
-FETCH_MAVEN(release wpiutil wpiutil 2025.2.1)
-FETCH_MAVEN(release wpimath wpimath 2025.2.1)
+FETCH_MAVEN(
+  development 
+  thirdparty/${FRC_YEAR}/gtsam 
+  gtsam 
+  ${GTSAM_VERSION} 
+  gtsam_libs 
+  gtsam_include_path
+)
+FETCH_MAVEN(release wpiutil wpiutil 2025.2.1
+  wpiutil_libs 
+  wpiutil_include_path
+)
+FETCH_MAVEN(release wpimath wpimath 2025.2.1
+  wpimath_libs 
+  wpimath_include_path
+)
 
-message("gtsam at ${gtsam_INCLUDE_PATH}")
-message("wpimath at ${wpimath_INCLUDE_PATH}")
-message("wpiutil at ${wpiutil_INCLUDE_PATH}")
+message("gtsam at ${gtsam_libs} / ${gtsam_include_path}")
+message("wpimath at ${wpimath_libs} / ${wpimath_include_path}")
+message("wpiutil at ${wpiutil_libs} / ${wpiutil_include_path}")
 
 add_library(gtsam-localizer
   src/localizer.cpp
@@ -74,7 +90,7 @@ add_library(gtsam-localizer
   ${localizer_resources_src}
 )
 
-target_include_directories(gtsam-localizer SYSTEM PRIVATE
+target_include_directories(gtsam-localizer PRIVATE
   ${gtsam_INCLUDE_PATH}
   ${wpiutil_INCLUDE_PATH}
   ${wpimath_INCLUDE_PATH}
