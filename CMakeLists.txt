@@ -22,25 +22,45 @@ set(WPILIB_VERSION "4.3-2")
 set(BUILD_TYPE "static")
 set(BUILD_ARCH "linuxx86-64") # also valid: windowsx86-64
 
-# Download gtsam
-# message("Getting gtsam from https://frcmaven.wpi.edu/artifactory/development/edu/wpi/first/thirdparty/${FRC_YEAR}/gtsam/gtsam-cpp/${GTSAM_VERSION}/gtsam-cpp-${GTSAM_VERSION}-${BUILD_ARCH}${BUILD_TYPE}.zip and https://frcmaven.wpi.edu/artifactory/development/edu/wpi/first/thirdparty/${FRC_YEAR}/gtsam/gtsam-cpp/${GTSAM_VERSION}/gtsam-cpp-${GTSAM_VERSION}-headers.zip")
 include(FetchContent)
-FetchContent_Declare(
-    gtsam_lib
-    URL https://frcmaven.wpi.edu/artifactory/development/edu/wpi/first/thirdparty/${FRC_YEAR}/gtsam/gtsam-cpp/${GTSAM_VERSION}/gtsam-cpp-${GTSAM_VERSION}-${BUILD_ARCH}${BUILD_TYPE}.zip
-)
-FetchContent_MakeAvailable(gtsam_lib)
-FetchContent_Declare(
-    gtsam_header
-    URL https://frcmaven.wpi.edu/artifactory/development/edu/wpi/first/thirdparty/${FRC_YEAR}/gtsam/gtsam-cpp/${GTSAM_VERSION}/gtsam-cpp-${GTSAM_VERSION}-headers.zip
-)
-FetchContent_MakeAvailable(gtsam_header)
-file(GLOB_RECURSE GTSAM_LIBS
-  "${gtsam_lib_SOURCE_DIR}/**/*.lib"
-  "${gtsam_lib_SOURCE_DIR}/**/*.so*"
-  "${gtsam_lib_SOURCE_DIR}/**/*.dylib*"
-)
-SET(GTSAM_INCLUDE_PATH ${gtsam_header_SOURCE_DIR})
+
+# Download stuff
+function(FETCH_MAVEN repository package libname libversion)
+  message("Repo ${repository} package ${package} libname ${libname} version ${libversion}")  
+
+  MESSAGE("Downloading https://frcmaven.wpi.edu/artifactory/${repository}/edu/wpi/first/${package}/${FRC_YEAR}/${libname}/${libname}-cpp/${libversion}/${libname}-cpp-${libversion}-${BUILD_ARCH}${BUILD_TYPE}.zip")
+  FetchContent_Declare(
+      "${libname}_lib"
+      URL https://frcmaven.wpi.edu/artifactory/${repository}/edu/wpi/first/${package}/${libname}-cpp/${libversion}/${libname}-cpp-${libversion}-${BUILD_ARCH}${BUILD_TYPE}.zip
+  )
+  FetchContent_MakeAvailable("${libname}_lib")
+  message("SEARCHING ${${libname}_lib_SOURCE_DIR}")
+  file(GLOB_RECURSE ${libname}_LIBS
+    "${${libname}_lib_SOURCE_DIR}/**/*.lib"
+    "${${libname}_lib_SOURCE_DIR}/**/*.so*"
+    "${${libname}_lib_SOURCE_DIR}/**/*.dylib*"
+    "${${libname}_lib_SOURCE_DIR}/**/*.a"
+  )
+
+  MESSAGE("Downloading https://frcmaven.wpi.edu/artifactory/${repository}/edu/wpi/first/${package}/${FRC_YEAR}/${libname}/${libname}-cpp/${libversion}/${libname}-cpp-${libversion}-headers.zip")
+  FetchContent_Declare(
+      "${libname}_header"
+      URL https://frcmaven.wpi.edu/artifactory/${repository}/edu/wpi/first/${package}/${libname}-cpp/${libversion}/${libname}-cpp-${libversion}-headers.zip
+  )
+  FetchContent_MakeAvailable("${libname}_header")
+  SET("${libname}_INCLUDE_PATH" "${libname}_header_SOURCE_DIR" PARENT_SCOPE)
+
+  message("${libname}_LIBS set to ${${libname}_LIBS}")
+  message("${libname}_INCLUDE_PATH set to ${${libname}_header_SOURCE_DIR}")
+endfunction()
+
+FETCH_MAVEN(development thirdparty/${FRC_YEAR}/gtsam gtsam ${GTSAM_VERSION})
+FETCH_MAVEN(release wpiutil wpiutil 2025.2.1)
+FETCH_MAVEN(release wpimath wpimath 2025.2.1)
+
+message("gtsam at ${gtsam_INCLUDE_PATH}")
+message("wpimath at ${wpimath_INCLUDE_PATH}")
+message("wpiutil at ${wpiutil_INCLUDE_PATH}")
 
 add_library(gtsam-localizer
   src/localizer.cpp
@@ -54,9 +74,15 @@ add_library(gtsam-localizer
   ${localizer_resources_src}
 )
 
-target_include_directories(gtsam-localizer PRIVATE ${GTSAM_INCLUDE_PATH})
+target_include_directories(gtsam-localizer SYSTEM PRIVATE
+  ${gtsam_INCLUDE_PATH}
+  ${wpiutil_INCLUDE_PATH}
+  ${wpimath_INCLUDE_PATH}
+)
 target_link_libraries(gtsam-localizer PUBLIC
-  ${GTSAM_LIBS}
+  ${gtsam_LIBS}
+  ${wpiutil_LIBS}
+  ${wpimath_LIBS}
   apriltag
   ntcore
   wpimath
