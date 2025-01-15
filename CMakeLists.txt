@@ -57,6 +57,20 @@ function(FETCH_MAVEN repository package libname libversion libpath includepath)
   return(PROPAGATE ${includepath} ${libpath})
 endfunction()
 
+
+# Fetch Eigen
+set(EIGEN_BUILD_BLAS OFF)
+set(EIGEN_BUILD_LAPACK OFF)
+set(EIGEN_BUILD_CMAKE_PACKAGE ON)
+fetchcontent_declare(
+    Eigen3
+    GIT_REPOSITORY    https://gitlab.com/libeigen/eigen.git
+    GIT_TAG           0fb2ed140d4fc0108553ecfb25f2d7fc1a9319a1
+)
+fetchcontent_makeavailable(Eigen3)
+
+
+# and wpilib libraries
 FETCH_MAVEN(
   development 
   thirdparty/${FRC_YEAR}/gtsam 
@@ -73,10 +87,10 @@ FETCH_MAVEN(release wpimath wpimath 2025.2.1
   wpimath_libs 
   wpimath_include_path
 )
-
-message("gtsam at ${gtsam_libs} / ${gtsam_include_path}")
-message("wpimath at ${wpimath_libs} / ${wpimath_include_path}")
-message("wpiutil at ${wpiutil_libs} / ${wpiutil_include_path}")
+FETCH_MAVEN(release apriltag apriltag 2025.2.1
+  apriltag_libs 
+  apriltag_include_path
+)
 
 add_library(gtsam-localizer
   src/localizer.cpp
@@ -90,15 +104,18 @@ add_library(gtsam-localizer
   ${localizer_resources_src}
 )
 
-target_include_directories(gtsam-localizer PRIVATE
-  ${gtsam_INCLUDE_PATH}
-  ${wpiutil_INCLUDE_PATH}
-  ${wpimath_INCLUDE_PATH}
+target_include_directories(gtsam-localizer SYSTEM PRIVATE
+  ${gtsam_include_path}
+  ${wpimath_include_path}
+  ${wpiutil_include_path}
+  ${apriltag_include_path}
 )
 target_link_libraries(gtsam-localizer PUBLIC
-  ${gtsam_LIBS}
-  ${wpiutil_LIBS}
-  ${wpimath_LIBS}
+  Eigen3::Eigen
+  ${gtsam_libs}
+  ${wpiutil_libs}
+  ${wpimath_libs}
+  ${apriltag_libs}
   apriltag
   ntcore
   wpimath
