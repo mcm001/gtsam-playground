@@ -1,32 +1,46 @@
-cmake_minimum_required(VERSION 3.20)
-
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+cmake_minimum_required(VERSION 3.16)
 
 set(CXX_STANDARD 20)
 
 project(gtsam-playground)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 
-# redirect output binaries
-set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin )
-set( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib )
-
-# Grab genresources
-include(GenResources)
-
-add_compile_options(-fno-omit-frame-pointer)
-set(CXXFLAGS "${CXXFLAGS} -fno-omit-frame-pointer -Wno-psabi")
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_INSTALL_RPATH "lib")
 
-add_subdirectory(gtsam)
+add_compile_options(-fno-omit-frame-pointer)
 
-if (NOT WIN32)
-message("Adding allwpilib!")
-add_subdirectory(allwpilib)
-endif()
+# redirect output binaries
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
-# Generate gtsam-localizer resources
-generate_resources(src/resources/ generated/main/cpp GTSAMLOCALIZER meme localizer_resources_src)
+# Versions to grab from Maven
+set(FRC_YEAR "frc2025")
+set(GTSAM_VERSION "4.3-2")
+set(WPILIB_VERSION "4.3-2")
+
+# type can be "", "debug", "static", or "staticdebug"
+set(BUILD_TYPE "static")
+set(BUILD_ARCH "linuxx86-64") # also valid: windowsx86-64
+
+# Download gtsam
+# message("Getting gtsam from https://frcmaven.wpi.edu/artifactory/development/edu/wpi/first/thirdparty/${FRC_YEAR}/gtsam/gtsam-cpp/${GTSAM_VERSION}/gtsam-cpp-${GTSAM_VERSION}-${BUILD_ARCH}${BUILD_TYPE}.zip and https://frcmaven.wpi.edu/artifactory/development/edu/wpi/first/thirdparty/${FRC_YEAR}/gtsam/gtsam-cpp/${GTSAM_VERSION}/gtsam-cpp-${GTSAM_VERSION}-headers.zip")
+include(FetchContent)
+FetchContent_Declare(
+    gtsam_lib
+    URL https://frcmaven.wpi.edu/artifactory/development/edu/wpi/first/thirdparty/${FRC_YEAR}/gtsam/gtsam-cpp/${GTSAM_VERSION}/gtsam-cpp-${GTSAM_VERSION}-${BUILD_ARCH}${BUILD_TYPE}.zip
+)
+FetchContent_MakeAvailable(gtsam_lib)
+FetchContent_Declare(
+    gtsam_header
+    URL https://frcmaven.wpi.edu/artifactory/development/edu/wpi/first/thirdparty/${FRC_YEAR}/gtsam/gtsam-cpp/${GTSAM_VERSION}/gtsam-cpp-${GTSAM_VERSION}-headers.zip
+)
+FetchContent_MakeAvailable(gtsam_header)
+file(GLOB_RECURSE GTSAM_LIBS
+  "${gtsam_lib_SOURCE_DIR}/**/*.lib"
+  "${gtsam_lib_SOURCE_DIR}/**/*.so*"
+  "${gtsam_lib_SOURCE_DIR}/**/*.dylib*"
+)
+SET(GTSAM_INCLUDE_PATH ${gtsam_header_SOURCE_DIR})
 
 add_library(gtsam-localizer
   src/localizer.cpp
@@ -40,9 +54,9 @@ add_library(gtsam-localizer
   ${localizer_resources_src}
 )
 
+target_include_directories(gtsam-localizer PRIVATE ${GTSAM_INCLUDE_PATH})
 target_link_libraries(gtsam-localizer PUBLIC
-  gtsam
-  gtsam_unstable
+  ${GTSAM_LIBS}
   apriltag
   ntcore
   wpimath
