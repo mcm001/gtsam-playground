@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.25..3.32)
 
 set(CXX_STANDARD 20)
 
@@ -62,10 +62,11 @@ endfunction()
 set(EIGEN_BUILD_BLAS OFF)
 set(EIGEN_BUILD_LAPACK OFF)
 set(EIGEN_BUILD_CMAKE_PACKAGE ON)
-fetchcontent_declare(
+FetchContent_Declare(
     Eigen3
     GIT_REPOSITORY    https://gitlab.com/libeigen/eigen.git
     GIT_TAG           0fb2ed140d4fc0108553ecfb25f2d7fc1a9319a1
+    SYSTEM
 )
 fetchcontent_makeavailable(Eigen3)
 
@@ -103,6 +104,8 @@ add_library(gtsam-localizer
   src/config_listener.cpp
   ${localizer_resources_src}
 )
+
+message("Adding includes: ${gtsam_include_path} ${wpimath_include_path} ${wpiutil_include_path} ${apriltag_include_path} ")
 
 target_include_directories(gtsam-localizer SYSTEM PRIVATE
   ${gtsam_include_path}
