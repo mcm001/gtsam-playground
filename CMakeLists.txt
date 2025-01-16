@@ -109,6 +109,7 @@ add_library(gtsam-localizer
 )
 
 message("Adding includes: ${gtsam_include_path} ${wpimath_include_path} ${wpiutil_include_path} ${apriltag_include_path} ")
+message("Adding libs: ${gtsam_libs} ${wpiutil_libs} ${wpimath_libs} ${apriltag_libs} ${ntcore_libs}")
 
 target_include_directories(gtsam-localizer SYSTEM PUBLIC
   ${gtsam_include_path}
@@ -117,15 +118,14 @@ target_include_directories(gtsam-localizer SYSTEM PUBLIC
   ${apriltag_include_path}
   ${ntcore_include_path}
 )
-target_link_libraries(gtsam-localizer PUBLIC
+target_link_libraries(gtsam-localizer 
+PUBLIC
   Eigen3::Eigen
   ${gtsam_libs}
   ${wpiutil_libs}
   ${wpimath_libs}
   ${apriltag_libs}
-  apriltag
-  ntcore
-  wpimath
+  ${ntcore_libs}
 )
 target_compile_options(gtsam-localizer PRIVATE -Wno-deprecated-enum-enum-conversion)
 
@@ -133,7 +133,9 @@ add_executable(gtsam-node
   src/gtsam_tags_node.cpp
 )
 target_compile_options(gtsam-localizer PRIVATE -Wno-deprecated-enum-enum-conversion)
-target_link_libraries(gtsam-node gtsam-localizer)
+target_link_libraries(gtsam-node 
+  gtsam-localizer
+)
 
 install(TARGETS gtsam-node)
 
