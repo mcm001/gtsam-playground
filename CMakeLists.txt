@@ -48,8 +48,8 @@ function(FETCH_MAVEN repository package libname libversion libpath includepath)
     "${${libname}_lib_SOURCE_DIR}/**/*.a"
   )
 
-  SET(${includepath} ${${libname}_header_SOURCE_DIR} PARENT_SCOPE)
-  set(${libpath} ${lib_glob} PARENT_SCOPE)
+  set(${includepath} ${${libname}_header_SOURCE_DIR})
+  set(${libpath} ${lib_glob})
 
   message("Outputting to ${libpath}: ${lib_glob}")
   message("and ${includepath}: ${${libname}_header_SOURCE_DIR}")
