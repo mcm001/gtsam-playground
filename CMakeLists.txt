@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.25..3.32)
 
-set(CXX_STANDARD 20)
+project(gtsam-playground CXX)
 
-project(gtsam-playground)
+set(CMAKE_CXX_STANDARD 20)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_INSTALL_RPATH "lib")
@@ -92,6 +92,10 @@ FETCH_MAVEN(release apriltag apriltag 2025.2.1
   apriltag_libs 
   apriltag_include_path
 )
+FETCH_MAVEN(release ntcore ntcore 2025.2.1
+  ntcore_libs 
+  ntcore_include_path
+)
 
 add_library(gtsam-localizer
   src/localizer.cpp
@@ -106,11 +110,12 @@ add_library(gtsam-localizer
 
 message("Adding includes: ${gtsam_include_path} ${wpimath_include_path} ${wpiutil_include_path} ${apriltag_include_path} ")
 
-target_include_directories(gtsam-localizer SYSTEM PRIVATE
+target_include_directories(gtsam-localizer SYSTEM PUBLIC
   ${gtsam_include_path}
   ${wpimath_include_path}
   ${wpiutil_include_path}
   ${apriltag_include_path}
+  ${ntcore_include_path}
 )
 target_link_libraries(gtsam-localizer PUBLIC
   Eigen3::Eigen
