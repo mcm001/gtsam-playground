@@ -20,7 +20,10 @@ set(WPILIB_VERSION "4.3-2")
 
 # type can be "", "debug", "static", or "staticdebug"
 set(BUILD_TYPE "static")
-set(BUILD_ARCH "linuxx86-64") # also valid: windowsx86-64
+
+if (NOT BUILD_ARCH)
+  set(BUILD_ARCH "linuxx86-64")
+endif()
 
 include(FetchContent)
 
@@ -96,6 +99,10 @@ FETCH_MAVEN(release ntcore ntcore 2025.2.1
   ntcore_libs 
   ntcore_include_path
 )
+FETCH_MAVEN(release wpinet wpinet 2025.2.1
+  wpinet_libs 
+  wpinet_include_path
+)
 
 add_library(gtsam-localizer
   src/localizer.cpp
@@ -124,8 +131,9 @@ PUBLIC
   ${gtsam_libs}
   ${wpiutil_libs}
   ${wpimath_libs}
-  ${apriltag_libs}
+  ${wpinet_libs}
   ${ntcore_libs}
+  ${apriltag_libs}
 )
 target_compile_options(gtsam-localizer PRIVATE -Wno-deprecated-enum-enum-conversion)
 
@@ -155,6 +163,7 @@ add_executable(
   test/Test_Localizer.cpp
   test/Test_Config.cpp
 )
+
 target_link_libraries(
   localizer_test
   GTest::gtest_main gtsam-localizer
