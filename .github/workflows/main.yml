@@ -36,9 +36,6 @@ jobs:
       run: git fetch --tags --force
     - run: git describe --tags
 
-    - name: Setup cmake
-      uses: jwlawson/actions-setup-cmake@v1.13
-
     - name: Install deps
       run: |
         sudo apt-get update
