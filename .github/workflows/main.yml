@@ -39,12 +39,12 @@ jobs:
     - name: Install deps
       run: |
         sudo apt-get update
-        sudo apt-get install -y cmake gcc g++ mold
+        sudo apt-get install -y cmake gcc g++
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_ARCH=${{ matrix.arch-name }} -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=mold" -DCMAKE_SHARED_LINKER_FLAGS="-fuse-ld=mold"
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_ARCH=${{ matrix.arch-name }}
 
     - name: Build shared gtsam-node
       # Build your program with the given configuration
@@ -76,8 +76,8 @@ jobs:
         bind_mount_repository: true
         commands: |
           sudo apt-get update
-          sudo apt-get install cmake git gcc g++ mold -y
-          cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_ARCH=linuxarm64 -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=mold" -DCMAKE_SHARED_LINKER_FLAGS="-fuse-ld=mold"
+          sudo apt-get install cmake git gcc g++ -y
+          cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_ARCH=linuxarm64
           cmake --build build --config ${{env.BUILD_TYPE}}
 
     - uses: actions/upload-artifact@v3
