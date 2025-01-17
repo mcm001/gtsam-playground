@@ -39,6 +39,7 @@ jobs:
 
     - name: Install deps
       run: |
+        sudo apt-get update
         sudo apt-get install -y cmake gcc g++ libboost-all-dev libssh-dev protobuf-compiler mold
 
     - name: Configure CMake
@@ -75,7 +76,8 @@ jobs:
         image_additional_mb: 2500
         bind_mount_repository: true
         commands: |
-          sudo apt install cmake git gcc g++ libboost-all-dev libssh-dev protobuf-compiler mold -y
+          sudo apt-get update
+          sudo apt-get install cmake git gcc g++ libboost-all-dev libssh-dev protobuf-compiler mold -y
           cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_ARCH=linuxarm64 -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=mold" -DCMAKE_SHARED_LINKER_FLAGS="-fuse-ld=mold"
           cmake --build build --config ${{env.BUILD_TYPE}}
 
