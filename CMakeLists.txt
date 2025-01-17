@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.25..3.32)
 
-set(CXX_STANDARD 20)
+project(gtsam-playground CXX)
 
-project(gtsam-playground)
+set(CMAKE_CXX_STANDARD 20)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_INSTALL_RPATH "lib")
@@ -20,13 +20,16 @@ set(WPILIB_VERSION "4.3-2")
 
 # type can be "", "debug", "static", or "staticdebug"
 set(BUILD_TYPE "static")
-set(BUILD_ARCH "linuxx86-64") # also valid: windowsx86-64
+
+if (NOT BUILD_ARCH)
+  set(BUILD_ARCH "linuxx86-64")
+endif()
 
 include(FetchContent)
 
 # Download stuff
 function(FETCH_MAVEN repository package libname libversion libpath includepath)
-  message("Repo ${repository} package ${package} libname ${libname} version ${libversion}")  
+  message("Repo ${repository} package ${package} libname ${libname} version ${libversion}")
 
   FetchContent_Declare(
       "${libname}_lib"
@@ -48,8 +51,8 @@ function(FETCH_MAVEN repository package libname libversion libpath includepath)
     "${${libname}_lib_SOURCE_DIR}/**/*.a"
   )
 
-  SET(${includepath} ${${libname}_header_SOURCE_DIR} PARENT_SCOPE)
-  set(${libpath} ${lib_glob} PARENT_SCOPE)
+  set(${includepath} ${${libname}_header_SOURCE_DIR})
+  set(${libpath} ${lib_glob})
 
   message("Outputting to ${libpath}: ${lib_glob}")
   message("and ${includepath}: ${${libname}_header_SOURCE_DIR}")
@@ -73,24 +76,32 @@ fetchcontent_makeavailable(Eigen3)
 
 # and wpilib libraries
 FETCH_MAVEN(
-  development 
-  thirdparty/${FRC_YEAR}/gtsam 
-  gtsam 
-  ${GTSAM_VERSION} 
-  gtsam_libs 
+  development
+  thirdparty/${FRC_YEAR}/gtsam
+  gtsam
+  ${GTSAM_VERSION}
+  gtsam_libs
   gtsam_include_path
 )
 FETCH_MAVEN(release wpiutil wpiutil 2025.2.1
-  wpiutil_libs 
+  wpiutil_libs
   wpiutil_include_path
 )
 FETCH_MAVEN(release wpimath wpimath 2025.2.1
-  wpimath_libs 
+  wpimath_libs
   wpimath_include_path
 )
 FETCH_MAVEN(release apriltag apriltag 2025.2.1
-  apriltag_libs 
+  apriltag_libs
   apriltag_include_path
+)
+FETCH_MAVEN(release ntcore ntcore 2025.2.1
+  ntcore_libs
+  ntcore_include_path
+)
+FETCH_MAVEN(release wpinet wpinet 2025.2.1
+  wpinet_libs
+  wpinet_include_path
 )
 
 add_library(gtsam-localizer
@@ -105,30 +116,32 @@ add_library(gtsam-localizer
 )
 
 message("Adding includes: ${gtsam_include_path} ${wpimath_include_path} ${wpiutil_include_path} ${apriltag_include_path} ")
+message("Adding libs: ${gtsam_libs} ${wpiutil_libs} ${wpimath_libs} ${apriltag_libs} ${ntcore_libs}")
 
-target_include_directories(gtsam-localizer SYSTEM PRIVATE
+target_include_directories(gtsam-localizer SYSTEM PUBLIC
   ${gtsam_include_path}
   ${wpimath_include_path}
   ${wpiutil_include_path}
   ${apriltag_include_path}
+  ${ntcore_include_path}
 )
-target_link_libraries(gtsam-localizer PUBLIC
+target_link_libraries(gtsam-localizer
+PUBLIC
   Eigen3::Eigen
   ${gtsam_libs}
   ${wpiutil_libs}
   ${wpimath_libs}
+  ${wpinet_libs}
+  ${ntcore_libs}
   ${apriltag_libs}
-  apriltag
-  ntcore
-  wpimath
 )
-target_compile_options(gtsam-localizer PRIVATE -Wno-deprecated-enum-enum-conversion)
 
 add_executable(gtsam-node
   src/gtsam_tags_node.cpp
 )
-target_compile_options(gtsam-localizer PRIVATE -Wno-deprecated-enum-enum-conversion)
-target_link_libraries(gtsam-node gtsam-localizer)
+target_link_libraries(gtsam-node
+  gtsam-localizer
+)
 
 install(TARGETS gtsam-node)
 
@@ -148,6 +161,7 @@ add_executable(
   test/Test_Localizer.cpp
   test/Test_Config.cpp
 )
+
 target_link_libraries(
   localizer_test
   GTest::gtest_main gtsam-localizer

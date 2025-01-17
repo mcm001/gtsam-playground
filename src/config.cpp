@@ -40,13 +40,12 @@ void LocalizerConfig::print(std::string_view prefix) {
 
 LocalizerConfig ParseConfig(std::string_view path) {
   std::error_code ec;
-  std::unique_ptr<wpi::MemoryBuffer> fileBuffer =
-      wpi::MemoryBuffer::GetFile(path, ec);
-  if (fileBuffer == nullptr || ec) {
+  auto fileBuffer = wpi::MemoryBuffer::GetFile(path);
+  if (!fileBuffer) {
     throw std::runtime_error(fmt::format("Cannot open file: {}", path));
   }
 
-  wpi::json json = wpi::json::parse(fileBuffer->GetCharBuffer());
+  wpi::json json = wpi::json::parse(fileBuffer.value()->GetCharBuffer());
 
   return LocalizerConfig{
       .rootTableName = json.at("rootTableName").get<std::string>(),
