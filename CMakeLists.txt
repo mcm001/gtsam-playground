@@ -135,12 +135,10 @@ PUBLIC
   ${ntcore_libs}
   ${apriltag_libs}
 )
-target_compile_options(gtsam-localizer PRIVATE -Wno-deprecated-enum-enum-conversion)
 
 add_executable(gtsam-node
   src/gtsam_tags_node.cpp
 )
-target_compile_options(gtsam-localizer PRIVATE -Wno-deprecated-enum-enum-conversion)
 target_link_libraries(gtsam-node
   gtsam-localizer
 )
