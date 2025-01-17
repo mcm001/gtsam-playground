@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.25..3.32)
 
 project(gtsam-playground CXX)
 
+if (MSVC)
+add_compile_definitions(_ENABLE_EXTENDED_ALIGNED_STORAGE)
+endif()
+
 set(CMAKE_CXX_STANDARD 20)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
