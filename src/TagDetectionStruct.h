@@ -30,9 +30,7 @@
 #include "TagDetection.h"
 
 template <> struct WPILIB_DLLEXPORT wpi::Struct<TagDetection> {
-  static constexpr std::string_view GetTypeName() {
-    return "TagDetection";
-  }
+  static constexpr std::string_view GetTypeName() { return "TagDetection"; }
 
   static constexpr size_t GetSize() { return ((8 * 2) * 4 + 4); }
 

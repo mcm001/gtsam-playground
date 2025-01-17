@@ -29,7 +29,7 @@ include(FetchContent)
 
 # Download stuff
 function(FETCH_MAVEN repository package libname libversion libpath includepath)
-  message("Repo ${repository} package ${package} libname ${libname} version ${libversion}")  
+  message("Repo ${repository} package ${package} libname ${libname} version ${libversion}")
 
   FetchContent_Declare(
       "${libname}_lib"
@@ -76,31 +76,31 @@ fetchcontent_makeavailable(Eigen3)
 
 # and wpilib libraries
 FETCH_MAVEN(
-  development 
-  thirdparty/${FRC_YEAR}/gtsam 
-  gtsam 
-  ${GTSAM_VERSION} 
-  gtsam_libs 
+  development
+  thirdparty/${FRC_YEAR}/gtsam
+  gtsam
+  ${GTSAM_VERSION}
+  gtsam_libs
   gtsam_include_path
 )
 FETCH_MAVEN(release wpiutil wpiutil 2025.2.1
-  wpiutil_libs 
+  wpiutil_libs
   wpiutil_include_path
 )
 FETCH_MAVEN(release wpimath wpimath 2025.2.1
-  wpimath_libs 
+  wpimath_libs
   wpimath_include_path
 )
 FETCH_MAVEN(release apriltag apriltag 2025.2.1
-  apriltag_libs 
+  apriltag_libs
   apriltag_include_path
 )
 FETCH_MAVEN(release ntcore ntcore 2025.2.1
-  ntcore_libs 
+  ntcore_libs
   ntcore_include_path
 )
 FETCH_MAVEN(release wpinet wpinet 2025.2.1
-  wpinet_libs 
+  wpinet_libs
   wpinet_include_path
 )
 
@@ -125,7 +125,7 @@ target_include_directories(gtsam-localizer SYSTEM PUBLIC
   ${apriltag_include_path}
   ${ntcore_include_path}
 )
-target_link_libraries(gtsam-localizer 
+target_link_libraries(gtsam-localizer
 PUBLIC
   Eigen3::Eigen
   ${gtsam_libs}
@@ -141,7 +141,7 @@ add_executable(gtsam-node
   src/gtsam_tags_node.cpp
 )
 target_compile_options(gtsam-localizer PRIVATE -Wno-deprecated-enum-enum-conversion)
-target_link_libraries(gtsam-node 
+target_link_libraries(gtsam-node
   gtsam-localizer
 )
 

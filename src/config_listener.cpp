@@ -54,7 +54,8 @@ std::optional<Timestamped<Pose3WithNoise>> ConfigListener::NewPosePrior() {
   const auto newGuesses = initialGuessSub.ReadQueue();
   if (newGuesses.size()) {
     return Timestamped<Pose3WithNoise>{
-        static_cast<uint64_t>(newGuesses.back().time), Pose3dToGtsamPose3(newGuesses.back().value)};
+        static_cast<uint64_t>(newGuesses.back().time),
+        Pose3dToGtsamPose3(newGuesses.back().value)};
   }
 
   return std::nullopt;
