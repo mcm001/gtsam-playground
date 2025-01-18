@@ -26,6 +26,7 @@
 
 #include "TagModel.h"
 #include "gtsam/nonlinear/Expression.h"
+#include <wpi/timestamp.h>
 
 using namespace gtsam;
 using symbol_shorthand::X;
@@ -41,11 +42,7 @@ Localizer::Localizer() {
   parameters.findUnusedFactorSlots = true;
   parameters.print();
 
-  // TODO: make sure that timestamps in units of uS doesn't cause numerical
-  // precision issues
-  double lag = 5 * 1e6;
-  // double lag = 2;
-  smootherISAM2 = IncrementalFixedLagSmoother(lag, parameters);
+  smootherISAM2 = ISAM2(parameters);
 
   // // And make sure to call optimize first to get values
   // TODO i killed maybe needed, idk
@@ -59,8 +56,8 @@ void Localizer::Reset(Pose3 wTr, SharedNoiseModel noise, uint64_t timeUs) {
 
   currStateIdx = X(timeUs);
 
-  smootherISAM2 = IncrementalFixedLagSmoother(smootherISAM2.smootherLag(),
-                                              smootherISAM2.params());
+  smootherISAM2 = ISAM2(smootherISAM2.params());
+  keyToTimestamp.clear();
 
   graph.resize(0);
   currentEstimate.clear();
@@ -72,6 +69,7 @@ void Localizer::Reset(Pose3 wTr, SharedNoiseModel noise, uint64_t timeUs) {
   currentEstimate.insert(currStateIdx, wTr);
   newTimestamps[currStateIdx] = timeUs;
 
+
   wTb_latest = wTr;
 }
 
@@ -81,6 +79,9 @@ void Localizer::AddOdometry(OdometryObservation odom) {
   uint64_t timeUs = odom.timeUs;
 
   Key newStateIdx = X(timeUs);
+
+  // And keep track of the time
+  keyToTimestamp[newStateIdx] = timeUs;
 
   // Add an odometry pose delta from our last state to our new one
   graph.emplace_shared<BetweenFactor<Pose3>>(currStateIdx, newStateIdx,
@@ -106,9 +107,9 @@ Key Localizer::InsertIntoSmoother(Key lower, Key upper, Key newKey,
    */
 
   const VariableIndex &variableIndex =
-      smootherISAM2.getISAM2().getVariableIndex();
+      smootherISAM2.getVariableIndex();
   const NonlinearFactorGraph &currentFactors =
-      smootherISAM2.getISAM2().getFactorsUnsafe();
+      smootherISAM2.getFactorsUnsafe();
 
   // FastMap<Key, FactorIndices>::const_iterator
   const auto &factorsConnectedToUpper = variableIndex.find(upper);
@@ -189,7 +190,7 @@ static KeyTimeConstIt FindCloser(KeyTimeConstIt left, KeyTimeConstIt right,
 Key Localizer::GetOrInsertKey(Key newKey, double time) {
   using KeyTimeMap = FixedLagSmoother::KeyTimestampMap;
 
-  const KeyTimeMap &isamTimestamps = smootherISAM2.timestamps();
+  const KeyTimeMap &isamTimestamps = keyToTimestamp; // smootherISAM2.timestamps(); // ugh
   const auto &isamEntryAfter = isamTimestamps.upper_bound(newKey);
   if (isamEntryAfter == isamTimestamps.begin()) {
     throw std::runtime_error("Timestamp is before even isam history");
@@ -207,8 +208,8 @@ Key Localizer::GetOrInsertKey(Key newKey, double time) {
   KeyTimeMap::iterator notAddedAfter = newTimestamps.upper_bound(newKey);
 
   if (notAddedAfter == newTimestamps.end()) {
-    throw std::runtime_error(
-        "Timestamp past ISAM history, but not in yet-to-be-added");
+    fmt::println("Timestamp past ISAM history, but not in yet-to-be-added");
+    return 0;
   }
 
   if (notAddedAfter == newTimestamps.begin() &&
@@ -380,7 +381,8 @@ Key Localizer::GetOrInsertKey(Key newKey, double time) {
 }
 
 void Localizer::AddTagObservation(CameraVisionObservation obs) {
-  const auto &isamTimestamps = smootherISAM2.timestamps();
+  const auto &isamTimestamps = keyToTimestamp; // todo hack
+
   if (obs.timeUs < isamTimestamps.begin()->second) {
     std::cerr << "Timestamp is before even isam history - skipping"
               << std::endl;
@@ -406,6 +408,7 @@ void Localizer::AddTagObservation(CameraVisionObservation obs) {
 
   // Find where we should attach our new factors to
   Key stateAtTime = GetOrInsertKey(newKey, timeUs);
+  if (stateAtTime == 0)  { return; }
 
   for (size_t i = 0; i < NUM_CORNERS; i++) {
     // corner in image space
@@ -425,7 +428,7 @@ void Localizer::Optimize() {
   // graph.print("New factors: ");
   // currentEstimate.print("New estimates: ");
 
-  smootherISAM2.update(graph, currentEstimate, newTimestamps, factorsToRemove);
+  smootherISAM2.update(graph, currentEstimate, factorsToRemove);
 
   // reset the graph; isam wants to be fed factors to be -added-
   graph.resize(0);
@@ -448,30 +451,30 @@ Vector6 Localizer::GetPoseComponentStdDevs() const {
 }
 
 const std::vector<frc::Pose3d> Localizer::GetPoseHistory() const {
-  // Plot all history, so grab the whole estimate
-  Values result = smootherISAM2.calculateEstimate();
-
   // 5 seconds of history
   auto start = currStateIdx - (5 * 1e6);
 
   std::vector<frc::Pose3d> ret;
-  ret.reserve(1000);
+  // reasonable guess at how much data we'll need
+  ret.reserve(5 * 100);
 
-  for (const Values::ConstKeyValuePair &estPair : result) {
-    if (estPair.key < start)
+  int i = 0;
+  for (auto rit = keyToTimestamp.rbegin(); rit!=keyToTimestamp.rend() && rit->first >= start; ++rit) {
+    i++;
+
+    // decimate
+    if (i % 10 != 0) {
       continue;
+    }
 
-    Pose3 est = estPair.value.cast<Pose3>();
-
-    // auto rot = est.rotation().toQuaternion();
-    // vector<double> poseEst{est.x(), est.y(), est.z(), rot.w(),
-    //                             rot.x(), rot.y(), rot.z()};
+    auto est = smootherISAM2.calculateEstimate<Pose3>(rit->first);
 
     ret.emplace_back(frc::Translation3d{units::meter_t{est.x()},
                                         units::meter_t{est.y()},
                                         units::meter_t{est.z()}},
                      frc::Rotation3d{est.rotation().matrix()});
   }
+  fmt::println("i={}", i);
 
   return ret;
 }

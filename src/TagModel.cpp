@@ -48,8 +48,8 @@ map<int, Pose3> TagLayoutToMap(const frc::AprilTagFieldLayout &layout) {
   return worldTtags;
 }
 
-inline const frc::AprilTagFieldLayout kDefaultLayout{
-    frc::AprilTagFieldLayout::LoadField(frc::AprilTagField::k2025Reefscape)};
+// inline const frc::AprilTagFieldLayout kDefaultLayout{
+//     frc::AprilTagFieldLayout::LoadField(frc::AprilTagField::k2025Reefscape)};
 
 float width = 6.5 * 25.4 / 1000.0; // 6.5in wide tag
 vector<Point3> tagToCorners{

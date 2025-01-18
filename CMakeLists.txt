@@ -133,12 +133,6 @@ target_include_directories(gtsam-localizer SYSTEM PUBLIC
 target_link_libraries(gtsam-localizer
 PUBLIC
   Eigen3::Eigen
-  ${gtsam_libs}
-  ${wpiutil_libs}
-  ${wpimath_libs}
-  ${wpinet_libs}
-  ${ntcore_libs}
-  ${apriltag_libs}
 )
 
 if (MSVC)
@@ -150,6 +144,12 @@ add_executable(gtsam-node
 )
 target_link_libraries(gtsam-node
   gtsam-localizer
+  ${gtsam_libs}
+  ${wpiutil_libs}
+  ${wpimath_libs}
+  ${wpinet_libs}
+  ${ntcore_libs}
+  ${apriltag_libs}
 )
 
 install(TARGETS gtsam-node)
