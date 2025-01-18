@@ -176,7 +176,6 @@ target_link_libraries(
   GTest::gtest_main gtsam-localizer
 )
 target_include_directories(localizer_test PRIVATE ${PROJECT_SOURCE_DIR}/src)
-target_compile_options(localizer_test PRIVATE -g -Og)
 
 include(GoogleTest)
 gtest_discover_tests(localizer_test)
