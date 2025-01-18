@@ -206,9 +206,13 @@ Key Localizer::GetOrInsertKey(Key newKey, double time) {
 
   KeyTimeMap::iterator notAddedAfter = newTimestamps.upper_bound(newKey);
 
+  if(newTimestamps.empty()) {
+    throw std::runtime_error("Timestamp is past ISAM history, but no new timestamps?");
+  }
+
   if (notAddedAfter == newTimestamps.end()) {
     throw std::runtime_error(
-        "Timestamp past ISAM history, but not in yet-to-be-added");
+        "Timestamp past ISAM history, but not in yet-to-be-added. Our timestamp is " + std::to_string(time) + " and the last timestamp in newTimestamps is " + std::to_string(notAddedAfter->second));
   }
 
   if (notAddedAfter == newTimestamps.begin() &&
@@ -381,6 +385,12 @@ Key Localizer::GetOrInsertKey(Key newKey, double time) {
 
 void Localizer::AddTagObservation(CameraVisionObservation obs) {
   const auto &isamTimestamps = smootherISAM2.timestamps();
+
+  if (isamTimestamps.empty()) {
+    std::cerr << "No isam history yet - skipping" << std::endl;
+    return;
+  }
+
   if (obs.timeUs < isamTimestamps.begin()->second) {
     std::cerr << "Timestamp is before even isam history - skipping"
               << std::endl;

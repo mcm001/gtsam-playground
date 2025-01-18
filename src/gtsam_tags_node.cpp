@@ -25,6 +25,7 @@
 #include <iostream>
 #include <memory>
 #include <thread>
+#include <deque>
 
 #include <frc/geometry/Rotation3d.h>
 #include <frc/geometry/struct/Pose3dStruct.h>
@@ -56,6 +57,7 @@ private:
   DataPublisher dataPublisher;
   ConfigListener configListener;
   std::vector<CameraListener> cameraListeners;
+  std::deque<CameraVisionObservation> tooNewCameraObservations;
 
   bool gotInitialGuess = false;
 
@@ -68,6 +70,8 @@ public:
       cameraListeners.emplace_back(config.rootTableName, camCfg);
     }
   }
+
+  uint64_t lastOdomTimestamp = 0;
 
   void Update() {
     bool readyToOptimize = true;
@@ -88,6 +92,7 @@ public:
     readyToOptimize &= gotInitialGuess;
 
     for (const auto &it : odomListener.Update()) {
+      lastOdomTimestamp = std::max(lastOdomTimestamp, it.timeUs);
       localizer->AddOdometry(it);
     }
 
@@ -100,8 +105,24 @@ public:
 
       if (ready) {
         for (const auto &it : cam.Update()) {
+          if (it.timeUs > lastOdomTimestamp) {
+            fmt::println("Camera observation is newer than last odometry, skipping and saving for later");
+            tooNewCameraObservations.push_back(it);
+            continue;
+          }
           localizer->AddTagObservation(it);
         }
+      }
+    }
+
+    // check to see if we can process any in the backlog
+    for (auto it = tooNewCameraObservations.begin(); it != tooNewCameraObservations.end();) {
+      if (it->timeUs <= lastOdomTimestamp) {
+        fmt::println("Processing a camera observation from the backlog");
+        localizer->AddTagObservation(*it);
+        it = tooNewCameraObservations.erase(it); // erase() returns the next valid iterator
+      } else {
+        ++it; // Skip if still too new
       }
     }
 
