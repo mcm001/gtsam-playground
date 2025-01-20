@@ -47,9 +47,12 @@ OdomListener::OdomListener(LocalizerConfig config)
                                  .sendAll = true,
                                  .keepDuplicates = true,
                              })),
-      odomNoise(noiseModel::Diagonal::Sigmas(
-          // Odoometry factor stdev: rad,rad,rad,m, m, m
-          makeOdomNoise(config))),
+      odomNoise(noiseModel::Robust::Create(
+	  // k is set so we get 95% asymptotic efficiency on the standard normal distribution
+          noiseModel::mEstimator::Huber::Create(1.345),
+          noiseModel::Diagonal::Sigmas(
+              // Odoometry factor stdev: rad,rad,rad,m, m, m
+              makeOdomNoise(config)))),
       priorNoise(noiseModel::Diagonal::Sigmas(
           // initial guess stdev: rad,rad,rad,m, m, m
           (Vector(6) << 1, 1, 1, 1, 1, 1).finished())) {}
