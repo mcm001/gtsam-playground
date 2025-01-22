@@ -5,7 +5,7 @@ These instructions are intended for use on Linux (including WSL) only.
 You'll probably need to install these packages:
 
 ```
-build-essential cmake libboost-all-dev protobuf-compiler ninja-build mold
+build-essential cmake ninja-build mold
 ```
 
 With these packages installed, configure using CMake. I'm using Ninja, but any generator will work. And mold is just insanely fast
@@ -14,7 +14,7 @@ With these packages installed, configure using CMake. I'm using Ninja, but any g
 cmake -B build -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=mold" -DCMAKE_SHARED_LINKER_FLAGS="-fuse-ld=mold"
 ```
 
-For Windows, use this instead: `cmake -B build/ -S . -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DCMAKE_BUILD_TYPE=RelWithDebInfo`
+For Windows, use this instead: `cmake -B build -S .`
 
 Depending on your RAM, you may need to use `-j <number>` to control the number of jobs when building.
 

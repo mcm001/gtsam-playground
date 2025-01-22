@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "*.jinja": "jinja",
         "*.tcc": "cpp",
         "deque": "cpp",
         "list": "cpp",
@@ -89,7 +90,9 @@
         "*.traits": "cpp",
         "alignedvector3": "cpp",
         "fft": "cpp",
-        "*.evaluator": "cpp"
+        "*.evaluator": "cpp",
+        "rope": "cpp",
+        "slist": "cpp"
     },
     "python.autoComplete.extraPaths": [
         "/opt/ros/noetic/lib/python3/dist-packages"
