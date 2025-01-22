@@ -95,9 +95,10 @@ protected:
   gtsam::FixedLagSmoother::KeyTimestampMap newTimestamps{};
   // Factors to delete
   gtsam::FactorIndices factorsToRemove{};
+
   // Log of old twists
-  typedef std::map<Key, gtsam::Pose3> KeyPoseDeltaMap;
-  KeyPoseDeltaMap twistsFromPreviousKey{};
+  // typedef std::map<Key, gtsam::Pose3> KeyPoseDeltaMap;
+  // KeyPoseDeltaMap twistsFromPreviousKey{};
 
   // ISAM + map of keys <-> times
   gtsam::ISAM2 smootherISAM2 {};

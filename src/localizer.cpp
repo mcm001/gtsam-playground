@@ -63,7 +63,7 @@ void Localizer::Reset(Pose3 wTr, SharedNoiseModel noise, uint64_t timeUs) {
   currentEstimate.clear();
   newTimestamps.clear();
   factorsToRemove.clear();
-  twistsFromPreviousKey.clear();
+  // twistsFromPreviousKey.clear();
 
   graph.addPrior(currStateIdx, wTr, noise);
   currentEstimate.insert(currStateIdx, wTr);
@@ -92,88 +92,88 @@ void Localizer::AddOdometry(OdometryObservation odom) {
   currentEstimate.insert(newStateIdx, wTb_latest);
 
   newTimestamps[newStateIdx] = timeUs;
-  twistsFromPreviousKey[newStateIdx] = poseDelta;
+  // twistsFromPreviousKey[newStateIdx] = poseDelta;
   latestOdomTime = timeUs;
 
   currStateIdx = newStateIdx;
 }
 
-Key Localizer::InsertIntoSmoother(Key lower, Key upper, Key newKey,
-                                  double newTime,
-                                  SharedNoiseModel odometryNoise) {
-  /**
-   * Goal: find the FactorIndex that connects our lower/upper key, and replace
-   * it with 2 new factors and an intermediatestate
-   */
+// Key Localizer::InsertIntoSmoother(Key lower, Key upper, Key newKey,
+//                                   double newTime,
+//                                   SharedNoiseModel odometryNoise) {
+//   /**
+//    * Goal: find the FactorIndex that connects our lower/upper key, and replace
+//    * it with 2 new factors and an intermediatestate
+//    */
 
-  const VariableIndex &variableIndex =
-      smootherISAM2.getVariableIndex();
-  const NonlinearFactorGraph &currentFactors =
-      smootherISAM2.getFactorsUnsafe();
+//   const VariableIndex &variableIndex =
+//       smootherISAM2.getVariableIndex();
+//   const NonlinearFactorGraph &currentFactors =
+//       smootherISAM2.getFactorsUnsafe();
 
-  // FastMap<Key, FactorIndices>::const_iterator
-  const auto &factorsConnectedToUpper = variableIndex.find(upper);
-  const auto &factorsConnectedToLower = variableIndex.find(lower);
+//   // FastMap<Key, FactorIndices>::const_iterator
+//   const auto &factorsConnectedToUpper = variableIndex.find(upper);
+//   const auto &factorsConnectedToLower = variableIndex.find(lower);
 
-  if (factorsConnectedToUpper == variableIndex.end() ||
-      factorsConnectedToUpper == variableIndex.end()) {
-    // unclear what to do lol
-    return 0;
-  }
+//   if (factorsConnectedToUpper == variableIndex.end() ||
+//       factorsConnectedToUpper == variableIndex.end()) {
+//     // unclear what to do lol
+//     return 0;
+//   }
 
-  // we know there is exactly one factor connecting, so do sorting-at-home
-  for (const FactorIndex &idxLower : factorsConnectedToLower->second) {
-    for (const FactorIndex &idxUpper : factorsConnectedToUpper->second) {
-      if (idxLower == idxUpper) {
-        // found our connecting factor
-        FactorIndex foundIndex = idxLower;
+//   // we know there is exactly one factor connecting, so do sorting-at-home
+//   for (const FactorIndex &idxLower : factorsConnectedToLower->second) {
+//     for (const FactorIndex &idxUpper : factorsConnectedToUpper->second) {
+//       if (idxLower == idxUpper) {
+//         // found our connecting factor
+//         FactorIndex foundIndex = idxLower;
 
-        if (foundIndex > currentFactors.size()) {
-          // TODO bail somehow
-          return 0;
-        }
+//         if (foundIndex > currentFactors.size()) {
+//           // TODO bail somehow
+//           return 0;
+//         }
 
-        // Find the robot motion from lower to upper
-        const auto &poseDeltaLowerToUpper = twistsFromPreviousKey.find(upper);
-        if (poseDeltaLowerToUpper == twistsFromPreviousKey.end()) {
-          // todo bail
-          return 0;
-        }
+//         // Find the robot motion from lower to upper
+//         const auto &poseDeltaLowerToUpper = twistsFromPreviousKey.find(upper);
+//         if (poseDeltaLowerToUpper == twistsFromPreviousKey.end()) {
+//           // todo bail
+//           return 0;
+//         }
 
-        // mark this factor for removal
-        factorsToRemove.push_back(foundIndex);
+//         // mark this factor for removal
+//         factorsToRemove.push_back(foundIndex);
 
-        const auto totalTwist = Pose3::Logmap(poseDeltaLowerToUpper->second);
-        const double t = (static_cast<double>(newKey - lower)) /
-                         (static_cast<double>(upper - lower));
-        const auto twistLowerToMid = totalTwist * t;
-        const auto twistMidToHigh = totalTwist - twistLowerToMid;
+//         const auto totalTwist = Pose3::Logmap(poseDeltaLowerToUpper->second);
+//         const double t = (static_cast<double>(newKey - lower)) /
+//                          (static_cast<double>(upper - lower));
+//         const auto twistLowerToMid = totalTwist * t;
+//         const auto twistMidToHigh = totalTwist - twistLowerToMid;
 
-        // And add odometry pose deltas
-        Pose3 deltaLowerToMid = Pose3::Expmap(twistLowerToMid);
-        Pose3 deltaMidToHigh = Pose3::Expmap(twistLowerToMid);
-        graph.emplace_shared<BetweenFactor<Pose3>>(
-            lower, newKey, deltaLowerToMid, odometryNoise);
-        graph.emplace_shared<BetweenFactor<Pose3>>(
-            newKey, upper, deltaMidToHigh, odometryNoise);
+//         // And add odometry pose deltas
+//         Pose3 deltaLowerToMid = Pose3::Expmap(twistLowerToMid);
+//         Pose3 deltaMidToHigh = Pose3::Expmap(twistLowerToMid);
+//         graph.emplace_shared<BetweenFactor<Pose3>>(
+//             lower, newKey, deltaLowerToMid, odometryNoise);
+//         graph.emplace_shared<BetweenFactor<Pose3>>(
+//             newKey, upper, deltaMidToHigh, odometryNoise);
 
-        // and add estimates
-        Pose3 currentWorldToLower =
-            smootherISAM2.calculateEstimate<Pose3>(lower);
-        currentEstimate.insert(
-            newKey, currentWorldToLower.transformPoseFrom(deltaLowerToMid));
-        newTimestamps[newKey] = newTime;
-        twistsFromPreviousKey[newKey] = deltaLowerToMid;
-        twistsFromPreviousKey[upper] = deltaMidToHigh;
+//         // and add estimates
+//         Pose3 currentWorldToLower =
+//             smootherISAM2.calculateEstimate<Pose3>(lower);
+//         currentEstimate.insert(
+//             newKey, currentWorldToLower.transformPoseFrom(deltaLowerToMid));
+//         newTimestamps[newKey] = newTime;
+//         twistsFromPreviousKey[newKey] = deltaLowerToMid;
+//         twistsFromPreviousKey[upper] = deltaMidToHigh;
 
-        return newKey;
-      }
-    }
-  }
+//         return newKey;
+//       }
+//     }
+//   }
 
-  // TODO: bail somehow
-  return 0;
-}
+//   // TODO: bail somehow
+//   return 0;
+// }
 
 using KeyTimeConstIt = FixedLagSmoother::KeyTimestampMap::const_iterator;
 static KeyTimeConstIt FindCloser(KeyTimeConstIt left, KeyTimeConstIt right,
@@ -427,6 +427,21 @@ void Localizer::Optimize() {
   // fmt::println("Adding {} factors!", graph.size());
   // graph.print("New factors: ");
   // currentEstimate.print("New estimates: ");
+
+
+  {
+    // Cull old vision measurements. Our times are ordered by key, which just so happens to be X(timestamp, us)
+    auto MAX_AGE = 30 * 1'000'000;
+    auto min_time = currStateIdx - MAX_AGE;
+    auto min_time_it = keyToTimestamp.lower_bound(min_time);
+
+    // Prepare to remove all our culled factors
+    for (auto it = keyToTimestamp.begin(); it < min_time_it; it++) {
+      factorsToRemove.push_back(it.first);
+    }
+    // And cull them from our map
+    keyToTimestamp.erase(keyToTimestamp.begin(), min_time_it);
+  }
 
   smootherISAM2.update(graph, currentEstimate, factorsToRemove);
 
