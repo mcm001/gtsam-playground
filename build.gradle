@@ -1,0 +1,43 @@
+plugins {
+    id "cpp"
+    id "edu.wpi.first.GradleRIO" version "2025.1.1-beta-1"
+}
+
+// Set this to true to enable desktop support.
+def includeDesktopSupport = true
+
+// Set to true to run simulation in debug mode
+wpi.cpp.debugSimulation = true
+
+// Default enable simgui
+wpi.sim.addGui().defaultEnabled = true
+// Enable DS but not by default
+wpi.sim.addDriverstation()
+
+model {
+    components {
+        tagmapper(NativeExecutableSpec) {
+            // TODO: enable me
+            // targetPlatform wpi.platforms.roborio
+            targetPlatform wpi.platforms.desktop
+
+            sources.cpp {
+                source {
+                    srcDir 'src/cpp'
+                    include '**/*.cpp', '**/*.cc'
+                }
+                exportedHeaders {
+                }
+            }
+
+            // Enable run tasks for this component
+            wpi.cpp.enableExternalTasks(it)
+
+            // Enable simulation for this component
+            wpi.sim.enable(it)
+            // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
+            wpi.cpp.vendor.cpp(it)
+            wpi.cpp.deps.wpilib(it)
+        }
+    }
+}
